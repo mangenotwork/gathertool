@@ -68,14 +68,24 @@ func IPListSucceed(b []byte){
 
 		// 创建队列 抓取详情信息
 		// http://ip.bczs.net/1.0.1.0
-		queue.Add("http://ip.bczs.net/"+startIp)
+		queue.Add(&gathertool.Task{
+			Url: "http://ip.bczs.net/"+startIp,
+			Context: map[string]interface{}{
+				"start_ip":startIp,
+				"end_ip":endIP,
+				"number":number,
+			},
+		},
+		)
 
 		log.Println("\n\n")
 	})
 }
 
 // 获取详情信息成功的处理
-func GetIPSucceed(b []byte){
+func GetIPSucceed(c *gathertool.Task ,b []byte){
+	log.Println(c)
+
 	html := string(b)
 	dom,err := gathertool.NewGoquery(html)
 	if err != nil{

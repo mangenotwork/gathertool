@@ -27,6 +27,7 @@ func Get(url string, vs ...interface{}) (*Req,error){
 	var (
 		client *http.Client
 		maxTimes RetryTimes = 10
+		task *Task
 	)
 
 	if url == "" {
@@ -61,6 +62,8 @@ func Get(url string, vs ...interface{}) (*Req,error){
 			req.Header.Add("User-Agent", GetAgent(vv))
 		case RetryTimes:
 			maxTimes = vv
+		case *Task:
+			task = vv
 		}
 	}
 
@@ -76,6 +79,7 @@ func Get(url string, vs ...interface{}) (*Req,error){
 		Req : req,
 		times : 0,
 		MaxTimes : maxTimes,
+		Task: task,
 	},nil
 }
 
@@ -87,7 +91,7 @@ func Get(url string, vs ...interface{}) (*Req,error){
 // @ RetryFunc重试方法，
 // @FailedFunc 失败方法
 //
-func JobStartGet(jobNumber int, queue TodoQueue,client *http.Client, SucceedFunc func([]byte), RetryFunc func(*Req), FailedFunc func()){
+func JobStartGet(jobNumber int, queue TodoQueue,client *http.Client, SucceedFunc func(*Task, []byte), RetryFunc func(*Req), FailedFunc func()){
 	var wg sync.WaitGroup
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
@@ -98,14 +102,14 @@ func JobStartGet(jobNumber int, queue TodoQueue,client *http.Client, SucceedFunc
 				if queue.IsEmpty(){
 					break
 				}
-				url := queue.Poll()
-				log.Println("第",i,"个任务取的值： ", url)
-				req, err := Get(url, client)
+				task := queue.Poll()
+				log.Println("第",i,"个任务取的值： ", task)
+				req, err := Get(task.Url, client, task)
 				if err != nil {
 					log.Println(err)
 					return
 				}
-				req.Succeed(SucceedFunc)
+				req.SucceedTask(SucceedFunc)
 				req.Retry(RetryFunc)
 				req.Failed(FailedFunc)
 				req.Do()

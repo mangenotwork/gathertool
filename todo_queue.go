@@ -14,8 +14,8 @@ import (
 )
 
 type TodoQueue interface {
-	Add(url string)    //向队列中添加元素
-	Poll()   string  //移除队列中最前面的元素
+	Add(task *Task)    //向队列中添加元素
+	Poll()   *Task  //移除队列中最前面的元素
 	Clear()  bool   //清空队列
 	Size()  int     //获取队列的元素个数
 	IsEmpty() bool  //判断队列是否是空
@@ -24,29 +24,34 @@ type TodoQueue interface {
 
 type Queue struct {
 	mux sync.RWMutex
-	list []string
+	list []*Task
+}
+
+type Task struct {
+	Url string
+	Context map[string]interface{}
 }
 
 // NewQueue 新建一个队列
 func NewQueue() TodoQueue {
-	list := make([]string, 0)
+	list := make([]*Task, 0)
 	return &Queue{list: list, mux: sync.RWMutex{}}
 }
 
 // Add 向队列中添加元素
-func (q *Queue) Add(url string) {
+func (q *Queue) Add(task *Task) {
 	q.mux.Lock()
 	defer q.mux.Unlock()
-	q.list = append(q.list,url)
+	q.list = append(q.list,task)
 }
 
 // Poll 移除队列中最前面的额元素
-func (q *Queue) Poll() string {
+func (q *Queue) Poll() *Task {
 	q.mux.RLock()
 	defer q.mux.RUnlock()
 	if q.IsEmpty() {
 		fmt.Println("queue is empty!")
-		return ""
+		return &Task{}
 	}
 
 	first := q.list[0]
@@ -60,7 +65,7 @@ func (q *Queue) Clear() bool {
 		return false
 	}
 	for i:=0 ; i< q.Size() ; i++ {
-		q.list[i] = ""
+		q.list[i].Url = ""
 	}
 	q.list = nil
 	return true

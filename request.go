@@ -32,15 +32,25 @@ type Req struct {
 	// 请求成功了需要处理的事件
 	SuccessFunc func([]byte)
 
+	// 任务请求成功后需要处理的事件
+	SucceedTaskFunc func(*Task, []byte)
+
 	// 请求失败了需要做的事
 	FailFunc func()
 
 	// 请求状态码设置了重试，在重试前的事件
 	RetryFunc func(req *Req)
+
+	// 本次请求的任务
+	Task *Task
 }
 
 func (r *Req) Succeed(successFunc func([]byte)){
 	r.SuccessFunc = successFunc
+}
+
+func (r *Req) SucceedTask(successTask func( *Task, []byte)){
+	r.SucceedTaskFunc = successTask
 }
 
 // Failed 设置错误处理
@@ -88,7 +98,12 @@ func (r *Req) Do() func(){
 				return nil
 			}
 			//执行成功方法
-			r.SuccessFunc(body)
+			if r.SuccessFunc != nil {
+				r.SuccessFunc(body)
+			}
+			if r.SucceedTaskFunc != nil && r.Task != nil {
+				r.SucceedTaskFunc(r.Task, body)
+			}
 			return nil
 		case "retry":
 			log.Println("第", r.times, "请求失败,状态码： ", resp.StatusCode, ".")

@@ -9,16 +9,12 @@ import (
 )
 
 func main(){
-
 	// 设置一个 http.Client 也可以是来自第三方代理的 http.Client
 	c := &http.Client{
 		Timeout: 5*time.Second,
 	}
 	// 执行一个get 请求，最多重试10次
-	req, err := gathertool.Get("http://192.168.0.1",
-		gathertool.RetryTimes(10),
-		c,
-		gathertool.AndroidAgent)
+	req, err := gathertool.Get("http://192.168.0.1",c)
 	if err != nil{
 		log.Println(err)
 		return
