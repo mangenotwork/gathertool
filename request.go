@@ -13,6 +13,8 @@ import (
 	"net/http"
 )
 
+type  RetryTimes int64
+
 type Req struct {
 
 	// client
@@ -22,16 +24,19 @@ type Req struct {
 	Req *http.Request
 
 	// 执行的次数 初始化都是0
-	times int64
+	times RetryTimes
 
 	// 最大允许重试次数
-	MaxTimes int64
+	MaxTimes RetryTimes
 
 	// 请求成功了需要处理的事件
 	SuccessFunc func([]byte)
 
-	// 请求失败了需要做的事， 如休息等待或设置代理
-	FailFunc func(req *Req)
+	// 请求失败了需要做的事
+	FailFunc func()
+
+	// 请求状态码设置了重试，在重试前的事件
+	RetryFunc func(req *Req)
 }
 
 func (r *Req) Succeed(successFunc func([]byte)){
@@ -39,8 +44,13 @@ func (r *Req) Succeed(successFunc func([]byte)){
 }
 
 // Failed 设置错误处理
-func (r *Req) Failed(failedFunc func(c *Req)) {
+func (r *Req) Failed(failedFunc func()) {
 	r.FailFunc = failedFunc
+}
+
+// Retry 请求状态码设置了重试，在重试前的事件
+func (r *Req) Retry(retryFunc func(c *Req)) {
+	r.RetryFunc = retryFunc
 }
 
 // Do 执行请求
@@ -80,14 +90,15 @@ func (r *Req) Do() func(){
 			//执行成功方法
 			r.SuccessFunc(body)
 			return nil
-		case "fail":
+		case "retry":
 			log.Println("第", r.times, "请求失败,状态码： ", resp.StatusCode, ".")
-			//执行失败方法
-			if r.FailFunc != nil{
-				r.FailFunc(r)
+			//执行重试前的方法
+			if r.RetryFunc != nil{
+				r.RetryFunc(r)
 			}
 			return r.Do()
-		case "null":
+		case "file":
+			r.FailFunc()
 			return nil
 		}
 	}

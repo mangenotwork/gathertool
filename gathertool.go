@@ -8,8 +8,10 @@
 package gathertool
 
 import (
+	"errors"
 	"log"
 	"net/http"
+	"sync"
 )
 
 // Get 请求, 当请求失败或状态码是失败的则会先执行 ff 再回调
@@ -21,10 +23,15 @@ import (
 // @vs  可变参数
 // @vs UserAgentType  设置指定类型 user agent 如 AndroidAgent
 //
-func Get(url string, maxTimes int64, vs ...interface{}) (*Req,error){
+func Get(url string, vs ...interface{}) (*Req,error){
 	var (
 		client *http.Client
+		maxTimes RetryTimes = 10
 	)
+
+	if url == "" {
+		return nil, errors.New("空的地址")
+	}
 
 	//初始化 Request
 	req, err := http.NewRequest("GET",url,nil)
@@ -52,6 +59,8 @@ func Get(url string, maxTimes int64, vs ...interface{}) (*Req,error){
 			client = vv
 		case UserAgentType:
 			req.Header.Add("User-Agent", GetAgent(vv))
+		case RetryTimes:
+			maxTimes = vv
 		}
 	}
 
@@ -68,4 +77,42 @@ func Get(url string, maxTimes int64, vs ...interface{}) (*Req,error){
 		times : 0,
 		MaxTimes : maxTimes,
 	},nil
+}
+
+// JobStartGet 并发执行Get,直到队列任务为空
+// @jobNumber 并发数，
+// @queue 全局队列，
+// @client 单个并发任务的client，
+// @SucceedFunc 成功方法，
+// @ RetryFunc重试方法，
+// @FailedFunc 失败方法
+//
+func JobStartGet(jobNumber int, queue TodoQueue,client *http.Client, SucceedFunc func([]byte), RetryFunc func(*Req), FailedFunc func()){
+	var wg sync.WaitGroup
+	for job:=0;job<jobNumber;job++{
+		wg.Add(1)
+		go func(i int){
+			log.Println("启动第",i ,"个任务")
+			defer wg.Done()
+			for {
+				if queue.IsEmpty(){
+					break
+				}
+				url := queue.Poll()
+				log.Println("第",i,"个任务取的值： ", url)
+				req, err := Get(url, client)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				req.Succeed(SucceedFunc)
+				req.Retry(RetryFunc)
+				req.Failed(FailedFunc)
+				req.Do()
+			}
+			log.Println("第",i ,"个任务结束！！")
+		}(job)
+	}
+	wg.Wait()
+	log.Println("执行完成！！！")
 }
