@@ -1,3 +1,10 @@
+/*
+	Description : 请求实现
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-23
+*/
+
 package gathertool
 
 import (

@@ -1,3 +1,10 @@
+/*
+	Description : 请求状态码对应事件配置
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-23
+*/
+
 package gathertool
 
 // StatusCodeMap 状态码处理映射

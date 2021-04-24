@@ -1,3 +1,10 @@
+/*
+	Description : 请求头配置与获取
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-24
+ */
+
 package gathertool
 
 import (
@@ -57,6 +64,7 @@ var UserAgentMap map[int]string = map[int]string{
 	35:"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.41 Safari/535.1 QQBrowser/6.9.11079.201",//QQ浏览器6.9(11079)在Win7+ie9,极速模式
 }
 
+// 每种类型设备的useragent的列表
 var (
 	listPCAgent = []int{1,2,3,4,5,6,7,8,9,10,11,26,27,28,29,30,31,32,33,34,35}
 	listWindowsAgent = []int{1,2,3,4,5,30,31,32,33,34,35}
