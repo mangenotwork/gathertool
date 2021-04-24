@@ -12,6 +12,7 @@ import (
 // @sf  请求成功后做的事情, 200等
 // @ff  请求失败后做的事情, 403等，502等
 // @vs  可变参数
+// @vs UserAgentType  设置指定类型 user agent 如 AndroidAgent
 //
 func Get(url string, maxTimes int64, vs ...interface{}) (*Req,error){
 	var (
@@ -26,7 +27,7 @@ func Get(url string, maxTimes int64, vs ...interface{}) (*Req,error){
 
 	//添加默认的Header
 	req.Header.Add("Connection","close")
-	req.Header.Add("User-Agent","zhaofan")
+	req.Header.Add("User-Agent", GetAgent(PCAgent))
 
 	//解析可变参
 	for _, v := range vs {
@@ -42,6 +43,8 @@ func Get(url string, maxTimes int64, vs ...interface{}) (*Req,error){
 			// 使用方传入了 *http.Client
 		case *http.Client:
 			client = vv
+		case UserAgentType:
+			req.Header.Add("User-Agent", GetAgent(vv))
 		}
 	}
 

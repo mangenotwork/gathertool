@@ -16,8 +16,7 @@ func main(){
 	// 执行一个get 请求，最多重试10次
 	req, err := gathertool.Get("http://192.168.0.1", 10,
 		c,
-		"adasdas",
-		1235646)
+		gathertool.AndroidAgent)
 	if err != nil{
 		log.Println(err)
 		return
