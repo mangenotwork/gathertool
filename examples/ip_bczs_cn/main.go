@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/PuerkitoBio/goquery"
-	"github.com/mangenotwork/gathertool"
+	gt "github.com/mangenotwork/gathertool"
 	"log"
 	"net/http"
 	"time"
@@ -10,7 +10,7 @@ import (
 
 // 全局变量
 var (
-	queue = gathertool.NewQueue()
+	queue = gt.NewQueue()
 )
 
 func main(){
@@ -18,14 +18,13 @@ func main(){
 	// 然后便利抓取所有ip段的信息
 
 	//1. 先请入口获取所有ip段然后创建任务队列
-	req, err := gathertool.Get("http://ip.bczs.net/country/CN")
+	req, err := gt.Get("http://ip.bczs.net/country/CN",gt.SucceedFunc(IPListSucceed),
+		gt.FailedFunc(func(ctx *gt.Context){time.Sleep(1*time.Second)}),
+		gt.RetryFunc(func(ctx *gt.Context){log.Println("请求失败")}))
 	if err != nil{
 		log.Println(err)
 		return
 	}
-	req.Succeed(IPListSucceed)// 在成功的方法里面添加队列
-	req.Retry(func(c *gathertool.Req){time.Sleep(1*time.Second)})
-	req.Failed(func(){log.Println("请求失败")})
 	req.Do()
 
 	//创建并发任务请求的client对象
@@ -38,15 +37,15 @@ func main(){
 	}
 	//2. 抓取详情数据
 	// 当队列加载完毕后，执行并发任务，只有当 queue 完成后结束
-	gathertool.JobStartGet(10,queue, client, GetIPSucceed, GetIPRetry, GetIPFailed)
+	gt.StartJobGet(100,queue, client, GetIPSucceed, GetIPRetry, GetIPFailed)
 
 	queue.Print()
 }
 
 // 请求成功执行
-func IPListSucceed(b []byte){
-	html := string(b)
-	dom,err := gathertool.NewGoquery(html)
+func IPListSucceed(cxt *gt.Context){
+	html := string(cxt.RespBody)
+	dom,err := gt.NewGoquery(html)
 	if err != nil{
 		log.Println(err)
 		return
@@ -68,7 +67,7 @@ func IPListSucceed(b []byte){
 
 		// 创建队列 抓取详情信息
 		// http://ip.bczs.net/1.0.1.0
-		queue.Add(&gathertool.Task{
+		queue.Add(&gt.Task{
 			Url: "http://ip.bczs.net/"+startIp,
 			Context: map[string]interface{}{
 				"start_ip":startIp,
@@ -83,11 +82,11 @@ func IPListSucceed(b []byte){
 }
 
 // 获取详情信息成功的处理
-func GetIPSucceed(c *gathertool.Task ,b []byte){
-	log.Println(c)
+func GetIPSucceed(c *gt.Context){
+	log.Println(c.Task)
 
-	html := string(b)
-	dom,err := gathertool.NewGoquery(html)
+	html := string(c.RespBody)
+	dom,err := gt.NewGoquery(html)
 	if err != nil{
 		log.Println(err)
 		return
@@ -101,7 +100,7 @@ func GetIPSucceed(c *gathertool.Task ,b []byte){
 }
 
 // 获取详情信息重试的处理
-func GetIPRetry(c *gathertool.Req){
+func GetIPRetry(c *gt.Context){
 	//更换代理
 	c.Client = &http.Client{
 		// 设置代理
@@ -115,6 +114,6 @@ func GetIPRetry(c *gathertool.Req){
 }
 
 // 获取详情信息失败执行
-func GetIPFailed(){
+func GetIPFailed(c *gt.Context){
 	log.Println("请求失败")
 }
