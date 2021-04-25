@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 // 重试次数
@@ -64,10 +65,10 @@ type Context struct {
 	// 请求状态码设置了重试，在重试前的事件
 	RetryFunc RetryFunc
 
-	//
+	// 请求开始前的方法
 	StartFunc StartFunc
 
-	//
+	// 请求完成后的方法
 	EndFunc EndFunc
 
 	// 本次请求的任务
@@ -78,6 +79,8 @@ type Context struct {
 	// job 编号
 	JobNumber int
 
+	// 请求的响应时间 单位ms
+	Ms time.Duration
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -122,8 +125,11 @@ func (c *Context) Do() func(){
 	}
 
 	//执行请求
+	time_start := time.Now()
 	c.Resp,c.Err = c.Client.Do(c.Req)
+	c.Ms = time.Since(time_start)
 	if c.Err != nil {
+		log.Println("err = ", c.Err)
 		if c.FailedFunc != nil{
 			c.FailedFunc(c)
 		}
@@ -136,13 +142,13 @@ func (c *Context) Do() func(){
 		}
 	}()
 
-	log.Println("状态码：", c.Resp.StatusCode)
+	//log.Println("状态码：", c.Resp.StatusCode)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	if v,ok := StatusCodeMap[c.Resp.StatusCode]; ok{
 		switch v {
 		case "success":
-			log.Println("执行 success 事件")
+			//log.Println("执行 success 事件")
 			//请求后的结果
 			body, err := ioutil.ReadAll(c.Resp.Body)
 			if err != nil{
@@ -158,7 +164,7 @@ func (c *Context) Do() func(){
 
 			return nil
 		case "retry":
-			log.Println("执行 retry 事件")
+			//log.Println("执行 retry 事件")
 
 			log.Println("第", c.times, "请求失败,状态码： ", c.Resp.StatusCode, ".")
 			//执行重试前的方法
@@ -167,7 +173,7 @@ func (c *Context) Do() func(){
 			}
 			return c.Do()
 		case "file":
-			log.Println("执行 file 事件")
+			//log.Println("执行 file 事件")
 			if c.FailedFunc != nil{
 				c.FailedFunc(c)
 			}

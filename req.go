@@ -51,7 +51,7 @@ func Get(url string, vs ...interface{}) (*Context,error){
 
 	//解析可变参
 	for _, v := range vs {
-		log.Println("参数： ", v)
+		//log.Println("参数： ", v)
 		switch vv := v.(type) {
 		// 使用方传入了 header
 		case http.Header:
@@ -84,7 +84,7 @@ func Get(url string, vs ...interface{}) (*Context,error){
 
 	// 如果使用方未传入Client，  初始化 Client
 	if client == nil{
-		log.Println("使用方未传入Client， 默认 client")
+		//log.Println("使用方未传入Client， 默认 client")
 		client = &http.Client{}
 	}
 

@@ -3,7 +3,14 @@ package gathertool
 import (
 	"log"
 	"sync"
+	"sync/atomic"
+	"time"
 )
+
+type stateCodeMap struct {
+	m map[int]int64
+	mux sync.Mutex
+}
 
 // StressUrl 压力测试一个url
 type StressUrl struct {
@@ -12,8 +19,19 @@ type StressUrl struct {
 	Sum int64
 	Total int
 	TQueue TodoQueue
+
+	// 请求时间累加
+	sumReqTime int64
+
+	// 测试结果
+	avgReqTime time.Duration
+
+	// state code
+	stateCodeMap *stateCodeMap
+
 }
 
+// NewTestUrl 实例化一个新的url压测
 func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 	return &StressUrl{
 		Url : url,
@@ -21,9 +39,15 @@ func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 		Sum : sum,
 		Total : total,
 		TQueue : NewQueue(),
+		sumReqTime: int64(0),
+		stateCodeMap: &stateCodeMap{
+			m: make(map[int]int64),
+			mux: sync.Mutex{},
+		},
 	}
 }
 
+// Run 运行压测
 func (s *StressUrl) Run(vs ...interface{}){
 	//解析可变参
 	var (
@@ -56,19 +80,44 @@ func (s *StressUrl) Run(vs ...interface{}){
 					break
 				}
 				task := s.TQueue.Poll()
-				log.Println("第",i,"个任务取的值： ", task)
+				if task == nil{
+					continue
+				}
+				//log.Println("第",i,"个任务取的值： ", task)
+
 				ctx, err := Get(task.Url, succeedFunc)
-				ctx.JobNumber = i
 				if err != nil {
 					log.Println(err)
 					return
 				}
+
+				if ctx == nil {
+					continue
+				}
+				ctx.JobNumber = i
 				ctx.Do()
+				atomic.AddInt64(&s.sumReqTime, int64(ctx.Ms))
+
+
+				s.stateCodeMap.mux.Lock()
+				if ctx.Resp != nil{
+					s.stateCodeMap.m[ctx.Resp.StatusCode]++
+				}else{
+					//请求错误
+					s.stateCodeMap.m[-1]++
+				}
+				s.stateCodeMap.mux.Unlock()
+
+
 			}
 			log.Println("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
+	avg := float64(s.sumReqTime)/float64(s.Sum)
+	avg = avg/(1000*1000)
+	log.Println("平均用时： ", avg,"ms")
+	log.Println("状态码分布: ", s.stateCodeMap)
 	log.Println("执行完成！！！")
 
 }
