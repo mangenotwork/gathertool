@@ -19,7 +19,7 @@ type StressUrl struct {
 	Sum int64
 	Total int
 	TQueue TodoQueue
-	TimeOut time.Duration
+	TimeOut int64
 
 	// 请求时间累加
 	sumReqTime int64
@@ -33,7 +33,7 @@ type StressUrl struct {
 }
 
 // NewTestUrl 实例化一个新的url压测
-func NewTestUrl(url, method string, sum int64, total int, timeOut time.Duration) *StressUrl {
+func NewTestUrl(url, method string, sum int64, total int, timeOut int64) *StressUrl {
 	return &StressUrl{
 		Url : url,
 		Method : method,
@@ -87,7 +87,7 @@ func (s *StressUrl) Run(vs ...interface{}){
 				}
 				//log.Println("第",i,"个任务取的值： ", task)
 
-				ctx, err := Get(task.Url, succeedFunc)
+				ctx, err := Get(task.Url, succeedFunc, ReqTimeOutMs(s.TimeOut))
 				if err != nil {
 					log.Println(err)
 					return
