@@ -22,14 +22,24 @@ type TodoQueue interface {
 	Print() // 打印
 }
 
+// 队列
 type Queue struct {
 	mux sync.RWMutex
 	list []*Task
 }
 
+// 任务对象
 type Task struct {
 	Url string
 	Context map[string]interface{}
+	Urls []*ReqUrl // 多步骤使用
+}
+
+// 单个请求地址对象
+type ReqUrl struct {
+	Url string
+	Method  string
+	Params  map[string]interface{}
 }
 
 // NewQueue 新建一个队列

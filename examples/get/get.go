@@ -1,46 +1,112 @@
 package main
 
 import (
-	"fmt"
-	"github.com/mangenotwork/gathertool"
+	gt "github.com/mangenotwork/gathertool"
 	"log"
 	"net/http"
 	"time"
 )
 
 func main(){
-	// 设置一个 http.Client 也可以是来自第三方代理的 http.Client
-	c := &http.Client{
-		Timeout: 5*time.Second,
-	}
-	// 执行一个get 请求，最多重试10次
-	req, err := gathertool.Get("http://192.168.0.1",c)
-	if err != nil{
-		log.Println(err)
+	//SimpleGet1()
+	//SimpleGet2()
+	//SimpleGet3()
+	SimpleGet4()
+}
+
+// 简单的get请求实例, 写法一： 方法做为请求函数的参数；
+func SimpleGet1(){
+	// 创建请求
+	c, err := gt.Get("http://192.168.0.1",
+		//设置请求成功后的方法： 请求的数据
+		gt.SucceedFunc(func(ctx *gt.Context){
+			log.Println(string(ctx.RespBody))
+		}),
+
+		//设置请求失败后的方法： 打印失败信息
+		gt.FailedFunc(func(ctx *gt.Context){
+			log.Println(ctx.Err)
+		}),
+
+		//设置重试前的方法（遇到403,502 等状态码会重试）： 睡眠1s再重试
+		gt.RetryFunc(func(ctx *gt.Context){
+			time.Sleep(1*time.Second)
+		}),
+	)
+	if err != nil {
+		log.Println("请求创建失败: ", err)
 		return
 	}
-	// 设置成功执行的回调
-	req.Succeed(succeed)
-	// 设置这个请求遇到失败状态码的重试前的操作，如402等的处理事件
-	// 例如添加 等待时间，更换代理，更换Header等
-	req.Retry(retry)
-	// 设置失败后执行的回调
-	req.Failed(failed)
-	// 执行
-	req.Do()
+	// 执行创建的请求
+	c.Do()
+}
+
+
+// 最简单的get请求实例， 写法二： 上下文处理；
+func SimpleGet2(){
+	// 创建请求
+	c, err := gt.Get("http://192.168.0.1")
+	if err != nil {
+		log.Println("请求创建失败: ", err)
+		return
+	}
+	// 执行创建的请求
+	c.Do()
+	// 打印请求结果与请求错误
+	log.Println(string(c.RespBody), c.Err)
+}
+
+
+// 简单的get请求实例, 写法三： 给请求设置方法；
+func SimpleGet3()  {
+	// 创建请求
+	c, err := gt.Get("http://192.168.0.1")
+	if err != nil {
+		log.Println("请求创建失败: ", err)
+		return
+	}
+	//设置请求成功后的方法
+	c.SetSucceedFunc(func(ctx *gt.Context){
+		log.Println(string(ctx.RespBody))
+	})
+	//设置请求失败后的方法
+	c.SetFailedFunc(func(ctx *gt.Context){
+		log.Println(ctx.Err)
+	})
+	//设置重试次数
+	c.SetRetryTimes(5)
+	//设置重试前的方法
+	c.SetRetryFunc(func(*gt.Context) {
+		time.Sleep(1*time.Second)
+	})
+	// 执行创建的请求
+	c.Do()
+}
+
+// 简单的get请求实例, 写法四： 外部函数为请求方法；
+func SimpleGet4(){
+	c, err := gt.Get("http://192.168.0.1",
+		gt.SucceedFunc(succeed),
+		gt.FailedFunc(fail),
+		gt.RetryFunc(retry),
+		)
+	if err != nil {
+		log.Println("请求创建失败: ", err)
+		return
+	}
+	// 执行创建的请求
+	c.Do()
 }
 
 // 成功后的方法
-func succeed(b []byte){
-	fmt.Printf(string(b))
+func succeed(ctx *gt.Context){
+	log.Println(string(ctx.RespBody))
 	//处理数据
 }
 
 // 设置需要重试状态码， 重试前的方法
-func retry(c *gathertool.Req){
-	log.Println(c)
-	log.Println(c.MaxTimes)
-	c.Client = &http.Client{
+func retry(ctx *gt.Context){
+	ctx.Client = &http.Client{
 		Timeout: 1*time.Second,
 	}
 	log.Println("休息1s")
@@ -48,6 +114,6 @@ func retry(c *gathertool.Req){
 }
 
 // 失败后的方法
-func failed(){
-	fmt.Printf("请求失败")
+func fail(ctx *gt.Context) {
+	log.Println("请求失败: ", ctx.Err)
 }
