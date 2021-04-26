@@ -98,6 +98,11 @@ func (c *Context) SetRetryFunc(retryFunc func(c *Context)) {
 	c.RetryFunc = retryFunc
 }
 
+// SetRetryTimes 设置重试次数
+func (c *Context) SetRetryTimes(times int) {
+	c.MaxTimes = RetryTimes(times)
+}
+
 // Do 执行请求
 func (c *Context) Do() func(){
 
@@ -146,8 +151,9 @@ func (c *Context) Do() func(){
 	// 根据状态码配置的事件了类型进行该事件的方法
 	if v,ok := StatusCodeMap[c.Resp.StatusCode]; ok{
 		switch v {
+
 		case "success":
-			log.Println("执行 success 事件", c.SucceedFunc)
+			//log.Println("执行 success 事件", c.SucceedFunc)
 			//请求后的结果
 			body, err := ioutil.ReadAll(c.Resp.Body)
 			if err != nil{
@@ -155,28 +161,38 @@ func (c *Context) Do() func(){
 				return nil
 			}
 			c.RespBody = body
-
 			//执行成功方法
 			if c.SucceedFunc != nil {
 				c.SucceedFunc(c)
 			}
-
 			return nil
-		case "retry":
-			log.Println("执行 retry 事件")
 
+		case "retry":
+			//log.Println("执行 retry 事件")
 			log.Println("第", c.times, "请求失败,状态码： ", c.Resp.StatusCode, ".")
 			//执行重试前的方法
 			if c.RetryFunc != nil{
 				c.RetryFunc(c)
 			}
 			return c.Do()
+
 		case "file":
-			log.Println("执行 file 事件")
+			//log.Println("执行 file 事件")
 			if c.FailedFunc != nil{
 				c.FailedFunc(c)
 			}
 			return nil
+
+		case "start":
+			//TODO : 请求前的方法
+			log.Println("执行 start 事件")
+			return nil
+
+			case "end":
+				//TODO : 请求结束后的方法
+				log.Println("执行 end 事件")
+				return nil
+
 		}
 	}
 
