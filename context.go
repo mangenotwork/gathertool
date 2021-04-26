@@ -125,9 +125,9 @@ func (c *Context) Do() func(){
 	}
 
 	//执行请求
-	time_start := time.Now()
+	before := time.Now()
 	c.Resp,c.Err = c.Client.Do(c.Req)
-	c.Ms = time.Since(time_start)
+	c.Ms = time.Now().Sub(before)
 	if c.Err != nil {
 		log.Println("err = ", c.Err)
 		if c.FailedFunc != nil{
@@ -135,20 +135,19 @@ func (c *Context) Do() func(){
 		}
 		return nil
 	}
-
-	defer func(){
-		if c.Resp != nil {
-			c.Resp.Body.Close()
+	defer func(cxt *Context){
+		if cxt.Resp != nil {
+			cxt.Resp.Body.Close()
 		}
-	}()
+	}(c)
 
-	//log.Println("状态码：", c.Resp.StatusCode)
+	log.Println("状态码：", c.Resp.StatusCode)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	if v,ok := StatusCodeMap[c.Resp.StatusCode]; ok{
 		switch v {
 		case "success":
-			//log.Println("执行 success 事件")
+			log.Println("执行 success 事件", c.SucceedFunc)
 			//请求后的结果
 			body, err := ioutil.ReadAll(c.Resp.Body)
 			if err != nil{
@@ -164,7 +163,7 @@ func (c *Context) Do() func(){
 
 			return nil
 		case "retry":
-			//log.Println("执行 retry 事件")
+			log.Println("执行 retry 事件")
 
 			log.Println("第", c.times, "请求失败,状态码： ", c.Resp.StatusCode, ".")
 			//执行重试前的方法
@@ -173,7 +172,7 @@ func (c *Context) Do() func(){
 			}
 			return c.Do()
 		case "file":
-			//log.Println("执行 file 事件")
+			log.Println("执行 file 事件")
 			if c.FailedFunc != nil{
 				c.FailedFunc(c)
 			}

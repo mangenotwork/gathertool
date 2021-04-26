@@ -9,15 +9,17 @@ import (
 )
 
 func main(){
+
 	// 设置一个 http.Client 也可以是来自第三方代理的 http.Client
 	client := &http.Client{
 		Timeout: 5*time.Second,
 	}
 	// 执行一个get 请求，最多重试10次
-	c, err := gt.Get("http://192.168.0.9",client,
+	c, err := gt.Get("http://192.168.0.1",client,gt.ReqTimeOutMs(10),
 		gt.SucceedFunc(succeed),
 		gt.FailedFunc(fail),
 		gt.RetryFunc(retry))
+
 	if err != nil {
 		log.Println(err)
 		return
@@ -28,7 +30,7 @@ func main(){
 
 // 成功后的方法
 func succeed(c *gt.Context){
-	fmt.Printf(string(c.RespBody))
+	//fmt.Printf(string(c.RespBody))
 	//处理数据
 }
 

@@ -19,6 +19,7 @@ type StressUrl struct {
 	Sum int64
 	Total int
 	TQueue TodoQueue
+	TimeOut time.Duration
 
 	// 请求时间累加
 	sumReqTime int64
@@ -32,12 +33,13 @@ type StressUrl struct {
 }
 
 // NewTestUrl 实例化一个新的url压测
-func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
+func NewTestUrl(url, method string, sum int64, total int, timeOut time.Duration) *StressUrl {
 	return &StressUrl{
 		Url : url,
 		Method : method,
 		Sum : sum,
 		Total : total,
+		TimeOut : timeOut,
 		TQueue : NewQueue(),
 		sumReqTime: int64(0),
 		stateCodeMap: &stateCodeMap{
