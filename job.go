@@ -17,10 +17,28 @@ func StartJob(){}
 // @SucceedFunc 成功方法，
 // @ RetryFunc重试方法，
 // @FailedFunc 失败方法
-func StartJobGet(jobNumber int, queue TodoQueue, client *http.Client,
-	SucceedFunc func(ctx *Context),
-	RetryFunc func(ctx *Context),
-	FailedFunc func(ctx *Context)){
+func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
+
+	var (
+		client *http.Client
+		succeed SucceedFunc
+		retry RetryFunc
+		failed FailedFunc
+	)
+
+	for _,v := range vs{
+		switch vv := v.(type) {
+		case *http.Client:
+			client = vv
+		case SucceedFunc:
+			succeed = vv
+		case FailedFunc:
+			failed = vv
+		case RetryFunc:
+			retry = vv
+			}
+	}
+
 	var wg sync.WaitGroup
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
@@ -33,14 +51,23 @@ func StartJobGet(jobNumber int, queue TodoQueue, client *http.Client,
 				}
 				task := queue.Poll()
 				log.Println("第",i,"个任务取的值： ", task)
-				ctx, err := Get(task.Url, client, task)
+				ctx, err := Get(task.Url, task)
 				if err != nil {
 					log.Println(err)
 					return
 				}
-				ctx.SetSucceedFunc(SucceedFunc)
-				ctx.SetRetryFunc(RetryFunc)
-				ctx.SetFailedFunc(FailedFunc)
+				if client != nil {
+					ctx.Client = client
+				}
+				if succeed != nil {
+					ctx.SetSucceedFunc(succeed)
+				}
+				if retry != nil {
+					ctx.SetRetryFunc(retry)
+				}
+				if failed != nil {
+					ctx.SetFailedFunc(failed)
+				}
 				ctx.Do()
 			}
 			log.Println("第",i ,"个任务结束！！")
