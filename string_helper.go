@@ -2,6 +2,9 @@ package gathertool
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -20,20 +23,20 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
-
 	switch v.Kind() {
 	case reflect.Struct:
 		buf.WriteString("{\n")
-
 		for i := 0; i < v.Type().NumField(); i++ {
 			ft := v.Type().Field(i)
 			fv := v.Field(i)
-
 			if ft.Name[0:1] == strings.ToLower(ft.Name[0:1]) {
-				continue // ignore unexported fields
+				// ignore unexported fields
+				continue
 			}
+
 			if (fv.Kind() == reflect.Ptr || fv.Kind() == reflect.Slice) && fv.IsNil() {
-				continue // ignore unset fields
+				// ignore unset fields
+				continue
 			}
 
 			buf.WriteString(strings.Repeat(" ", indent+2))
@@ -87,4 +90,65 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 		}
 		fmt.Fprintf(buf, format, v.Interface())
 	}
+}
+
+
+// MD5
+func MD5(str string) string  {
+	h := md5.New()
+	h.Write([]byte(str))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// json转map函数，通用
+func JSON2Map(str string) map[string]interface{} {
+	var tempMap map[string]interface{}
+	err := json.Unmarshal([]byte(str), &tempMap)
+	if err != nil {
+		panic(err)
+	}
+	return tempMap
+}
+
+// interface{} -> map[string]interface{}
+func Any2Map(data interface{}) map[string]interface{}{
+	return data.(map[string]interface{})
+}
+
+// interface{} -> string
+func Any2String(data interface{}) string {
+	return StringValue(data)
+}
+
+// interface{} -> int
+func Any2Int(data interface{}) int {
+	return data.(int)
+}
+
+// interface{} -> int64
+func Any2int64(data interface{}) int64 {
+	return data.(int64)
+}
+
+// interface{} -> []interface{}
+func Any2AnyList(data interface{}) []interface{} {
+	return data.([]interface{})
+}
+
+// interface{} -> float64
+func Any2Float64(data interface{}) float64 {
+	return data.(float64)
+}
+
+// interface{} -> []string
+func Any2Strings(data interface{}) []string{
+	listValue,ok := data.([]interface{})
+	if !ok {
+		return nil
+	}
+	keyStringValues := make([]string, len(listValue))
+	for i, arg := range listValue {
+		keyStringValues[i] = arg.(string)
+	}
+	return keyStringValues
 }

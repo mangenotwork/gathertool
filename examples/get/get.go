@@ -11,7 +11,8 @@ func main(){
 	//SimpleGet1()
 	//SimpleGet2()
 	//SimpleGet3()
-	SimpleGet4()
+	//SimpleGet4()
+
 }
 
 // 简单的get请求实例, 写法一： 方法做为请求函数的参数；
@@ -117,3 +118,4 @@ func retry(ctx *gt.Context){
 func fail(ctx *gt.Context) {
 	log.Println("请求失败: ", ctx.Err)
 }
+

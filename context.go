@@ -198,3 +198,13 @@ func (c *Context) Do() func(){
 
 	return nil
 }
+
+// add header
+func (c *Context) AddHeader(k,v string) {
+	c.Req.Header.Add(k,v)
+}
+
+// add Cookie
+func (c *Context) AddCookie(cookie *http.Cookie){
+	c.Req.AddCookie(cookie)
+}
