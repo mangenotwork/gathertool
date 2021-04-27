@@ -146,7 +146,7 @@ func (c *Context) Do() func(){
 		}
 	}(c)
 
-	log.Println("状态码：", c.Resp.StatusCode)
+	//log.Println("状态码：", c.Resp.StatusCode)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	if v,ok := StatusCodeMap[c.Resp.StatusCode]; ok{

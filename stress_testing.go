@@ -19,7 +19,6 @@ type StressUrl struct {
 	Sum int64
 	Total int
 	TQueue TodoQueue
-	TimeOut int64
 
 	// 请求时间累加
 	sumReqTime int64
@@ -33,13 +32,12 @@ type StressUrl struct {
 }
 
 // NewTestUrl 实例化一个新的url压测
-func NewTestUrl(url, method string, sum int64, total int, timeOut int64) *StressUrl {
+func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 	return &StressUrl{
 		Url : url,
 		Method : method,
 		Sum : sum,
 		Total : total,
-		TimeOut : timeOut,
 		TQueue : NewQueue(),
 		sumReqTime: int64(0),
 		stateCodeMap: &stateCodeMap{
@@ -56,14 +54,20 @@ func (s *StressUrl) Run(vs ...interface{}){
 		succeedFunc SucceedFunc
 		n int64
 		wg sync.WaitGroup
+	    reqTimeout ReqTimeOut
+		reqTimeoutms ReqTimeOutMs
 	)
 	for _, v := range vs {
-		log.Println("参数： ", v)
+		//log.Println("参数： ", v)
 		switch vv := v.(type) {
 		// 使用方传入了 header
 		case SucceedFunc:
 			succeedFunc = vv
-			log.Println("成功的方法", vv)
+			//log.Println("成功的方法", vv)
+		case ReqTimeOut:
+			reqTimeout = vv
+		case ReqTimeOutMs:
+			reqTimeoutms = vv
 		}
 	}
 
@@ -75,7 +79,7 @@ func (s *StressUrl) Run(vs ...interface{}){
 	for job:=0; job<s.Total; job++{
 		wg.Add(1)
 		go func(i int){
-			log.Println("启动第",i ,"个任务; ")
+			//log.Println("启动第",i ,"个任务; ")
 			defer wg.Done()
 			for {
 				if s.TQueue.IsEmpty(){
@@ -87,7 +91,7 @@ func (s *StressUrl) Run(vs ...interface{}){
 				}
 				//log.Println("第",i,"个任务取的值： ", task)
 
-				ctx, err := Get(task.Url, succeedFunc, ReqTimeOutMs(s.TimeOut))
+				ctx, err := Get(task.Url, succeedFunc, reqTimeout, reqTimeoutms)
 				if err != nil {
 					log.Println(err)
 					return
@@ -112,7 +116,7 @@ func (s *StressUrl) Run(vs ...interface{}){
 
 
 			}
-			log.Println("第",i ,"个任务结束！！")
+			//log.Println("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
