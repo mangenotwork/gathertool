@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -185,4 +186,32 @@ func StrDeleteSpace(str string) string {
 		}
 	}
 	return string(strList[:count-spaceCount])
+}
+
+// string -> int64
+func Str2Int64(str string) int64 {
+	i, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return i
+}
+
+// string -> float64
+func Str2Float64(str string) float64 {
+	i, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		return 0
+	}
+	return i
+}
+
+
+// []uint8 -> string
+func Uint82Str(bs []uint8) string {
+	ba := []byte{}
+	for _, b := range bs {
+		ba = append(ba, byte(b))
+	}
+	return string(ba)
 }
