@@ -1,8 +1,6 @@
 package main
 
-import (
-	gt "github.com/mangenotwork/gathertool"
-)
+import gt "github.com/mangenotwork/gathertool"
 
 func main() {
 	// 普通 GET api压测
@@ -14,12 +12,16 @@ func main() {
 	//}))
 
 	// 设置 GET Header 的压测
-	//url2 := "http://192.168.0.9:18084/static_service/v1/auth/video/page"
-	//test2 := gt.NewTestUrl(url2,"Get",100000,10000)
-	//test2.Run()
+	url2 := "http://192.168.0.9:18084/static_service/v1/auth/video/page"
+	test2 := gt.NewTestUrl(url2,"Get",100000,10000)
+	test2.Run()
 
 
-	url3 := "https://baidu.com"
-	test3 := gt.NewTestUrl(url3,"Get",100000,10000)
-	test3.Run()
+	//url3 := "https://baidu.com"
+	//test3 := gt.NewTestUrl(url3,"Get",100000,10000)
+	//test3.Run()
+
+	//gt.NewTestUrl("http://192.168.0.8:18090","Get",100000,10000).Run()
+	//test3.Run()
+
 }
