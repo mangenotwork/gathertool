@@ -31,7 +31,8 @@ type Queue struct {
 // 任务对象
 type Task struct {
 	Url string
-	Context map[string]interface{}
+	// 上下文传递的数据
+	Data map[string]interface{}
 	Urls []*ReqUrl // 多步骤使用
 }
 

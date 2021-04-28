@@ -11,6 +11,9 @@ import (
 	"time"
 )
 
+
+var MysqlDB = &Mysql{}
+
 type Mysql struct {
 	Host string
 	Port int
@@ -20,6 +23,13 @@ type Mysql struct {
 	MaxOpenConn int
 	MaxIdleConn int
 	DB *sql.DB
+	Log bool
+}
+
+func NewMysqlDB(host string,port int, user, password, database string)(err error){
+	MysqlDB, err = NewMysql(host,port, user, password, database)
+	err = MysqlDB.Conn()
+	return
 }
 
 func NewMysql(host string,port int, user, password, database string) (*Mysql, error) {
@@ -35,7 +45,13 @@ func NewMysql(host string,port int, user, password, database string) (*Mysql, er
 		User : user,
 		Password : password,
 		DataBase : database,
+		Log: true,
 	}, nil
+}
+
+// 关闭日志
+func (m *Mysql) CloseLog(){
+	m.Log = false
 }
 
 // 连接mysql
@@ -43,6 +59,9 @@ func (m *Mysql) Conn() (err error){
 	m.DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s:%d)/%s",
 		m.User, m.Password, "tcp", m.Host, m.Port, m.DataBase))
 	if err != nil {
+		if m.Log{
+			log.Println("[Sql] Conn Fail : " + err.Error())
+		}
 		return err
 	}
 	m.DB.SetConnMaxLifetime(100*time.Second)  //最大连接周期，超过时间的连接就close
@@ -115,9 +134,14 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 	if m.DB == nil{
 		_=m.Conn()
 	}
-	log.Println("DB = ", m.DB)
 
 	rows,err := m.DB.Query(sql)
+	if m.Log{
+		log.Println("[Sql] Exec : " + sql)
+		if err != nil{
+			log.Println("[Sql] Error : " + err.Error())
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -187,9 +211,13 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 		createSql.WriteString(", ")
 	}
 	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
-	log.Println(createSql.String())
-	res,err :=  m.DB.Exec(createSql.String())
-	log.Println(res,err)
+	_,err :=  m.DB.Exec(createSql.String())
+	if m.Log{
+		loger("[Sql] Exec : " + createSql.String())
+		if err != nil{
+			loger("[Sql] Error : " + err.Error())
+		}
+	}
 	return nil
 }
 
@@ -231,8 +259,14 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	insertSql.WriteString(") VALUES ")
 	insertSql.WriteString(valueSql.String())
 	insertSql.WriteString(");")
-	log.Println(insertSql.String())
 	_, err := m.DB.Exec(insertSql.String())
+	if m.Log{
+		loger("[Sql] Exec : " + insertSql.String())
+		if err != nil{
+			loger("[Sql] Error : " + err.Error())
+		}
+	}
+
  	return err
 }
 

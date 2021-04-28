@@ -8,28 +8,30 @@
 package gathertool
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
 // 重试次数
 type  RetryTimes int
 
-// 请求开始前的方法
+// 请求开始前的方法类型
 type StartFunc func(c *Context)
 
-// 成功后的方法
+// 成功后的方法类型
 type SucceedFunc func(c *Context)
 
-// 失败后的方法
+// 失败后的方法类型
 type FailedFunc func(c *Context)
 
-// 重试前的方法
+// 重试前的方法类型
 type RetryFunc func(c *Context)
 
-// 请求结束后的方法
+// 请求结束后的方法类型
 type EndFunc func(c *Context)
 
 
@@ -49,6 +51,9 @@ type Context struct {
 
 	// Error
 	Err error
+
+	// Ctx context.Context
+	Ctx context.Context
 
 	// 执行的次数 初始化都是0
 	times RetryTimes
@@ -72,11 +77,15 @@ type Context struct {
 	EndFunc EndFunc
 
 	// 本次请求的任务
+	// 用于有步骤的请求和并发执行请求
 	Task *Task
 
+	// 请求返回的结果
 	RespBody []byte
 
-	// job 编号
+	// job编号
+	// 在执行多并发执行抓取任务，每个并发都有一个编号
+	// 这个编号是递增分配的
 	JobNumber int
 
 	// 请求的响应时间 单位ms
@@ -133,6 +142,14 @@ func (c *Context) Do() func(){
 	before := time.Now()
 	c.Resp,c.Err = c.Client.Do(c.Req)
 	c.Ms = time.Now().Sub(before)
+
+	// 是否超时
+	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)"){
+		c.RetryFunc(c)
+		return c.Do()
+	}
+
+	// 其他错误
 	if c.Err != nil {
 		log.Println("err = ", c.Err)
 		if c.FailedFunc != nil{

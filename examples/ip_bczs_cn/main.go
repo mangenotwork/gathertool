@@ -127,6 +127,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/PuerkitoBio/goquery"
 	gt "github.com/mangenotwork/gathertool"
 )
@@ -165,7 +166,7 @@ func IPListSucceed(cxt *gt.Context){
 		// 创建队列 抓取详情信息
 		queue.Add(&gt.Task{
 			Url: "http://ip.bczs.net/"+startIp,
-			Context: map[string]interface{}{
+			Data: map[string]interface{}{
 				"start_ip":startIp,
 				"end_ip":endIP,
 				"number":number,
@@ -186,7 +187,7 @@ func GetIPSucceed(c *gt.Context){
 	if err != nil{
 		log.Println(err)
 	}
-	log.Println(c.Task.Context, result)
+	log.Println(c.Task.Data, result)
 	time.Sleep(5*time.Second)
 }
 

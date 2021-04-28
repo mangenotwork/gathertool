@@ -35,3 +35,18 @@ var StatusCodeMap map[int]string = map[int]string{
 	503:"retry",
 	504:"retry",
 }
+
+// 将指定状态码设置为执行成功事件
+func StatusCodeSuccessEvent(code int){
+	StatusCodeMap[code] = "success"
+}
+
+// 将指定状态码设置为执行重试事件
+func StatusCodeRetryEvent(code int){
+	StatusCodeMap[code] = "retry"
+}
+
+// 将指定状态码设置为执行重试事件
+func StatusCodeFailEvent(code int){
+	StatusCodeMap[code] = "fail"
+}

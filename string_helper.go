@@ -152,3 +152,37 @@ func Any2Strings(data interface{}) []string{
 	}
 	return keyStringValues
 }
+
+// CleaningStr 清理字符串前后空白 和回车 换行符号
+func CleaningStr(str string) string{
+	str = strings.Replace(str, "\n","", -1)
+	str = strings.Replace(str, "\r","", -1)
+	str = strings.Replace(str, "\\n","", -1)
+	str = strings.Replace(str, "\"", "", -1)
+	str = strings.TrimSpace(str)
+	str = StrDeleteSpace(str)
+	return str
+}
+
+// StrDeleteSpace 删除字符串前后的空格
+func StrDeleteSpace(str string) string {
+	strList := []byte(str)
+	spaceCount, count := 0, len(strList)
+	for i := 0; i <= len(strList)-1; i++ {
+		if strList[i] == 32 {
+			spaceCount++
+		} else {
+			break
+		}
+	}
+	strList = strList[spaceCount:]
+	spaceCount, count = 0, len(strList)
+	for i := count - 1; i >= 0; i-- {
+		if strList[i] == 32 {
+			spaceCount++
+		} else {
+			break
+		}
+	}
+	return string(strList[:count-spaceCount])
+}

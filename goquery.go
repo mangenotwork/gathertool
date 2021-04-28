@@ -1,8 +1,9 @@
 package gathertool
 
 import (
-	"github.com/PuerkitoBio/goquery"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func NewGoquery(html string) (*goquery.Document, error){
