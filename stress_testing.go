@@ -7,9 +7,10 @@ import (
 	"time"
 )
 
-type stateCodeMap struct {
-	m map[int]int64
-	mux sync.Mutex
+
+type stateCodeData struct {
+	Code int
+	ReqTime int64
 }
 
 // StressUrl 压力测试一个url
@@ -26,9 +27,11 @@ type StressUrl struct {
 	// 测试结果
 	avgReqTime time.Duration
 
-	// state code
-	stateCodeMap *stateCodeMap
+	// 接口传入的json
+	JsonData string
 
+	stateCodeList []*stateCodeData
+	stateCodeListMux *sync.Mutex
 }
 
 // NewTestUrl 实例化一个新的url压测
@@ -40,10 +43,8 @@ func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 		Total : total,
 		TQueue : NewQueue(),
 		sumReqTime: int64(0),
-		stateCodeMap: &stateCodeMap{
-			m: make(map[int]int64),
-			mux: sync.Mutex{},
-		},
+		stateCodeList: make([]*stateCodeData,0),
+		stateCodeListMux: &sync.Mutex{},
 	}
 }
 
@@ -75,6 +76,9 @@ func (s *StressUrl) Run(vs ...interface{}){
 	for n=0; n<s.Sum; n++{
 		s.TQueue.Add(&Task{Url: s.Url})
 	}
+	log.Println("总执行次数： ", s.TQueue.Size())
+
+	var count int64 = 0
 
 	for job:=0; job<s.Total; job++{
 		wg.Add(1)
@@ -82,16 +86,32 @@ func (s *StressUrl) Run(vs ...interface{}){
 			//log.Println("启动第",i ,"个任务; ")
 			defer wg.Done()
 			for {
+
+				var (
+					ctx = &Context{}
+					err error
+				)
+
 				if s.TQueue.IsEmpty(){
 					break
 				}
+
 				task := s.TQueue.Poll()
 				if task == nil{
 					continue
 				}
-				//log.Println("第",i,"个任务取的值： ", task)
 
-				ctx, err := Get(task.Url, succeedFunc, reqTimeout, reqTimeoutms)
+				//log.Println("第",i,"个任务取的值： ", task)
+				switch s.Method {
+					case "get","Get","GET":
+						ctx, err = Get(task.Url, succeedFunc, reqTimeout, reqTimeoutms)
+					case "post","Post","POST":
+						ctx, err = PostJson(task.Url, s.JsonData, succeedFunc, reqTimeout, reqTimeoutms)
+					default:
+						log.Println("未知 Method.")
+				}
+
+				//ctx, err := Get(task.Url, succeedFunc, reqTimeout, reqTimeoutms)
 				if err != nil {
 					log.Println(err)
 					return
@@ -100,30 +120,53 @@ func (s *StressUrl) Run(vs ...interface{}){
 				if ctx == nil {
 					continue
 				}
+
 				ctx.JobNumber = i
 				ctx.Do()
 				atomic.AddInt64(&s.sumReqTime, int64(ctx.Ms))
+				atomic.AddInt64(&count, int64(1))
 
-
-				s.stateCodeMap.mux.Lock()
+				s.stateCodeListMux.Lock()
 				if ctx.Resp != nil{
-					s.stateCodeMap.m[ctx.Resp.StatusCode]++
+					s.stateCodeList = append(s.stateCodeList, &stateCodeData{
+						Code: ctx.Resp.StatusCode,
+						ReqTime: int64(ctx.Ms),
+					})
 				}else{
 					//请求错误
-					s.stateCodeMap.m[-1]++
+					s.stateCodeList = append(s.stateCodeList, &stateCodeData{
+						Code: -1,
+						ReqTime: int64(ctx.Ms),
+					})
 				}
-				s.stateCodeMap.mux.Unlock()
-
+				s.stateCodeListMux.Unlock()
 
 			}
-			//log.Println("第",i ,"个任务结束！！")
+
 		}(job)
 	}
 	wg.Wait()
+
+	log.Println("执行次数 : ", count)
+
+	fb := make(map[int]int,0)
+	for _, v := range s.stateCodeList{
+		//if int64(k) >= s.Sum{
+		//	break
+		//}
+		if _,ok := fb[v.Code]; ok{
+			fb[v.Code]++
+		}else{
+			fb[v.Code] = 1
+		}
+		//s.sumReqTime = s.sumReqTime + v.ReqTime
+	}
+	log.Println("状态码分布: ", fb)
+
 	avg := float64(s.sumReqTime)/float64(s.Sum)
 	avg = avg/(1000*1000)
 	log.Println("平均用时： ", avg,"ms")
-	log.Println("状态码分布: ", s.stateCodeMap)
+
 	log.Println("执行完成！！！")
 
 }

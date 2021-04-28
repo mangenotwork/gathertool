@@ -90,6 +90,7 @@ type Context struct {
 
 	// 请求的响应时间 单位ms
 	Ms time.Duration
+
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -145,8 +146,11 @@ func (c *Context) Do() func(){
 
 	// 是否超时
 	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)"){
-		c.RetryFunc(c)
-		return c.Do()
+		if c.RetryFunc != nil {
+			c.RetryFunc(c)
+			return c.Do()
+		}
+		return nil
 	}
 
 	// 其他错误

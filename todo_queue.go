@@ -24,7 +24,7 @@ type TodoQueue interface {
 
 // 队列
 type Queue struct {
-	mux sync.RWMutex
+	mux *sync.Mutex
 	list []*Task
 }
 
@@ -46,7 +46,7 @@ type ReqUrl struct {
 // NewQueue 新建一个队列
 func NewQueue() TodoQueue {
 	list := make([]*Task, 0)
-	return &Queue{list: list, mux: sync.RWMutex{}}
+	return &Queue{list: list, mux: &sync.Mutex{}}
 }
 
 // Add 向队列中添加元素
@@ -58,11 +58,11 @@ func (q *Queue) Add(task *Task) {
 
 // Poll 移除队列中最前面的额元素
 func (q *Queue) Poll() *Task {
-	q.mux.RLock()
-	defer q.mux.RUnlock()
+	q.mux.Lock()
+	defer q.mux.Unlock()
 	if q.IsEmpty() {
 		fmt.Println("queue is empty!")
-		return &Task{}
+		return nil
 	}
 
 	first := q.list[0]
