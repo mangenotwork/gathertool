@@ -9,10 +9,13 @@ package gathertool
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -161,8 +164,10 @@ func (c *Context) Do() func(){
 		}
 		return nil
 	}
+
 	defer func(cxt *Context){
 		if cxt.Resp != nil {
+
 			cxt.Resp.Body.Close()
 		}
 	}(c)
@@ -229,3 +234,42 @@ func (c *Context) AddHeader(k,v string) {
 func (c *Context) AddCookie(cookie *http.Cookie){
 	c.Req.AddCookie(cookie)
 }
+
+// CookieNext
+func (c *Context) CookieNext() error {
+	if c.Resp == nil{
+		return errors.New("Response is nil")
+	}
+	if c.Req == nil {
+		return errors.New("Request is nil")
+	}
+	// 上下文cookies
+	for _,cookie := range c.Resp.Cookies(){
+		c.Req.AddCookie(cookie)
+	}
+	return nil
+}
+
+
+// CookiePool   cookie池
+type cookiePool struct {
+	cookie []*http.Cookie
+	mux sync.Mutex
+}
+
+var CookiePool = &cookiePool{}
+
+func (c *cookiePool) Add(cookie *http.Cookie){
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	c.cookie = append(c.cookie, cookie)
+}
+
+func (c *cookiePool) Get() *http.Cookie {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	n := rand.Int63n(int64(len(c.cookie)))
+	return c.cookie[n]
+}
+
+

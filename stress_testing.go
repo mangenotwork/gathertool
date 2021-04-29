@@ -2,6 +2,7 @@ package gathertool
 
 import (
 	"log"
+	"net/http"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -48,6 +49,10 @@ func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 	}
 }
 
+func (s *StressUrl) SetJson(str string) {
+	s.JsonData = str
+}
+
 // Run 运行压测
 func (s *StressUrl) Run(vs ...interface{}){
 	//解析可变参
@@ -57,6 +62,7 @@ func (s *StressUrl) Run(vs ...interface{}){
 		wg sync.WaitGroup
 	    reqTimeout ReqTimeOut
 		reqTimeoutms ReqTimeOutMs
+		header http.Header
 	)
 	for _, v := range vs {
 		//log.Println("参数： ", v)
@@ -69,6 +75,10 @@ func (s *StressUrl) Run(vs ...interface{}){
 			reqTimeout = vv
 		case ReqTimeOutMs:
 			reqTimeoutms = vv
+		case http.Header:
+			header = vv
+		case *http.Header:
+			header = *vv
 		}
 	}
 
@@ -104,9 +114,10 @@ func (s *StressUrl) Run(vs ...interface{}){
 				//log.Println("第",i,"个任务取的值： ", task)
 				switch s.Method {
 					case "get","Get","GET":
-						ctx, err = Get(task.Url, succeedFunc, reqTimeout, reqTimeoutms)
+						ctx, err = Get(task.Url, succeedFunc, reqTimeout, reqTimeoutms, header)
 					case "post","Post","POST":
-						ctx, err = PostJson(task.Url, s.JsonData, succeedFunc, reqTimeout, reqTimeoutms)
+						ctx, err = PostJson(task.Url, s.JsonData, succeedFunc, reqTimeout, reqTimeoutms,
+							header)
 					default:
 						log.Println("未知 Method.")
 				}
@@ -149,11 +160,23 @@ func (s *StressUrl) Run(vs ...interface{}){
 
 	log.Println("执行次数 : ", count)
 
+	var (
+		maxTime int64= 0
+		minTime int64 = 9999999999
+	)
+
+
 	fb := make(map[int]int,0)
 	for _, v := range s.stateCodeList{
-		//if int64(k) >= s.Sum{
-		//	break
-		//}
+
+		if v.ReqTime >= maxTime{
+			maxTime = v.ReqTime
+		}
+
+		if v.ReqTime <= minTime{
+			minTime = v.ReqTime
+		}
+
 		if _,ok := fb[v.Code]; ok{
 			fb[v.Code]++
 		}else{
@@ -166,6 +189,8 @@ func (s *StressUrl) Run(vs ...interface{}){
 	avg := float64(s.sumReqTime)/float64(s.Sum)
 	avg = avg/(1000*1000)
 	log.Println("平均用时： ", avg,"ms")
+	log.Println("最高用时: ", float64(maxTime)/(1000*1000),"ms")
+	log.Println("最低用时: ", float64(minTime)/(1000*1000),"ms")
 
 	log.Println("执行完成！！！")
 

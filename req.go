@@ -63,6 +63,46 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context,error){
 	return	Req(request, vs...)
 }
 
+// Put
+func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context,error){
+	if !isUrl(url) {
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
+	if err != nil{
+		log.Println("err->", err)
+		return nil, err
+	}
+	request.Header.Set("Content-Type", contentType)
+	return	Req(request, vs...)
+}
+
+// Delete
+func Delete(url string, vs ...interface{}) (*Context,error){
+	if !isUrl(url) {
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest("DELETE", url, nil)
+	if err != nil{
+		log.Println("err->", err)
+		return nil, err
+	}
+	return	Req(request, vs...)
+}
+
+// Options
+func Options(url string, vs ...interface{}) (*Context,error){
+	if !isUrl(url) {
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest("OPTIONS", url, nil)
+	if err != nil{
+		log.Println("err->", err)
+		return nil, err
+	}
+	return	Req(request, vs...)
+}
+
 
 // Request 请求
 func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context,error){
