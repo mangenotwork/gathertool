@@ -270,4 +270,40 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
  	return err
 }
 
+// 执行 Update
+func (m *Mysql) Update(sql string) error {
+	_, err := m.DB.Exec(sql)
+	if m.Log{
+		loger("[Sql] Exec : " + sql)
+		if err != nil{
+			loger("[Sql] Error : " + err.Error())
+		}
+	}
+	return err
+}
+
+// 执行sql Exec
+func (m *Mysql) Exec(sql string) error {
+	_, err := m.DB.Exec(sql)
+	if m.Log{
+		loger("[Sql] Exec : " + sql)
+		if err != nil{
+			loger("[Sql] Error : " + err.Error())
+		}
+	}
+	return err
+}
+
+// Delete
+func (m *Mysql) Delete(sql string) error {
+	_, err := m.DB.Exec(sql)
+	if m.Log{
+		loger("[Sql] Exec : " + sql)
+		if err != nil{
+			loger("[Sql] Error : " + err.Error())
+		}
+	}
+	return err
+}
+
 

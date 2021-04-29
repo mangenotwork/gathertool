@@ -12,8 +12,10 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -167,7 +169,6 @@ func (c *Context) Do() func(){
 
 	defer func(cxt *Context){
 		if cxt.Resp != nil {
-
 			cxt.Resp.Body.Close()
 		}
 	}(c)
@@ -234,6 +235,83 @@ func (c *Context) AddHeader(k,v string) {
 func (c *Context) AddCookie(cookie *http.Cookie){
 	c.Req.AddCookie(cookie)
 }
+
+// Upload 下载
+func (c *Context) Upload(filePath string) func(){
+	//空验证
+	if c == nil{
+		log.Println("空对象")
+		return nil
+	}
+
+	//重试验证
+	c.times++
+	if c.times > c.MaxTimes{
+		log.Println("请求失败操过", c.MaxTimes, "次了")
+		return nil
+	}
+
+	//执行请求
+	c.Resp,c.Err = c.Client.Do(c.Req)
+
+	// 是否超时
+	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)"){
+		if c.RetryFunc != nil {
+			c.RetryFunc(c)
+			return c.Do()
+		}
+		return nil
+	}
+
+	// 其他错误
+	if c.Err != nil {
+		log.Println("err = ", c.Err)
+		if c.FailedFunc != nil{
+			c.FailedFunc(c)
+		}
+		return nil
+	}
+	defer func(cxt *Context){
+		if cxt.Resp != nil {
+			cxt.Resp.Body.Close()
+		}
+	}(c)
+
+	f, err := os.Create(filePath)
+	if err != nil {
+		c.Err = err
+		return nil
+	}
+	defer f.Close()
+
+	contentLength := Str2Float64(c.Resp.Header.Get("Content-Length"))
+	var sum int64 = 0
+	buf := make([]byte, 1024*100)
+	st := time.Now()
+	i := 0
+	for {
+		i++
+		n, err := c.Resp.Body.Read(buf)
+		sum=sum+int64(n)
+		if err != nil || n == 0{
+			f.Write(buf[:n])
+			break
+		}
+		f.Write(buf[:n])
+		if i%9 == 0{
+			log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum),"/", FileSizeFormat(int64(contentLength)),
+				" |\t ", math.Floor((float64(sum)/contentLength)*100),"%")
+		}
+	}
+	ct := time.Now().Sub(st)
+	log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum),"/", FileSizeFormat(int64(contentLength)),
+		" |\t ", math.Floor((float64(sum)/contentLength)*100), "%", "|\t ", ct )
+
+
+	//loger(" rep header ", c.Resp.ContentLength)
+	return nil
+}
+
 
 // CookieNext
 func (c *Context) CookieNext() error {

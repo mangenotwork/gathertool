@@ -118,6 +118,18 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 	return	Req(request, vs...)
 }
 
+// Upload
+func Upload(url, savePath string, vs ...interface{})  error {
+	if !isUrl(url) {
+		return UrlBad
+	}
+	c,err := Get(url,vs)
+	if err != nil{
+		return err
+	}
+	c.Upload(savePath)
+	return nil
+}
 
 // isUrl 验证是否是有效的 url
 func isUrl(url string) bool {
