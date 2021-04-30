@@ -1,8 +1,13 @@
+/*
+	Description : redis 相关方法
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-30
+*/
+
 package gathertool
 
 import (
-	"bytes"
-	"encoding/gob"
 	"errors"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
@@ -278,10 +283,3 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 
 }
 
-func deepCopy(dst, src interface{}) error {
-	var buf bytes.Buffer
-	if err := gob.NewEncoder(&buf).Encode(src); err != nil {
-		return err
-	}
-	return gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
-}

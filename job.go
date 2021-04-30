@@ -1,3 +1,10 @@
+/*
+	Description : 并发工作任务
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-28
+*/
+
 package gathertool
 
 import (
@@ -92,67 +99,3 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 
 // TODO:  StartJobPost 开始运行并发Post
 func StartJobPost(){}
-
-//// StartUploadJob
-//func StartUploadJob(jobNumber int, queue UploadQueue, vs ...interface{}){
-//	var (
-//		client *http.Client
-//		succeed SucceedFunc
-//		retry RetryFunc
-//		failed FailedFunc
-//	)
-//
-//	for _,v := range vs{
-//		switch vv := v.(type) {
-//		case *http.Client:
-//			client = vv
-//		case SucceedFunc:
-//			succeed = vv
-//		case FailedFunc:
-//			failed = vv
-//		case RetryFunc:
-//			retry = vv
-//		}
-//	}
-//
-//	var wg sync.WaitGroup
-//	for job:=0;job<jobNumber;job++{
-//		wg.Add(1)
-//		go func(i int){
-//			log.Println("启动第",i ,"个任务")
-//			defer wg.Done()
-//			for {
-//				if queue.IsEmpty(){
-//					break
-//				}
-//				task := queue.Poll()
-//				log.Println("第",i,"个任务取的值： ", task)
-//				ctx, err := Get(task.Url, task)
-//				if err != nil {
-//					log.Println(err)
-//					return
-//				}
-//				if client != nil {
-//					ctx.Client = client
-//				}
-//				if succeed != nil {
-//					ctx.SetSucceedFunc(succeed)
-//				}
-//				if retry != nil {
-//					ctx.SetRetryFunc(retry)
-//				}
-//				if failed != nil {
-//					ctx.SetFailedFunc(failed)
-//				}
-//
-//				if task.SavePath == ""{
-//					task.SavePath = task.SaveDir + task.FileName
-//				}
-//				ctx.Upload(task.SavePath)
-//			}
-//			log.Println("第",i ,"个任务结束！！")
-//		}(job)
-//	}
-//	wg.Wait()
-//	log.Println("执行完成！！！")
-//}

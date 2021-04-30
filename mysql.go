@@ -1,3 +1,10 @@
+/*
+	Description : mysql 相关方法
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-29
+*/
+
 package gathertool
 
 import (
@@ -11,7 +18,7 @@ import (
 	"time"
 )
 
-
+// 开放的mysql对象
 var MysqlDB = &Mysql{}
 
 type Mysql struct {
@@ -26,6 +33,7 @@ type Mysql struct {
 	Log bool
 }
 
+// 给mysql对象进行连接
 func NewMysqlDB(host string,port int, user, password, database string)(err error){
 	MysqlDB, err = NewMysql(host,port, user, password, database)
 	err = MysqlDB.Conn()

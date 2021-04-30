@@ -1,3 +1,10 @@
+/*
+	Description : csv的相关方法
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-27
+*/
+
 package gathertool
 
 import (
@@ -11,30 +18,29 @@ type Csv struct {
 	R *csv.Reader
 }
 
-func NewCsv(fileName string) *Csv {
+// 新创建一个csv对象
+func NewCsv(fileName string) (*Csv,error) {
 	//创建文件
 	f, err := os.Create(fileName)
-	if err == nil {
-		// 写入UTF-8 BOM
-		_,_ = f.WriteString("\xEF\xBB\xBF")
-	}
+	defer f.Close()
 	if err != nil {
 		loger(err.Error())
+		return nil,err
 	}
-	defer f.Close()
-
+	_,_ = f.WriteString("\xEF\xBB\xBF")
 	csvObj := &Csv{FileName: fileName}
-
 	csvObj.W = csv.NewWriter(f)
 	csvObj.R = csv.NewReader(f)
 
-	return csvObj
+	return csvObj,nil
 }
 
+// 写入csv
 func (c *Csv) Add(data []string) error{
 	return c.W.Write(data)
 }
 
+// 读取所有
 func (c *Csv) ReadAll() ([][]string, error){
 	return c.R.ReadAll()
 }

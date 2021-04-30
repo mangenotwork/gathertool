@@ -1,3 +1,10 @@
+/*
+	Description : 时间相关的操作
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-26
+*/
+
 package gathertool
 
 import "time"

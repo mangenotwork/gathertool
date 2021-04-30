@@ -1,8 +1,16 @@
+/*
+	Description : 数据类型相关的操作
+	Author : ManGe
+	Version : v0.1
+	Date : 2021-04-26
+*/
+
 package gathertool
 
 import (
 	"bytes"
 	"crypto/md5"
+	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -11,7 +19,7 @@ import (
 	"strings"
 )
 
-//StringValue 任何类型返回值字符串形式
+// StringValue 任何类型返回值字符串形式
 func StringValue(i interface{}) string {
 	var buf bytes.Buffer
 	stringValue(reflect.ValueOf(i), 0, &buf)
@@ -233,3 +241,68 @@ func FileSizeFormat(fileSize int64) (size string) {
 		return fmt.Sprintf("%.2fEB", float64(fileSize)/float64(1024*1024*1024*1024*1024))
 	}
 }
+
+// 深copy
+func deepCopy(dst, src interface{}) error {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(src); err != nil {
+		return err
+	}
+	return gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
+}
+
+// Struct  ->  map
+// hasValue=true表示字段值不管是否存在都转换成map
+// hasValue=false表示字段为空或者不为0则转换成map
+func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error) {
+	mp := make(map[string]interface{})
+	value := reflect.ValueOf(obj).Elem()
+	typeOf := reflect.TypeOf(obj).Elem()
+	for i := 0; i < value.NumField(); i++ {
+		switch value.Field(i).Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if hasValue {
+				if value.Field(i).Int() != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).Int()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).Int()
+			}
+
+		case reflect.String:
+			if hasValue {
+				if len(value.Field(i).String()) != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).String()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).String()
+			}
+
+		case reflect.Float32, reflect.Float64:
+			if hasValue {
+				if len(value.Field(i).String()) != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).Float()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).Float()
+			}
+
+		case reflect.Bool:
+			if hasValue {
+				if len(value.Field(i).String()) != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).Bool()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).Bool()
+			}
+
+		default:
+			return mp, fmt.Errorf("数据类型不匹配")
+		}
+	}
+
+	return mp, nil
+}
+
+
