@@ -150,13 +150,19 @@ func (c *Context) Do() func(){
 	c.Ms = time.Now().Sub(before)
 
 	// 是否超时
-	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)"){
+	if c.Err != nil && (
+		strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") ||
+		strings.Contains(c.Err.Error(), ("Too Many Requests")) ||
+			strings.Contains(c.Err.Error(), ("To Many Requests")) ||
+			strings.Contains(c.Err.Error(), ("EOF")) ||
+			strings.Contains(c.Err.Error(), ("connection timed out")) ){
 		if c.RetryFunc != nil {
 			c.RetryFunc(c)
 			return c.Do()
 		}
 		return nil
 	}
+
 
 	// 其他错误
 	if c.Err != nil {

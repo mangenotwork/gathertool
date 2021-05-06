@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"sync"
 )
 
@@ -32,6 +33,8 @@ type Queue struct {
 // 任务对象
 type Task struct {
 	Url string
+	JsonParam string
+	HeaderMap *http.Header
 	// 上下文传递的数据
 	Data map[string]interface{}
 	Urls []*ReqUrl // 多步骤使用
@@ -40,6 +43,40 @@ type Task struct {
 	SaveDir string
 	FileName string
 }
+
+// CrawlerTask
+func CrawlerTask(url,jsonParam string, vs ...interface{}) *Task {
+	header := &http.Header{}
+
+	for _, v := range vs {
+		switch vv := v.(type) {
+			case http.Header:
+			for key, values := range vv {
+				for _, value := range values {
+					header.Add(key, value)
+				}
+			}
+		case  *http.Header:
+			for key, values := range *vv {
+				for _, value := range values {
+					header.Add(key, value)
+				}
+			}
+		}
+	}
+
+	return &Task{
+		Url: url,
+		JsonParam: jsonParam,
+		HeaderMap: header,
+		Data: make(map[string]interface{},0),
+		Type: "do",
+	}
+}
+
+// TODO RedisTask
+
+// TODO StressTask
 
 // 单个请求地址对象
 type ReqUrl struct {

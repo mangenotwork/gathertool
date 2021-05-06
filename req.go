@@ -174,6 +174,12 @@ func Req(request *http.Request, vs ...interface{}) (*Context,error){
 					request.Header.Add(key, value)
 				}
 			}
+		case  *http.Header:
+			for key, values := range *vv {
+				for _, value := range values {
+					request.Header.Add(key, value)
+				}
+			}
 		case *http.Client:
 			client = vv
 		case UserAgentType:
@@ -198,6 +204,15 @@ func Req(request *http.Request, vs ...interface{}) (*Context,error){
 			reqTimeOut = vv
 		case ReqTimeOutMs:
 			reqTimeOutMs = vv
+		}
+	}
+
+	// task Header
+	if task != nil && task.HeaderMap != nil {
+		for k,v := range *task.HeaderMap {
+			for _, value := range v {
+				request.Header.Add(k, value)
+			}
 		}
 	}
 

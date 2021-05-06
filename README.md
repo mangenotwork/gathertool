@@ -124,3 +124,7 @@ func fail(ctx *gt.Context) {
 	log.Println("请求失败: ", ctx.Err)
 }
 ```
+
+### BUG
+- MysqlDB.NewTable() 字段参数是map, 创建的表会乱序
+- 

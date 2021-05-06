@@ -110,7 +110,7 @@ func MD5(str string) string  {
 }
 
 // json转map函数，通用
-func JSON2Map(str string) map[string]interface{} {
+func Json2Map(str string) map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal([]byte(str), &tempMap)
 	if err != nil {
@@ -305,4 +305,16 @@ func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error) 
 	return mp, nil
 }
 
+// panic -> error
+func PanicToError(fn func()) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("Panic error: %v", r)
+		}
+	}()
 
+	fn()
+	return
+}
+
+//

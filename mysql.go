@@ -57,6 +57,11 @@ func NewMysql(host string,port int, user, password, database string) (*Mysql, er
 	}, nil
 }
 
+// 获取mysql 连接
+func GetMysqlDBConn() *Mysql {
+	return MysqlDB
+}
+
 // 关闭日志
 func (m *Mysql) CloseLog(){
 	m.Log = false
@@ -193,6 +198,7 @@ func (m *Mysql) selectGetTable(sql string) string{
 }
 
 // NewTable 创建表
+// 字段顺序不固定
 func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	var (
 		createSql bytes.Buffer
@@ -228,6 +234,10 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	}
 	return nil
 }
+
+
+// TODO: NewTable - 2 创建表  字段顺序需要固定
+
 
 // Insert 新增数据
 func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
@@ -277,6 +287,10 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 
  	return err
 }
+
+// TODO: 新增数据结构体
+
+// TODO: 新增数据json字符串
 
 // 执行 Update
 func (m *Mysql) Update(sql string) error {
