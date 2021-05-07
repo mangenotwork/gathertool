@@ -11,7 +11,10 @@ import (
 	"bytes"
 	"errors"
 	"log"
+	"net"
 	"net/http"
+	"strconv"
+	"sync"
 	"time"
 )
 
@@ -21,6 +24,7 @@ var (
 
 type ReqTimeOut int
 type ReqTimeOutMs int
+
 
 // Get 请求, 当请求失败或状态码是失败的则会先执行 ff 再回调
 func Get(url string, vs ...interface{}) (*Context,error){
@@ -34,6 +38,22 @@ func Get(url string, vs ...interface{}) (*Context,error){
 	}
 	return	Req(request, vs...)
 }
+
+
+// Get 请求直接执行
+func GetRun(url string, vs ...interface{}) (ctx *Context,err error) {
+	if !isUrl(url) {
+		err = errors.New("请求 url 为空.")
+		return
+	}
+	request, err := http.NewRequest("GET", url, nil)
+	ctx, err = Req(request, vs...)
+	if ctx != nil {
+		ctx.Do()
+	}
+	return
+}
+
 
 // POST 请求
 func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context,error){
@@ -49,6 +69,7 @@ func Post(url string, data []byte, contentType string, vs ...interface{}) (*Cont
 	return	Req(request, vs...)
 }
 
+
 // POST json 请求
 func PostJson(url string, jsonStr string, vs ...interface{}) (*Context,error){
 	if !isUrl(url) {
@@ -62,6 +83,7 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context,error){
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	return	Req(request, vs...)
 }
+
 
 // Put
 func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context,error){
@@ -77,6 +99,7 @@ func Put(url string, data []byte, contentType string, vs ...interface{}) (*Conte
 	return	Req(request, vs...)
 }
 
+
 // Delete
 func Delete(url string, vs ...interface{}) (*Context,error){
 	if !isUrl(url) {
@@ -89,6 +112,7 @@ func Delete(url string, vs ...interface{}) (*Context,error){
 	}
 	return	Req(request, vs...)
 }
+
 
 // Options
 func Options(url string, vs ...interface{}) (*Context,error){
@@ -118,6 +142,7 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 	return	Req(request, vs...)
 }
 
+
 // Upload
 func Upload(url, savePath string, vs ...interface{})  error {
 	if !isUrl(url) {
@@ -131,6 +156,7 @@ func Upload(url, savePath string, vs ...interface{})  error {
 	return nil
 }
 
+
 // isUrl 验证是否是有效的 url
 func isUrl(url string) bool {
 	if url == ""{
@@ -138,6 +164,9 @@ func isUrl(url string) bool {
 	}
 	return true
 }
+
+
+type Header map[string]string
 
 
 // Req 初始化请求
@@ -174,11 +203,15 @@ func Req(request *http.Request, vs ...interface{}) (*Context,error){
 					request.Header.Add(key, value)
 				}
 			}
-		case  *http.Header:
+		case *http.Header:
 			for key, values := range *vv {
 				for _, value := range values {
 					request.Header.Add(key, value)
 				}
+			}
+		case Header:
+			for key, value := range vv {
+				request.Header.Add(key, value)
 			}
 		case *http.Client:
 			client = vv
@@ -247,5 +280,96 @@ func Req(request *http.Request, vs ...interface{}) (*Context,error){
 	},nil
 }
 
+func SearchDomain(ip string){
+	addr, err := net.LookupTXT(ip)
+	log.Println(addr, err)
+}
+
+func SearchPort(ipStr string, vs ...interface{}) {
+
+	timeOut := 4*time.Second
+
+	for _, v := range vs {
+		switch vv := v.(type) {
+		case time.Duration:
+			timeOut = vv
+		}
+	}
+
+	queue := NewQueue()
+
+	//for i:=0;i<65536;i++{
+	//	ip := net.ParseIP(ipStr)
+	//
+	//	tcpAddr := &net.TCPAddr{
+	//		IP:ip,
+	//		Port:i,
+	//	}
+	//
+	//	queue.Add(&Task{
+	//		Url: tcpAddr.String(),
+	//	})
+	//}
+
+	for i:=0;i<65536;i++{
+		buf := &bytes.Buffer{}
+		buf.WriteString(ipStr)
+		buf.WriteString(":")
+		buf.WriteString(strconv.Itoa(i))
+		queue.Add(&Task{
+			Url: buf.String(),
+		})
+	}
+
+	var wg sync.WaitGroup
+
+	//wg.Add(1)
+	//go func() {
+	//	defer wg.Done()
+	//	for i:=0;i<65536;i++{
+	//		ip := net.ParseIP(ipStr)
+	//
+	//		tcpAddr := &net.TCPAddr{
+	//			IP:ip,
+	//			Port:i,
+	//		}
+	//
+	//		queue.Add(&Task{
+	//			Url: tcpAddr.String(),
+	//		})
+	//	}
+	//}()
 
 
+	for job:=0;job<65536;job++{
+		wg.Add(1)
+		go func(i int){
+			defer wg.Done()
+			for {
+
+				if queue.IsEmpty(){
+					break
+				}
+
+				task := queue.Poll()
+				//log.Println(task.Url)
+				if task == nil {
+					continue
+				}
+
+				conn, err := net.DialTimeout("tcp", task.Url, timeOut)
+				if err == nil {
+					log.Println(task.Url, "开放")
+					conn.Close()
+				}
+			}
+		}(job)
+	}
+
+	wg.Wait()
+
+
+
+
+	log.Println("执行完成！！！")
+}

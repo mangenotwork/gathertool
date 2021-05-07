@@ -58,8 +58,9 @@ func NewMysql(host string,port int, user, password, database string) (*Mysql, er
 }
 
 // 获取mysql 连接
-func GetMysqlDBConn() *Mysql {
-	return MysqlDB
+func GetMysqlDBConn() (*Mysql,error) {
+	err := MysqlDB.Conn()
+	return MysqlDB, err
 }
 
 // 关闭日志

@@ -114,7 +114,8 @@ func Json2Map(str string) map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal([]byte(str), &tempMap)
 	if err != nil {
-		panic(err)
+		loger(err)
+		return nil
 	}
 	return tempMap
 }

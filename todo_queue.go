@@ -9,7 +9,6 @@ package gathertool
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -104,7 +103,6 @@ func (q *Queue) Poll() *Task {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 	if q.IsEmpty() {
-		fmt.Println("queue is empty!")
 		return nil
 	}
 
@@ -115,7 +113,6 @@ func (q *Queue) Poll() *Task {
 
 func (q *Queue) Clear() bool {
 	if q.IsEmpty() {
-		fmt.Println("queue is empty!")
 		return false
 	}
 	for i:=0 ; i< q.Size() ; i++ {
@@ -172,7 +169,6 @@ func (q *UploadQueue) Poll() *Task {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 	if q.IsEmpty() {
-		fmt.Println("queue is empty!")
 		return nil
 	}
 
@@ -183,7 +179,6 @@ func (q *UploadQueue) Poll() *Task {
 
 func (q *UploadQueue) Clear() bool {
 	if q.IsEmpty() {
-		fmt.Println("queue is empty!")
 		return false
 	}
 	for i:=0 ; i< q.Size() ; i++ {
