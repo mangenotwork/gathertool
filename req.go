@@ -10,6 +10,7 @@ package gathertool
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -285,6 +286,7 @@ func SearchDomain(ip string){
 	log.Println(addr, err)
 }
 
+// 扫描ip的端口
 func SearchPort(ipStr string, vs ...interface{}) {
 
 	timeOut := 4*time.Second
@@ -297,19 +299,6 @@ func SearchPort(ipStr string, vs ...interface{}) {
 	}
 
 	queue := NewQueue()
-
-	//for i:=0;i<65536;i++{
-	//	ip := net.ParseIP(ipStr)
-	//
-	//	tcpAddr := &net.TCPAddr{
-	//		IP:ip,
-	//		Port:i,
-	//	}
-	//
-	//	queue.Add(&Task{
-	//		Url: tcpAddr.String(),
-	//	})
-	//}
 
 	for i:=0;i<65536;i++{
 		buf := &bytes.Buffer{}
@@ -372,4 +361,88 @@ func SearchPort(ipStr string, vs ...interface{}) {
 
 
 	log.Println("执行完成！！！")
+}
+
+
+func Ping(ip string){
+
+	before := time.Now()
+	defer func(tStart time.Time){
+		dur := time.Now().Sub(before)
+		log.Println("来自 ",ip," 的回复: 时间 = ", dur)
+	}(before)
+
+	c, err := net.Dial("ip4:icmp", ip)
+	if err != nil {
+		return
+	}
+	log.Println(c)
+	c.SetDeadline(time.Now().Add(1 * time.Second))
+	defer c.Close()
+
+	var msg [512]byte
+	msg[0] = 8
+	msg[1] = 0
+	msg[2] = 0
+	msg[3] = 0
+	msg[4] = 0
+	msg[5] = 13
+	msg[6] = 0
+	msg[7] = 37
+	msg[8] = 99
+	len := 9
+	check := checkSum(msg[0:len])
+	msg[2] = byte(check >> 8)
+	msg[3] = byte(check & 0xff)
+	fmt.Println(msg[0:len])
+
+	_, err = c.Write(msg[0:len])
+	if err!= nil{
+		log.Println(ip," -> ping err : ", err)
+		return
+	}
+
+	c.Write(msg[0:len])
+
+
+	_, err = c.Read(msg[0:])
+	if err!= nil{
+		log.Println(ip," -> ping err : ", err)
+		return
+	}
+
+	//log.Println(string(msg[0 : 20+len]))
+
+	//log.Println("Got response")
+	if msg[20+5] != 13 {
+		log.Println(ip," -> ping err : Identifier not matches")
+		return
+	}
+	if msg[20+7] != 37 {
+		log.Println(ip," -> ping err : Sequence not matches")
+		return
+	}
+	if msg[20+8] != 99 {
+		log.Println(ip," -> ping err : Custom data not matches")
+		return
+	}
+
+	log.Println("ping ok : ", ip)
+}
+
+func checkSum(msg []byte) uint16 {
+	sum := 0
+
+	len := len(msg)
+	for i := 0; i < len-1; i += 2 {
+		sum += int(msg[i])*256 + int(msg[i+1])
+	}
+	if len%2 == 1 {
+		sum += int(msg[len-1]) * 256 // notice here, why *256?
+	}
+
+	sum = (sum >> 16) + (sum & 0xffff)
+	sum += (sum >> 16)
+	var answer uint16 = uint16(^sum)
+	return answer
 }

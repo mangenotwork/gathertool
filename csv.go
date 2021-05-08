@@ -44,3 +44,21 @@ func (c *Csv) Add(data []string) error{
 func (c *Csv) ReadAll() ([][]string, error){
 	return c.R.ReadAll()
 }
+
+// csv file -> [][]string 行列
+func ReadCsvFile(filename string) [][]string {
+	file, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	reader := csv.NewReader(file)
+	reader.Comma = ','
+
+	allRecords, err := reader.ReadAll()
+	if err != nil {
+		panic(err)
+	}
+	return allRecords
+}
+

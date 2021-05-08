@@ -15,8 +15,21 @@ import (
 
 func main(){
 	//gt.SearchDomain("110.242.68.3")
-	gt.SearchPort("120.79.88.59", 5*time.Second)
+	//gt.SearchPort("120.79.88.59", 5*time.Second)
+	//gt.Ping("192.168.0.23")
+	//
+	//for i:=0; i<256; i++{
+	//	gt.Ping(fmt.Sprintf("192.168.0.%d", i))
+	//}
+
+	for {
+		gt.Ping("120.79.88.59")
+		time.Sleep(1*time.Second)
+	}
+
 }
+
+
 
 /*
 	搜索引擎采集策略

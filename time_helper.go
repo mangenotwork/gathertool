@@ -7,7 +7,14 @@
 
 package gathertool
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
+
+func Timestamp() string {
+	return strconv.FormatInt(time.Now().Unix(),10)
+}
 
 // BeginDayUnix 获取当天 0点
 func BeginDayUnix() int64 {

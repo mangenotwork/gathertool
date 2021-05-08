@@ -32,6 +32,8 @@ var regMap = map[string]string{
 	"RegHtmlTd": `(?is:<td.*?</td>)`,
 	"RegHtmlP": `(?is:<p.*?</p>)`,
 	"RegHtmlSpan": `(?is:<span.*?</span>)`,
+	"RegHtmlSrc": `(?is:src=\".*?\")`,
+	"RegHtmlHref": `(?is:href=\".*?\")`,
 }
 
 // 获取正在运行的函数名
@@ -51,7 +53,6 @@ func regFind(funcName, txt string) (dataList []string) {
 		loger("reg func is not")
 		return
 	}
-	//txt = strings.Replace(txt,"\n","", -1)
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{
@@ -73,3 +74,7 @@ func RegHtmlTd(str string) []string { return regFind(runFuncName(), str) }
 func RegHtmlP(str string) []string { return regFind(runFuncName(), str) }
 
 func RegHtmlSpan(str string) []string { return regFind(runFuncName(), str) }
+
+func RegHtmlSrc(str string) []string { return regFind(runFuncName(), str) }
+
+func RegHtmlHref(str string) []string { return regFind(runFuncName(), str) }
