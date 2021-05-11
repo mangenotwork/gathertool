@@ -7,9 +7,135 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"reflect"
 )
 
+type Mongo struct {
+	User string
+	Password string
+	Host string
+	Port string
+	Conn *mongo.Client
+	Database *mongo.Database
+	Collection *mongo.Collection
+}
+
+func NewMongo(user, password, host, port string) (*Mongo, error){
+	m := &Mongo{
+		User: user,
+		Password : password,
+		Host : host,
+		Port : port,
+	}
+	if m.Host == "" {
+		m.Host = "127.0.0.1"
+	}
+
+	if m.Port == ""{
+		m.Port = "27017"
+	}
+
+	err := m.GetConn()
+
+	return m, err
+}
+
+// 建立mongodb 连接
+func (m *Mongo) GetConn() (err error){
+	uri := fmt.Sprintf("mongodb://")
+	if m.User != "" && m.Password != ""{
+		uri = uri + fmt.Sprintf("%s:%s@", m.User, m.Password)
+	}
+	uri = uri + fmt.Sprintf("%s:%s", m.Host, m.Port)
+
+	clientOptions := options.Client().ApplyURI(uri)
+	m.Conn, err = mongo.Connect(context.TODO(), clientOptions)
+	if err != nil{
+		return
+	}
+	err = m.Conn.Ping(context.TODO(), nil)
+	return
+}
+
+// 连接mongodb 的db
+// @dbname  DB名
+func (m *Mongo) GetDB(dbname string){
+	if m.Conn == nil {
+		m.GetConn()
+	}
+	m.Database = m.Conn.Database(dbname)
+}
+
+// 连接mongodb 的db的集合
+// @dbname  DB名
+// @name 集合名
+func (m *Mongo) GetCollection(dbname, name string){
+	if m.Conn == nil {
+		m.GetConn()
+	}
+	m.Collection = m.Conn.Database(dbname).Collection(name)
+}
+
+// 插入数据
+// @document   可以是 Struct, 是 Slice，
+func (m *Mongo) Insert(document interface{}) error{
+	if m.Collection == nil {
+		return fmt.Errorf("Collection is nil;")
+	}
+	v := reflect.ValueOf(document)
+
+	if reflect.ValueOf(document).Kind() == reflect.Struct {
+		insertResult, err := m.Collection.InsertOne(context.TODO(), document)
+		if err != nil {
+			return err
+		}
+		log.Println("Inserted a single document: ", insertResult.InsertedID)
+	}
+
+	if v.Kind() == reflect.Slice {
+		insertManyResult, err := m.Collection.InsertMany(context.TODO(), document.([]interface{}))
+		if err != nil {
+			return err
+		}
+		log.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
+	}
+
+	return nil
+}
+
+//
+
+
+
 func MongoConn(){
+	m, err := NewMongo("","","","")
+	if err != nil{
+		log.Println(err)
+		return
+	}
+	m.GetCollection("test", "trainers")
+
+	//数据结构体
+	type Trainer struct {
+		Name string
+		Age  int
+		City string
+	}
+
+
+	// ===== 插入一个单独的文档
+	ash := Trainer{"aa", 10, "Pallet Town"}
+	misty := Trainer{"Misty", 10, "Cerulean City"}
+	brock := Trainer{"Brock", 15, "Pewter City"}
+	trainers := []interface{}{ash, misty, brock}
+
+
+	m.Insert(trainers)
+
+}
+
+//
+func MongoConn1(){
 	// Set client options
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
