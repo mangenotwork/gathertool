@@ -12,8 +12,9 @@ func main(){
 
 	//case1()
 
-	case2()
+	//case2()
 
+	case3()
 }
 
 func case1(){
@@ -134,4 +135,8 @@ func case2(){
 	//log.Println(ctx.Resp.Cookies())
 	//log.Println(ctx.Resp.TransferEncoding)
 	//log.Println(string(ctx.RespBody))
+}
+
+func case3(){
+	gt.MongoConn()
 }
