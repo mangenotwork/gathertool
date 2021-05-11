@@ -10,6 +10,14 @@ import (
 
 func main(){
 
+	//case1()
+
+	case2()
+
+}
+
+func case1(){
+
 
 	/*
 		category
@@ -28,14 +36,14 @@ func main(){
 	url := "https://weibo.com/a/aj/transform/loadingmoreunlogin?ajwvr=6&category=0&page=2&lefnav=0&cursor=&__rnd="+ gt.Timestamp()
 	ctx, _ := gt.Get(url, gt.SucceedFunc(succed))
 	// TODO 通过主domain得到
-	ctx.Req.AddCookie(&http.Cookie{Name: "login_sid_t",Value: "fe4df185ba73522be106feef5bbff035", HttpOnly: true})
-	ctx.Req.AddCookie(&http.Cookie{Name: "_s_tentry",Value: "passport.weibo.com", HttpOnly: true})
-	ctx.Req.AddCookie(&http.Cookie{Name: "WBStorage",Value: "8daec78e6a891122|undefined", HttpOnly: true})
-	ctx.Req.AddCookie(&http.Cookie{Name: "ULV",Value: "1620468432944:1:1:1:9339385764296.797.1620468432934:", HttpOnly: true})
-	ctx.Req.AddCookie(&http.Cookie{Name: "SUBP",Value: "0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWmEanFMEIiGoQ6G-cq2.Uz", HttpOnly: true})
-	ctx.Req.AddCookie(&http.Cookie{Name: "SUB",Value: "_2AkMXyu34f8NxqwJRmPwczW7iaIlwywzEieKhlhwjJRMxHRl-yj9jqhUutRB6PErDF0hBnN-8Mfy2pdZU1yAQqOPZIudN", HttpOnly: true})
-	ctx.Req.AddCookie(&http.Cookie{Name: "SINAGLOBAL",Value: "9339385764296.797.1620468432934", HttpOnly: true})
-	ctx.Req.AddCookie(&http.Cookie{Name: "Apache",Value: "9339385764296.797.1620468432934", HttpOnly: true})
+	//ctx.Req.AddCookie(&http.Cookie{Name: "login_sid_t",Value: "fe4df185ba73522be106feef5bbff035", HttpOnly: true})
+	//ctx.Req.AddCookie(&http.Cookie{Name: "_s_tentry",Value: "passport.weibo.com", HttpOnly: true})
+	//ctx.Req.AddCookie(&http.Cookie{Name: "WBStorage",Value: "8daec78e6a891122|undefined", HttpOnly: true})
+	//ctx.Req.AddCookie(&http.Cookie{Name: "ULV",Value: "1620468432944:1:1:1:9339385764296.797.1620468432934:", HttpOnly: true})
+	ctx.Req.AddCookie(&http.Cookie{Name: "SUBP",Value: "0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWENAjmKyIZz1AWjDi68mRw", HttpOnly: true})
+	ctx.Req.AddCookie(&http.Cookie{Name: "SUB",Value: "_2AkMXxWiSf8NxqwFRmPoWz2nlbop1zwvEieKhmZlJJRMxHRl-yT9jqlAItRB6PEVGfTP09XmsX_7CR2H1OUv6b-f-1bJl", HttpOnly: true})
+	//ctx.Req.AddCookie(&http.Cookie{Name: "SINAGLOBAL",Value: "9339385764296.797.1620468432934", HttpOnly: true})
+	//ctx.Req.AddCookie(&http.Cookie{Name: "Apache",Value: "9339385764296.797.1620468432934", HttpOnly: true})
 	ctx.Do()
 }
 
@@ -87,9 +95,43 @@ func succed(ctx *gt.Context) {
 
 // cookie 持久化
 func case2(){
-	////https://passport.weibo.com/visitor/visitor?a=restore&cb=restore_back&from=weibo&_rand=0.5904772874565642
-	//u1 := "https://weibo.com"
-	//ctx, _ := gt.Get(u1)
+	// ==========   获取 tid
+	//由  https://passport.weibo.com/js/visitor/mini_original.js?v=20161116  //main 执行入口 js代码 找到tid的方式
+	// 也找到了  fpPostInterface: "visitor/genvisitor"
+	// fpCollectInterface: "visitor/record"
+
+	// cb 固定值 gen_callback
+	//getTidUrl := "https://passport.weibo.com/visitor/genvisitor?cb=gen_callback&fp={\"os\":\"1\",\"browser\":\"Chrome70,0,3538,25\",\"fonts\":\"undefined\",\"screenInfo\":\"1920*1080*24\",\"plugins\":\"\"}"
+	//ctx, _ := gt.Get(getTidUrl)
 	//ctx.Do()
+	//log.Println(string(ctx.RespBody))
+
+
+
+	// ============   获取sub subp
+	// F12观察到 https://passport.weibo.com/visitor/visitor?a=restore&cb=restore_back&from=weibo&_rand=0.8977533486179248
+	// 获取的cookie
+	// a 固定 incarnate
+	// t 上一步得到的tid
+	// w 上一步 new_tid = true 就是3  否则为2
+	// cb 固定 cross_domain
+	// from  固定  weibo
+
+	getSubUrl := "https://passport.weibo.com/visitor/visitor?a=incarnate&t=hWJuIDjcJt14rjdJBmelhsQ0ReEl6ATZZnf2EQbrBQM=&w=3&c&cb=restore_back&from=weibo"
+	ctx,_ := gt.Get(getSubUrl)
+	ctx.Do()
+	log.Println(ctx.Resp)
+	log.Println(ctx.Resp.Cookies())
+	log.Println(string(ctx.RespBody))
+
+	//getSubUrl := "https://passport.weibo.com/visitor/visitor?a=restore&cb=restore_back&from=weibo&_rand=0.8977533486179248"
+	//ctx,_ := gt.Get(getSubUrl)
+	//ctx.Req.AddCookie(&http.Cookie{Name: "tid",Value: `HVyCvxI2gJHD6a6/hDOaWo3MNgwy9X8LwZFUG7o3vNA=__095`, HttpOnly: true})
+	////ctx.Req.AddCookie(&http.Cookie{Name: "SRT",Value: "D.QqHBTrsR5QPiUcRtOeYoWr9NUPB3R39Qi-bYNdo35QWwMdbbN-YjTmntNbHi5mYNUCsuTZbgVdYC43MNAZSAMQHK549Q4qiaK4S1VFM6R4YbVP9GUqYYT3AqW-kmdA77%2AB.vAflW-P9Rc0lR-ykKDvnJqiQVbiRVPBtS%21r3J8sQVqbgVdWiMZ4siOzu4DbmKPWQU4PYU%21SiM4b9M-yMi%21VkR3mpIbPw", HttpOnly: true})
+	////ctx.Req.AddCookie(&http.Cookie{Name: "SRF",Value: "1620470800", HttpOnly: true})
+	//ctx.Do()
+	//log.Println(ctx.Resp)
 	//log.Println(ctx.Resp.Cookies())
+	//log.Println(ctx.Resp.TransferEncoding)
+	//log.Println(string(ctx.RespBody))
 }
