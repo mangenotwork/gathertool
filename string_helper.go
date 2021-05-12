@@ -10,6 +10,7 @@ package gathertool
 import (
 	"bytes"
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
@@ -319,8 +320,6 @@ func PanicToError(fn func()) (err error) {
 	return
 }
 
-//
-
 
 type Charset string
 
@@ -331,8 +330,8 @@ const (
 	GB2312 = Charset("GB2312")
 )
 
+// 编码转换
 func ConvertByte2String(byte []byte, charset Charset) string {
-
 	var str string
 	switch charset {
 	case GB18030:
@@ -354,10 +353,52 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 }
 
 
+// Unicode 转码
 func UnescapeUnicode(raw []byte) ([]byte, error) {
 	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(raw)), `\\u`, `\u`, -1))
 	if err != nil {
 		return nil, err
 	}
 	return []byte(str), nil
+}
+
+
+// base64 编码
+func Base64Encode(str string) string{
+	return base64.StdEncoding.EncodeToString([]byte(str))
+}
+
+// base64 解码
+func Base64Decode(str string) (string,error){
+	b, err := base64.StdEncoding.DecodeString(str)
+	return string(b), err
+}
+
+// base64 url 编码
+func Base64UrlEncode(str string) string{
+	return base64.URLEncoding.EncodeToString([]byte(str))
+}
+
+// base64 url 解码
+func Base64UrlDecode(str string) (string,error){
+	b, err := base64.URLEncoding.DecodeString(str)
+	return string(b), err
+}
+
+
+// ======== Set
+// 可以用于去重
+type Set map[string]struct{}
+
+func (s Set) Has(key string) bool {
+	_, ok := s[key]
+	return ok
+}
+
+func (s Set) Add(key string) {
+	s[key] = struct{}{}
+}
+
+func (s Set) Delete(key string) {
+	delete(s, key)
 }

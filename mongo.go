@@ -6,8 +6,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"reflect"
+	"time"
 )
 
 type Mongo struct {
@@ -18,6 +20,8 @@ type Mongo struct {
 	Conn *mongo.Client
 	Database *mongo.Database
 	Collection *mongo.Collection
+	MaxPoolSize int
+	TimeOut time.Duration
 }
 
 func NewMongo(user, password, host, port string) (*Mongo, error){
@@ -48,12 +52,24 @@ func (m *Mongo) GetConn() (err error){
 	}
 	uri = uri + fmt.Sprintf("%s:%s", m.Host, m.Port)
 
-	clientOptions := options.Client().ApplyURI(uri)
-	m.Conn, err = mongo.Connect(context.TODO(), clientOptions)
+	if m.TimeOut < 10*time.Second{
+		m.TimeOut = 10*time.Second
+	}
+
+	ctx , cancel :=context.WithTimeout(context.Background(), m.TimeOut)
+	defer cancel()
+
+	o := options.Client().ApplyURI(uri)
+	if m.MaxPoolSize > 0{
+		o.SetMaxPoolSize(uint64(m.MaxPoolSize))
+	}
+
+	m.Conn, err = mongo.Connect(ctx, o)
 	if err != nil{
 		return
 	}
-	err = m.Conn.Ping(context.TODO(), nil)
+
+	err = m.Conn.Ping(context.Background(),  readpref.Primary())
 	return
 }
 

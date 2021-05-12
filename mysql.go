@@ -14,6 +14,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -240,6 +241,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 // TODO: NewTable - 2 创建表  字段顺序需要固定
 
 
+
 // Insert 新增数据
 func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	var (
@@ -330,3 +332,30 @@ func (m *Mysql) Delete(sql string) error {
 }
 
 
+// dataType2Mysql
+func dataType2Mysql(typ reflect.Value) string{
+	switch typ.Kind() {
+	case reflect.Bool:
+		return "bool"
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uintptr:
+		return "integer"
+	case reflect.Int64, reflect.Uint64:
+		return "bigint"
+	case reflect.Float32, reflect.Float64:
+		return "real"
+	case reflect.String:
+		return "text"
+	case reflect.Array, reflect.Slice:
+		return "blob"
+	case reflect.Struct:
+		if _, ok := typ.Interface().(time.Time); ok {
+			return "datetime"
+		}
+	}
+	panic(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
+}
+
+// TODO 删除表
+
+// TODO 判断是否存
