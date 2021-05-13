@@ -16,6 +16,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang.org/x/text/encoding/simplifiedchinese"
+	"io"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -402,3 +404,31 @@ func (s Set) Add(key string) {
 func (s Set) Delete(key string) {
 	delete(s, key)
 }
+
+
+// Is Contain Str
+// 字符串是否等于items中的某个元素
+func IsContainStr(items []string, item string) bool {
+	for i:=0; i<len(items); i++ {
+		if items[i] == item {
+			return true
+		}
+	}
+	return false
+}
+
+// file md5   文件md5
+func FileMd5(path string) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	md5hash := md5.New()
+	if _, err := io.Copy(md5hash, f); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", md5hash.Sum(nil)), nil
+}
+
+
