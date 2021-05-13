@@ -10,11 +10,11 @@ import (
 
 func main(){
 
-	//case1()
+	case1()
 
 	//case2()
 
-	case3()
+	//case3()
 }
 
 func case1(){
@@ -36,15 +36,8 @@ func case1(){
 
 	url := "https://weibo.com/a/aj/transform/loadingmoreunlogin?ajwvr=6&category=0&page=2&lefnav=0&cursor=&__rnd="+ gt.Timestamp()
 	ctx, _ := gt.Get(url, gt.SucceedFunc(succed))
-	// TODO 通过主domain得到
-	//ctx.Req.AddCookie(&http.Cookie{Name: "login_sid_t",Value: "fe4df185ba73522be106feef5bbff035", HttpOnly: true})
-	//ctx.Req.AddCookie(&http.Cookie{Name: "_s_tentry",Value: "passport.weibo.com", HttpOnly: true})
-	//ctx.Req.AddCookie(&http.Cookie{Name: "WBStorage",Value: "8daec78e6a891122|undefined", HttpOnly: true})
-	//ctx.Req.AddCookie(&http.Cookie{Name: "ULV",Value: "1620468432944:1:1:1:9339385764296.797.1620468432934:", HttpOnly: true})
 	ctx.Req.AddCookie(&http.Cookie{Name: "SUBP",Value: "0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWENAjmKyIZz1AWjDi68mRw", HttpOnly: true})
 	ctx.Req.AddCookie(&http.Cookie{Name: "SUB",Value: "_2AkMXxWiSf8NxqwFRmPoWz2nlbop1zwvEieKhmZlJJRMxHRl-yT9jqlAItRB6PEVGfTP09XmsX_7CR2H1OUv6b-f-1bJl", HttpOnly: true})
-	//ctx.Req.AddCookie(&http.Cookie{Name: "SINAGLOBAL",Value: "9339385764296.797.1620468432934", HttpOnly: true})
-	//ctx.Req.AddCookie(&http.Cookie{Name: "Apache",Value: "9339385764296.797.1620468432934", HttpOnly: true})
 	ctx.Do()
 }
 
@@ -118,7 +111,7 @@ func case2(){
 	// cb 固定 cross_domain
 	// from  固定  weibo
 
-	getSubUrl := "https://passport.weibo.com/visitor/visitor?a=incarnate&t=hWJuIDjcJt14rjdJBmelhsQ0ReEl6ATZZnf2EQbrBQM=&w=3&c&cb=restore_back&from=weibo"
+	getSubUrl := "https://passport.weibo.com/visitor/visitor?a=incarnate&t=h2b7xQtQwqk2cEjMgH/0AaWYvpijlgCCAs3qDzj2W58=&w=3&c&cb=restore_back&from=weibo"
 	ctx,_ := gt.Get(getSubUrl)
 	ctx.Do()
 	log.Println(ctx.Resp)
