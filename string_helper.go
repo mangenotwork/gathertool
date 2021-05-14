@@ -13,8 +13,8 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"os"
@@ -22,6 +22,8 @@ import (
 	"strconv"
 	"strings"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // StringValue 任何类型返回值字符串形式
 func StringValue(i interface{}) string {
