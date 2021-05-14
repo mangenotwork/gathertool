@@ -21,6 +21,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"unsafe"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -393,23 +394,43 @@ func Base64UrlDecode(str string) (string,error){
 // ======== Set
 // 可以用于去重
 type Set map[string]struct{}
-
 func (s Set) Has(key string) bool {
 	_, ok := s[key]
 	return ok
 }
-
 func (s Set) Add(key string) {
 	s[key] = struct{}{}
 }
-
 func (s Set) Delete(key string) {
 	delete(s, key)
 }
 
 
-// Is Contain Str
-// 字符串是否等于items中的某个元素
+// ======== Stack
+type Stack struct {
+	data map[int]interface{}
+}
+func New() *Stack{
+	s := new(Stack)
+	s.data = make(map[int]interface{})
+	return s
+}
+func (s *Stack) Push(data interface{}) {
+	s.data[len(s.data)] = data
+}
+func (s *Stack) Pop() {
+	delete(s.data, len(s.data)-1)
+}
+func (s *Stack) String() string {
+	info := ""
+	for i := 0; i < len(s.data); i++ {
+		info = info + "[" + StringValue(s.data[i]) + "]"
+	}
+	return info
+}
+
+
+// IsContainStr  字符串是否等于items中的某个元素
 func IsContainStr(items []string, item string) bool {
 	for i:=0; i<len(items); i++ {
 		if items[i] == item {
@@ -419,7 +440,7 @@ func IsContainStr(items []string, item string) bool {
 	return false
 }
 
-// file md5   文件md5
+// FileMd5  file md5   文件md5
 func FileMd5(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -433,4 +454,56 @@ func FileMd5(path string) (string, error) {
 	return fmt.Sprintf("%x", md5hash.Sum(nil)), nil
 }
 
+// 目录不存在则创建
+func PathExists(path string) {
+	_, err := os.Stat(path)
+	if err != nil && os.IsNotExist(err) {
+		os.MkdirAll(path, 0777)
+	}
+}
 
+// []byte -> string
+func Byte2Str(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
+
+// ByteToBinaryString  字节 -> 二进制字符串
+func ByteToBinaryString(data byte) (str string) {
+	var a byte
+	for i := 0; i < 8; i++ {
+		a = data
+		data <<= 1
+		data >>= 1
+
+		switch a {
+		case data:
+			str += "0"
+		default:
+			str += "1"
+		}
+
+		data <<= 1
+	}
+	return str
+}
+
+
+// 数组，切片去重和去空串
+func StrsDuplicates(a []string) []string{
+	m := make(map[string]struct{})
+	ret := make([]string, 0, len(a))
+	for i:=0; i < len(a); i++{
+		if a[i] == ""{
+			continue
+		}
+
+		if _,ok := m[a[i]]; !ok {
+			m[a[i]] = struct{}{}
+			ret = append(ret, a[i])
+		}
+	}
+	return ret
+}
+
+
+// TODO 二进制字符串 -> 字符串
