@@ -20,6 +20,7 @@
 -  [压力测试](https://github.com/mangenotwork/gathertool/tree/main/_examples/stress_testing)
 -  [文件下载](https://github.com/mangenotwork/gathertool/tree/main/_examples/upload_file)
 -  [无登录微博抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/weibo)
+-  [百度题库抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baidu_tk)
 
 ### BUG
 - MysqlDB.NewTable() 字段参数是map, 创建的表会乱序
