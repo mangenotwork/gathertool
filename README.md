@@ -13,117 +13,13 @@
 当队列任务取完后则整个并发结束。注意这里的每个并发任务都是独立的，没有chan操作。
 
 
-## 请求
-### Get
-> 简单的get请求实例, 写法一： 方法做为请求函数的参数；
-```golang
-func SimpleGet1(){
-	// 创建请求
-	c, err := gt.Get("http://192.168.0.1",
-		//设置请求成功后的方法： 请求的数据
-		gt.SucceedFunc(func(ctx *gt.Context){
-			log.Println(string(ctx.RespBody))
-		}),
-
-		//设置请求失败后的方法： 打印失败信息
-		gt.FailedFunc(func(ctx *gt.Context){
-			log.Println(ctx.Err)
-		}),
-
-		//设置重试前的方法（遇到403,502 等状态码会重试）： 睡眠1s再重试
-		gt.RetryFunc(func(ctx *gt.Context){
-			time.Sleep(1*time.Second)
-		}),
-	)
-	if err != nil {
-		log.Println("请求创建失败: ", err)
-		return
-	}
-	// 执行创建的请求
-	c.Do()
-}
-```
-
-> 最简单的get请求实例， 写法二： 上下文处理；
-```golang
-  func SimpleGet2(){
-  	// 创建请求
-  	c, err := gt.Get("http://192.168.0.1")
-  	if err != nil {
-  		log.Println("请求创建失败: ", err)
-  		return
-  	}
-  	// 执行创建的请求
-  	c.Do()
-  	// 打印请求结果与请求错误
-  	log.Println(string(c.RespBody), c.Err)
-  }
-```
-
-> 简单的get请求实例, 写法三： 给请求设置方法；
-```golang
-func SimpleGet3()  {
-	// 创建请求
-	c, err := gt.Get("http://192.168.0.1")
-	if err != nil {
-		log.Println("请求创建失败: ", err)
-		return
-	}
-	//设置请求成功后的方法
-	c.SetSucceedFunc(func(ctx *gt.Context){
-		log.Println(string(ctx.RespBody))
-	})
-	//设置请求失败后的方法
-	c.SetFailedFunc(func(ctx *gt.Context){
-		log.Println(ctx.Err)
-	})
-	//设置重试次数
-	c.SetRetryTimes(5)
-	//设置重试前的方法
-	c.SetRetryFunc(func(*gt.Context) {
-		time.Sleep(1*time.Second)
-	})
-	// 执行创建的请求
-	c.Do()
-}
-```
-
-> 简单的get请求实例, 写法四： 外部函数为请求方法；
-```golang
-func SimpleGet4(){
-	c, err := gt.Get("http://192.168.0.1",
-		gt.SucceedFunc(succeed),
-		gt.FailedFunc(fail),
-		gt.RetryFunc(retry),
-		)
-	if err != nil {
-		log.Println("请求创建失败: ", err)
-		return
-	}
-	// 执行创建的请求
-	c.Do()
-}
-
-// 成功后的方法
-func succeed(ctx *gt.Context){
-	log.Println(string(ctx.RespBody))
-	//处理数据
-}
-
-// 设置需要重试状态码， 重试前的方法
-func retry(ctx *gt.Context){
-	ctx.Client = &http.Client{
-		Timeout: 1*time.Second,
-	}
-	log.Println("休息1s")
-	time.Sleep(1*time.Second)
-}
-
-// 失败后的方法
-func fail(ctx *gt.Context) {
-	log.Println("请求失败: ", ctx.Err)
-}
-```
+## 实例
+-  [Get请求](https://github.com/mangenotwork/gathertool/tree/main/_examples/get)
+-  [阳光高考招生章程抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/get_yggk)
+-  [ip地址信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/ip_bczs_cn)
+-  [压力测试](https://github.com/mangenotwork/gathertool/tree/main/_examples/stress_testing)
+-  [文件下载](https://github.com/mangenotwork/gathertool/tree/main/_examples/upload_file)
+-  [无登录微博抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/weibo)
 
 ### BUG
 - MysqlDB.NewTable() 字段参数是map, 创建的表会乱序
