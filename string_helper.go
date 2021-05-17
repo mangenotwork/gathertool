@@ -17,8 +17,10 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
+	"log"
 	"os"
 	"reflect"
+	"runtime"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -504,6 +506,27 @@ func StrsDuplicates(a []string) []string{
 	}
 	return ret
 }
+
+
+//windows平台需要转一下
+func windowsPath(path string) string {
+	if runtime.GOOS == "windows" {
+		path = strings.Replace(path, "\\", "/", -1)
+	}
+	return path
+}
+
+
+// 获取当前运行路径
+func GetNowPath() string {
+	path, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return windowsPath(path)
+}
+
+
 
 
 // TODO 二进制字符串 -> 字符串

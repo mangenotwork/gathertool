@@ -111,12 +111,38 @@ func (s *StressUrl) Run(vs ...interface{}){
 					continue
 				}
 
+				// 定义适用于压力测试的client
+				t := http.DefaultTransport.(*http.Transport).Clone()
+				t.MaxIdleConns = s.Total*2
+				t.MaxIdleConnsPerHost = s.Total*2
+				t.DisableKeepAlives = true
+
+				// 或者新创建 http.Transport
+				//var t http.RoundTripper
+				//t = &http.Transport{
+				//	Proxy: http.ProxyFromEnvironment,
+				//	DialContext: (&net.Dialer{
+				//		Timeout:   30 * time.Second,
+				//		KeepAlive: 30 * time.Second,
+				//	}).DialContext,
+				//	ForceAttemptHTTP2:     true,
+				//	MaxIdleConns:          100,
+				//	IdleConnTimeout:       90 * time.Second,
+				//	TLSHandshakeTimeout:   10 * time.Second,
+				//	ExpectContinueTimeout: 1 * time.Second,
+				//}
+
+				client := http.Client{
+					Transport: t,
+					Timeout: 5*time.Second,
+				}
+
 				//log.Println("第",i,"个任务取的值： ", task)
 				switch s.Method {
 					case "get","Get","GET":
-						ctx, err = Get(task.Url, succeedFunc, reqTimeout, reqTimeoutms, header)
+						ctx, err = Get(task.Url, client, succeedFunc, reqTimeout, reqTimeoutms, header)
 					case "post","Post","POST":
-						ctx, err = PostJson(task.Url, s.JsonData, succeedFunc, reqTimeout, reqTimeoutms,
+						ctx, err = PostJson(task.Url, s.JsonData, client, succeedFunc, reqTimeout, reqTimeoutms,
 							header)
 					default:
 						log.Println("未知 Method.")
