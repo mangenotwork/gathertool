@@ -62,7 +62,6 @@ func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds) {
 	var sshConnInfo SSHConnInfo
 
 	for _,v := range vs{
-		log.Println("v = ", v)
 		switch vv := v.(type) {
 		case *SSHConnInfo:
 			sshConnInfo = *vv
@@ -157,26 +156,41 @@ func (r *Rds) RedisPool() error {
 		MaxActive:   r.RedisMaxActive,
 		IdleTimeout: time.Duration(r.RedisIdleTimeoutSec) * time.Second,
 		Dial: func() (redis.Conn, error) {
+
 			var (
 				c redis.Conn
 				err error
 			)
+
 			if r.SSHPassword != "" && r.SSHUser != "" && r.SSHAddr != ""{
+				//ssh Client
 				sshClient, err := SSHClient(r.SSHUser, r.SSHPassword, r.SSHAddr)
-				if  sshClient != nil {
-					var conn net.Conn
-					conn, err = sshClient.Dial("tcp", host)
-					c = redis.NewConn(conn, -1, -1)
-				}
-				if err != nil{
+				if err != nil {
 					return nil, err
 				}
+
+				//ssh Client conn
+				conn, err := sshClient.Dial("tcp", host)
+				if err != nil {
+					return nil, err
+				}
+
+				c = redis.NewConn(conn, 60, 60)
+
+				//if  sshClient != nil {
+				//	var conn net.Conn
+				//	conn, err = sshClient.Dial("tcp", host)
+				//	c = redis.NewConn(conn, -1, -1)
+				//}
+				//if err != nil{
+				//	return nil, err
+				//}
+
 			}else{
 				c, err = redis.Dial("tcp", host)
-			}
-
-			if err != nil {
-				return nil, fmt.Errorf("redis connection error: %s", err)
+				if err != nil {
+					return nil, fmt.Errorf("redis connection error: %s", err)
+				}
 			}
 
 			if c == nil {
@@ -231,10 +245,9 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 
 	rds.RedisMaxActive = rds.RedisMaxActive+jobNumber*2
 	rds.RedisMaxIdle = rds.RedisMaxIdle+jobNumber*2
+	//log.Println(rds.Pool.MaxActive, rds.Pool.MaxIdle)
+
 	rds.RedisPool()
-
-	log.Println(rds.Pool.MaxActive, rds.Pool.MaxIdle)
-
 	conn := rds.Pool.Get()
 	queue := NewQueue()
 	res, err := redis.Strings(conn.Do("keys", keys))
@@ -247,19 +260,20 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 		queue.Add(&Task{Url: v})
 	}
 	allNumber := queue.Size()
-	log.Println("allNumber = ", allNumber)
+	//log.Println("allNumber = ", allNumber)
 
 	var wg sync.WaitGroup
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
 		go func(i int){
 			defer wg.Done()
-
 			log.Println("启动第",i ,"个任务")
+
 			for {
 				if queue.IsEmpty() || queue.Size() < 2 {
 					break
 				}
+
 				task := queue.Poll()
 				log.Println("第",i,"个任务取的值： ", task.Url)
 				c := rds.Pool.Get()
@@ -271,6 +285,7 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 					log.Println("删除成功 ！！！")
 				}
 				c.Close()
+
 				log.Println(fmt.Sprintf("[进度] %d/%d  %f %%", allNumber - queue.Size(),
 					allNumber, (float64(allNumber - queue.Size())/float64(allNumber))*100))
 			}

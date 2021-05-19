@@ -96,6 +96,11 @@ type Context struct {
 	// 请求的响应时间 单位ms
 	Ms time.Duration
 
+	// 是否显示日志, 默认是显示的
+	IsLog bool
+
+	// 指定失败执行重试事件
+	fail2retry bool
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -156,6 +161,8 @@ func (c *Context) Do() func(){
 			strings.Contains(c.Err.Error(), ("To Many Requests")) ||
 			strings.Contains(c.Err.Error(), ("EOF")) ||
 			strings.Contains(c.Err.Error(), ("connection timed out")) ){
+
+		loger("【日志】 请求 超时 = ", c.Err)
 		if c.RetryFunc != nil {
 			c.RetryFunc(c)
 			return c.Do()
@@ -163,30 +170,42 @@ func (c *Context) Do() func(){
 		return nil
 	}
 
-
 	// 其他错误
 	if c.Err != nil {
-		log.Println("err = ", c.Err)
+		loger("【日志】 请求 err = ", c.Err)
+
+		// 指定的失败都执行 retry
+		if c.fail2retry {
+			if c.RetryFunc != nil {
+				c.RetryFunc(c)
+				return c.Do()
+			}
+		}
+
 		if c.FailedFunc != nil{
 			c.FailedFunc(c)
 		}
+
 		return nil
 	}
 
 	defer func(cxt *Context){
-		if cxt.Resp != nil {
+		// 关闭条件说明: 重试不能关闭，不热就要重新设置 req
+		// 重试次数操过设置最大重试次数
+		// 没有设置重试方法
+		if cxt.Resp != nil && ( (c.RetryFunc!=nil && c.times>c.MaxTimes) || (c.RetryFunc==nil) ){
 			cxt.Resp.Body.Close()
 		}
 	}(c)
 
-	//log.Println("状态码：", c.Resp.StatusCode)
+	loger("【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	if v,ok := StatusCodeMap[c.Resp.StatusCode]; ok{
 		switch v {
 
 		case "success":
-			//log.Println("执行 success 事件", c.SucceedFunc)
+			loger("【日志】 执行 success 事件")
 			//请求后的结果
 			body, err := ioutil.ReadAll(c.Resp.Body)
 			if err != nil{
@@ -201,29 +220,32 @@ func (c *Context) Do() func(){
 			return nil
 
 		case "retry":
-			//log.Println("执行 retry 事件")
-			log.Println("第", c.times, "请求失败,状态码： ", c.Resp.StatusCode, ".")
+			loger("【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			//执行重试前的方法
 			if c.RetryFunc != nil{
 				c.RetryFunc(c)
 			}
 			return c.Do()
 
-		case "file":
-			//log.Println("执行 file 事件")
+		case "fail":
+			loger("【日志】 执行 failed 事件")
 			if c.FailedFunc != nil{
 				c.FailedFunc(c)
 			}
 			return nil
 
 		case "start":
-			//TODO : 请求前的方法
-			log.Println("执行 start 事件")
+			loger("【日志】 执行 请求前的方法")
+			if c.StartFunc != nil {
+				c.StartFunc(c)
+			}
 			return nil
 
 			case "end":
-				//TODO : 请求结束后的方法
-				log.Println("执行 end 事件")
+				loger("【日志】 执行 请求结束后的方法")
+				if c.EndFunc != nil {
+					c.EndFunc(c)
+				}
 				return nil
 
 		}
@@ -332,6 +354,16 @@ func (c *Context) CookieNext() error {
 		c.Req.AddCookie(cookie)
 	}
 	return nil
+}
+
+// close log
+func (c *Context) CloseLog() {
+	c.IsLog = false
+}
+
+// 开启请求失败都执行retry
+func (c *Context) OpenFail2Retry() {
+	c.fail2retry = true
 }
 
 

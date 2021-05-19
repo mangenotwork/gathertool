@@ -37,16 +37,16 @@ var StatusCodeMap map[int]string = map[int]string{
 }
 
 // 将指定状态码设置为执行成功事件
-func StatusCodeSuccessEvent(code int){
+func SetStatusCodeSuccessEvent(code int){
 	StatusCodeMap[code] = "success"
 }
 
 // 将指定状态码设置为执行重试事件
-func StatusCodeRetryEvent(code int){
+func SetStatusCodeRetryEvent(code int){
 	StatusCodeMap[code] = "retry"
 }
 
-// 将指定状态码设置为执行重试事件
-func StatusCodeFailEvent(code int){
+// 将指定状态码设置为执行失败事件
+func SetStatusCodeFailEvent(code int){
 	StatusCodeMap[code] = "fail"
 }
