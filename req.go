@@ -278,6 +278,7 @@ func Req(request *http.Request, vs ...interface{}) (*Context,error){
 		FailedFunc: failed,
 		RetryFunc: retry,
 		EndFunc: end,
+		IsLog: true,
 	},nil
 }
 
