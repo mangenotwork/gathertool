@@ -101,11 +101,10 @@ type Context struct {
 	IsLog bool
 
 	// 指定失败执行重试事件
-	fail2retry bool
+	err2retry bool
 
-
-	// temp Body io.ReadCloser
-	ReqBody *bytes.Buffer
+	// 是否关闭重试
+	isRetry bool
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -174,14 +173,15 @@ func (c *Context) Do() func(){
 			strings.Contains(c.Err.Error(), ("To Many Requests")) ||
 			strings.Contains(c.Err.Error(), ("EOF")) ||
 			strings.Contains(c.Err.Error(), ("connection timed out")) ){
-
 		loger("【日志】 请求 超时 = ", c.Err)
-		if c.RetryFunc != nil {
+
+		if c.RetryFunc != nil && !c.isRetry {
 			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
+
 		return nil
 	}
 
@@ -190,13 +190,11 @@ func (c *Context) Do() func(){
 		logerTimes(2 + int(c.times), "【日志】 请求 err = ", c.Err)
 
 		// 指定的失败都执行 retry
-		if c.fail2retry {
-			if c.RetryFunc != nil {
-				logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
-				c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-				c.RetryFunc(c)
-				return c.Do()
-			}
+		if c.err2retry && c.RetryFunc != nil && !c.isRetry {
+			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			c.RetryFunc(c)
+			return c.Do()
 		}
 
 		if c.FailedFunc != nil{
@@ -206,10 +204,10 @@ func (c *Context) Do() func(){
 		return nil
 	}
 
-	defer func(cxt *Context){
-		if cxt.Resp != nil {
+	defer func(c *Context){
+		if c.Resp != nil {
 			//loger("【日志】 请求 Resp close")
-			cxt.Resp.Body.Close()
+			c.Resp.Body.Close()
 		}
 	}(c)
 
@@ -227,39 +225,39 @@ func (c *Context) Do() func(){
 				log.Println(err)
 				return nil
 			}
+
 			c.RespBody = body
 			//执行成功方法
 			if c.SucceedFunc != nil {
 				c.SucceedFunc(c)
 			}
-			return nil
 
 		case "retry":
-			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-			return c.Do()
+			if c.RetryFunc != nil && !c.isRetry {
+				logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+				c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+				c.RetryFunc(c)
+				return c.Do()
+			}
 
 		case "fail":
-			logerTimes(2 + int(c.times), "【日志】 执行 failed 事件")
 			if c.FailedFunc != nil{
+				logerTimes(2 + int(c.times), "【日志】 执行 failed 事件")
 				c.FailedFunc(c)
 			}
-			return nil
 
 		case "start":
-			logerTimes(2 + int(c.times), "【日志】 执行 请求前的方法")
 			if c.StartFunc != nil {
+				logerTimes(2 + int(c.times), "【日志】 执行 请求前的方法")
 				c.StartFunc(c)
 			}
-			return nil
 
 			case "end":
-				logerTimes(2 + int(c.times), "【日志】 执行 请求结束后的方法")
 				if c.EndFunc != nil {
+					logerTimes(2 + int(c.times), "【日志】 执行 请求结束后的方法")
 					c.EndFunc(c)
 				}
-				return nil
-
 		}
 	}
 
@@ -374,10 +372,14 @@ func (c *Context) CloseLog() {
 }
 
 // 开启请求失败都执行retry
-func (c *Context) OpenFail2Retry() {
-	c.fail2retry = true
+func (c *Context) OpenErr2Retry() {
+	c.err2retry = true
 }
 
+// 关闭重试
+func (c *Context) CloseRetry() {
+	c.isRetry = true
+}
 
 // CookiePool   cookie池
 type cookiePool struct {
