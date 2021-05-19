@@ -152,6 +152,12 @@ func (c *Context) Do() func(){
 	c.times++
 	if c.times > c.MaxTimes{
 		logerTimes(2 + int(c.times), "【日志】 请求失败操过", c.MaxTimes, "次了,结束重试操作；")
+
+		// 超过了重试次数，就算失败，则执行失败方法
+		if c.FailedFunc != nil{
+			c.FailedFunc(c)
+		}
+
 		return nil
 	}
 

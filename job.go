@@ -13,9 +13,11 @@ import (
 	"sync"
 )
 
-//TODO:  StartJob 开始运行并发
+//TODO:  StartJob 开始运行并发， 取task 的 method
 func StartJob(){}
 
+// 设置遇到错误执行 Retry 事件
+type Err2Retry bool
 
 // StartJobGet 并发执行Get,直到队列任务为空
 // @jobNumber 并发数，
@@ -31,6 +33,7 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 		succeed SucceedFunc
 		retry RetryFunc
 		failed FailedFunc
+		err2Retry Err2Retry
 	)
 
 	for _,v := range vs{
@@ -43,6 +46,8 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 			failed = vv
 		case RetryFunc:
 			retry = vv
+		case Err2Retry:
+			err2Retry = vv
 			}
 	}
 
@@ -75,6 +80,9 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 				if failed != nil {
 					ctx.SetFailedFunc(failed)
 				}
+				if err2Retry {
+					ctx.OpenErr2Retry()
+				}
 
 				switch task.Type {
 				case "","do":
@@ -97,13 +105,14 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 }
 
 
-// TODO:  StartJobPost 开始运行并发Post
+// StartJobPost 开始运行并发Post
 func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 	var (
 		client *http.Client
 		succeed SucceedFunc
 		retry RetryFunc
 		failed FailedFunc
+		err2Retry Err2Retry
 	)
 
 	for _,v := range vs{
@@ -117,6 +126,8 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 			failed = vv
 		case RetryFunc:
 			retry = vv
+		case Err2Retry:
+			err2Retry = vv
 		}
 	}
 
@@ -148,6 +159,9 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 				}
 				if failed != nil {
 					ctx.SetFailedFunc(failed)
+				}
+				if err2Retry {
+					ctx.OpenErr2Retry()
 				}
 
 				switch task.Type {
