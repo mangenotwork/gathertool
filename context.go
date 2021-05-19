@@ -8,6 +8,7 @@
 package gathertool
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io/ioutil"
@@ -101,6 +102,10 @@ type Context struct {
 
 	// 指定失败执行重试事件
 	fail2retry bool
+
+
+	// temp Body io.ReadCloser
+	ReqBody *bytes.Buffer
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -126,6 +131,8 @@ func (c *Context) SetRetryTimes(times int) {
 // Do 执行请求
 func (c *Context) Do() func(){
 
+	var bodyBytes []byte
+
 	//空验证
 	if c == nil{
 		log.Println("空对象")
@@ -145,9 +152,15 @@ func (c *Context) Do() func(){
 	//重试验证
 	c.times++
 	if c.times > c.MaxTimes{
-		log.Println("请求失败操过", c.MaxTimes, "次了")
+		logerTimes(2 + int(c.times), "【日志】 请求失败操过", c.MaxTimes, "次了,结束重试操作；")
 		return nil
 	}
+
+	// 复用 Req.Body
+	if c.Req.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(c.Req.Body)
+	}
+	c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	//执行请求
 	before := time.Now()
@@ -164,6 +177,8 @@ func (c *Context) Do() func(){
 
 		loger("【日志】 请求 超时 = ", c.Err)
 		if c.RetryFunc != nil {
+			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
@@ -172,11 +187,13 @@ func (c *Context) Do() func(){
 
 	// 其他错误
 	if c.Err != nil {
-		loger("【日志】 请求 err = ", c.Err)
+		logerTimes(2 + int(c.times), "【日志】 请求 err = ", c.Err)
 
 		// 指定的失败都执行 retry
 		if c.fail2retry {
 			if c.RetryFunc != nil {
+				logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+				c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 				c.RetryFunc(c)
 				return c.Do()
 			}
@@ -190,22 +207,20 @@ func (c *Context) Do() func(){
 	}
 
 	defer func(cxt *Context){
-		// 关闭条件说明: 重试不能关闭，不热就要重新设置 req
-		// 重试次数操过设置最大重试次数
-		// 没有设置重试方法
-		if cxt.Resp != nil && ( (c.RetryFunc!=nil && c.times>c.MaxTimes) || (c.RetryFunc==nil) ){
+		if cxt.Resp != nil {
+			//loger("【日志】 请求 Resp close")
 			cxt.Resp.Body.Close()
 		}
 	}(c)
 
-	loger("【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
+	logerTimes(2 + int(c.times), "【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	if v,ok := StatusCodeMap[c.Resp.StatusCode]; ok{
 		switch v {
 
 		case "success":
-			loger("【日志】 执行 success 事件")
+			logerTimes(2 + int(c.times), "【日志】 执行 success 事件")
 			//请求后的结果
 			body, err := ioutil.ReadAll(c.Resp.Body)
 			if err != nil{
@@ -220,29 +235,26 @@ func (c *Context) Do() func(){
 			return nil
 
 		case "retry":
-			loger("【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
-			//执行重试前的方法
-			if c.RetryFunc != nil{
-				c.RetryFunc(c)
-			}
+			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			return c.Do()
 
 		case "fail":
-			loger("【日志】 执行 failed 事件")
+			logerTimes(2 + int(c.times), "【日志】 执行 failed 事件")
 			if c.FailedFunc != nil{
 				c.FailedFunc(c)
 			}
 			return nil
 
 		case "start":
-			loger("【日志】 执行 请求前的方法")
+			logerTimes(2 + int(c.times), "【日志】 执行 请求前的方法")
 			if c.StartFunc != nil {
 				c.StartFunc(c)
 			}
 			return nil
 
 			case "end":
-				loger("【日志】 执行 请求结束后的方法")
+				logerTimes(2 + int(c.times), "【日志】 执行 请求结束后的方法")
 				if c.EndFunc != nil {
 					c.EndFunc(c)
 				}

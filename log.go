@@ -19,3 +19,8 @@ func loger(v ...interface{}){
 	//funName := fun.Name()
 	log.Println(fmt.Sprintf("%v:%v", file, line), v)
 }
+
+func logerTimes(times int, v ...interface{}) {
+	_, file, line, _ := runtime.Caller(times)
+	log.Println(fmt.Sprintf("%v:%v", file, line), v)
+}

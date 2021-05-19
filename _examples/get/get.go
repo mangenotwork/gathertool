@@ -13,7 +13,6 @@ func main(){
 	//SimpleGet2()
 	//SimpleGet3()
 	//SimpleGet4()
-
 }
 
 // 简单的get请求实例, 写法一： 方法做为请求函数的参数；
