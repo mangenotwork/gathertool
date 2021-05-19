@@ -30,6 +30,9 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // StringValue 任何类型返回值字符串形式
 func StringValue(i interface{}) string {
+	if i == nil {
+		return ""
+	}
 	var buf bytes.Buffer
 	stringValue(reflect.ValueOf(i), 0, &buf)
 	return buf.String()

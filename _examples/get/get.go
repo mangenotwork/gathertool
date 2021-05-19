@@ -13,6 +13,8 @@ func main(){
 	//SimpleGet2()
 	//SimpleGet3()
 	//SimpleGet4()
+
+	Case()
 }
 
 
@@ -118,4 +120,9 @@ func retry(ctx *gt.Context){
 // 失败后的方法
 func fail(ctx *gt.Context) {
 	log.Println("请求失败: ", ctx.Err)
+}
+
+func Case(){
+	a := gt.StringValue("")
+	log.Println(a)
 }
