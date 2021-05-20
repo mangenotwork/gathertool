@@ -180,7 +180,7 @@ type Header map[string]string
 func Req(request *http.Request, vs ...interface{}) (*Context,error){
 	var (
 		client *http.Client
-		maxTimes RetryTimes = 10
+		maxTimes RetryTimes = 100
 		task *Task
 		start StartFunc
 		succeed SucceedFunc
