@@ -123,6 +123,6 @@ func fail(ctx *gt.Context) {
 }
 
 func Case(){
-	a := gt.StringValue("")
+	a := gt.StringValue("aasddas")
 	log.Println(a)
 }

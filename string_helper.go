@@ -17,6 +17,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
@@ -33,6 +34,11 @@ func StringValue(i interface{}) string {
 	if i == nil {
 		return ""
 	}
+
+	if reflect.ValueOf(i).Kind() == reflect.String{
+		return i.(string)
+	}
+
 	var buf bytes.Buffer
 	stringValue(reflect.ValueOf(i), 0, &buf)
 	return buf.String()
@@ -103,6 +109,7 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 		}
 
 		buf.WriteString("\n" + strings.Repeat(" ", indent) + "}")
+
 	default:
 		format := "%v"
 		switch v.Interface().(type) {
@@ -530,6 +537,23 @@ func GetNowPath() string {
 }
 
 
+// 文件 Md5
+func FileMd5sum(fileName string) string {
+	fin, err := os.OpenFile(fileName, os.O_RDONLY, 0644)
+	if err != nil {
+		log.Println(fileName, err)
+		return ""
+	}
+	defer fin.Close()
+
+	Buf, buferr := ioutil.ReadFile(fileName)
+	if buferr != nil {
+		log.Println(fileName, buferr)
+		return ""
+	}
+	m := md5.Sum(Buf)
+	return hex.EncodeToString(m[:16])
+}
 
 
 // TODO 二进制字符串 -> 字符串
