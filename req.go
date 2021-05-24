@@ -14,7 +14,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -82,6 +84,17 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context,error){
 		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	return	Req(request, vs...)
+}
+
+
+// POST Form
+func PostForm(url string, data url.Values, vs ...interface{}) (*Context,error){
+	if !isUrl(url) {
+		return nil, UrlBad
+	}
+	request, _ := http.NewRequest("POST", url, strings.NewReader(data.Encode()))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
 	return	Req(request, vs...)
 }
 
@@ -266,6 +279,10 @@ func Req(request *http.Request, vs ...interface{}) (*Context,error){
 		client.Timeout =  time.Duration(reqTimeOutMs) * time.Millisecond
 	}
 
+	if l := request.Header.Get("Content-Length"); l != "" {
+		request.ContentLength = Str2Int64(l)
+	}
+
 	// 创建对象
 	return &Context{
 		Client: client,
@@ -358,9 +375,6 @@ func SearchPort(ipStr string, vs ...interface{}) {
 
 	wg.Wait()
 
-
-
-
 	log.Println("执行完成！！！")
 }
 
@@ -447,3 +461,4 @@ func checkSum(msg []byte) uint16 {
 	var answer uint16 = uint16(^sum)
 	return answer
 }
+
