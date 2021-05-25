@@ -319,6 +319,50 @@ func (m *Mysql) Exec(sql string) error {
 	return err
 }
 
+// 执行sql Query
+func (m *Mysql) Query(sql string) ([]map[string]string, error) {
+	if m.DB == nil{
+		_=m.Conn()
+	}
+
+	rows,err := m.DB.Query(sql)
+	if m.Log{
+		log.Println("[Sql] Exec : " + sql)
+		if err != nil{
+			log.Println("[Sql] Error : " + err.Error())
+		}
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	columns, err := rows.Columns()
+	if err != nil{
+		return nil,err
+	}
+
+	columnLength := len(columns)
+	cache := make([]interface{}, columnLength) //临时存储每行数据
+	for index, _ := range cache { //为每一列初始化一个指针
+		var a interface{}
+		cache[index] = &a
+	}
+
+	var list []map[string]string //返回的切片
+	for rows.Next() {
+		_ = rows.Scan(cache...)
+		item := make(map[string]string)
+		for i, data := range cache {
+			d := *data.(*interface{})
+			item[columns[i]] = string(d.([]byte)) //取实际类型
+		}
+		list = append(list, item)
+	}
+	//_ = rows.Close()
+	return list, nil
+}
+
 // Delete
 func (m *Mysql) Delete(sql string) error {
 	_, err := m.DB.Exec(sql)

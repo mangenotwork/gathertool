@@ -1,7 +1,6 @@
 package gathertool
 
 import (
-	"log"
 	"testing"
 )
 
@@ -13,11 +12,11 @@ func TestReg(t *testing.T){
 
 	//list := RegHtmlInput(txt)
 	//list := RegHtmlA(txt)
-	list := RegHtmlTr(txt)
-
-	for k,v := range list {
-		log.Println(k, " ---> ", v)
-	}
+	//list := RegHtmlTr(txt)
+	//
+	//for k,v := range list {
+	//	log.Println(k, " ---> ", v)
+	//}
 }
 
 var txt = `<div class="width1000">
