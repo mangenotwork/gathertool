@@ -40,8 +40,11 @@ var regMap = map[string]string{
 	"RegHtmlH4": `(?is:<h4.*?</h4>)`,
 	"RegHtmlH5": `(?is:<h5.*?</h5>)`,
 	"RegHtmlH6": `(?is:<h6.*?</h6>)`,
+	"RegHtmlTbody": `(?is:<tbody.*?</tbody>)`,
 
 	// 取标签内容
+	"RegHtmlATxt" : `(?is:<a.*?>(.*?)</a>)`,
+	"RegHtmlTitleTxt" : `(?is:<title.*?>(.*?)</title>)`,
 	"RegHtmlSrcTxt": `(?is:src=\"(.*?)\")`,
 	"RegHtmlHrefTxt": `(?is:href=\"(.*?)\")`,
 	"RegHtmlHTxt1": `(?is:<h1.*?>(.*?)</h1>)`,
@@ -102,6 +105,7 @@ func RegHtmlH(str, typeH string) []string {
 	return regFind(funcName+typeH, str)
 }
 
+func RegHtmlTbody(str string) []string { return regFind(runFuncName(), str) }
 
 
 // 执行正则提取 只取内容

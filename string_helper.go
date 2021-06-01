@@ -518,6 +518,16 @@ func StrsDuplicates(a []string) []string{
 }
 
 
+//判断字符串是否与数组里的某个字符串相同
+func IsElementStr(list []string, element string) bool{
+	fmt.Println(list)
+	fmt.Println(element)
+	for _,k := range(list){
+		if k == element{ return true }
+	}
+	return false
+}
+
 //windows平台需要转一下
 func windowsPath(path string) string {
 	if runtime.GOOS == "windows" {

@@ -48,7 +48,10 @@ func Daydiff(beginDay string, endDay string) int {
 
 // 间隔运行
 // t: 间隔时间，  f: 运行的方法
-func TickerRun(t time.Duration, f func()){
+func TickerRun(t time.Duration, runFirst bool, f func()){
+	if runFirst {
+		f()
+	}
 	tick := time.NewTicker(t)
 	for range tick.C {
 		f()

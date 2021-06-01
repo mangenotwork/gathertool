@@ -375,6 +375,14 @@ func (m *Mysql) Delete(sql string) error {
 	return err
 }
 
+// ToVarChar  写入mysql 的字符类型
+func (m *Mysql) ToVarChar(data interface{}) string {
+	var txt bytes.Buffer
+	txt.WriteString(`"`)
+	txt.WriteString(Any2String(data))
+	txt.WriteString(`"`)
+	return txt.String()
+}
 
 // dataType2Mysql
 func dataType2Mysql(typ reflect.Value) string{
