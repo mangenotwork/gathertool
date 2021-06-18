@@ -23,6 +23,7 @@ import (
 
 var (
 	UrlBad error = errors.New("url is bad.") // 错误的url
+	UrlNil error = errors.New("url is null.") // 空的url
 )
 
 type ReqTimeOut int
@@ -30,7 +31,22 @@ type ReqTimeOutMs int
 
 
 // Get 请求, 当请求失败或状态码是失败的则会先执行 ff 再回调
-func Get(url string, vs ...interface{}) (*Context,error){
+func Get(url string, vs ...interface{}) (cxt *Context,err error){
+	if !isUrl(url) {
+		err = UrlNil
+		return
+	}
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil{
+		log.Println("err->", err)
+		return
+	}
+	cxt, err = Req(request, vs...)
+	cxt.Do()
+	return
+}
+
+func NewGet(url string, vs ...interface{}) (*Context,error){
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
@@ -59,7 +75,22 @@ func GetRun(url string, vs ...interface{}) (ctx *Context,err error) {
 
 
 // POST 请求
-func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context,error){
+func Post(url string, data []byte, contentType string, vs ...interface{}) (cxt *Context,err error){
+	if !isUrl(url) {
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(data)))
+	if err != nil{
+		log.Println("err->", err)
+		return nil, err
+	}
+	request.Header.Set("Content-Type", contentType)
+	cxt, err = Req(request, vs...)
+	cxt.Do()
+	return
+}
+
+func NewPost(url string, data []byte, contentType string, vs ...interface{}) (*Context,error){
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
@@ -74,7 +105,7 @@ func Post(url string, data []byte, contentType string, vs ...interface{}) (*Cont
 
 
 // POST json 请求
-func PostJson(url string, jsonStr string, vs ...interface{}) (*Context,error){
+func PostJson(url string, jsonStr string, vs ...interface{}) (cxt *Context,err error){
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
@@ -84,7 +115,9 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context,error){
 		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	return	Req(request, vs...)
+	cxt, err = Req(request, vs...)
+	cxt.Do()
+	return
 }
 
 
