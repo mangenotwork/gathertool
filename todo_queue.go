@@ -25,9 +25,7 @@ type TodoQueue interface {
 
 // 队列
 type Queue struct {
-	0
-	.
-		*sync.Mutex
+	mux *sync.Mutex
 	list []*Task
 }
 

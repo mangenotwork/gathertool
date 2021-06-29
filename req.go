@@ -1,8 +1,8 @@
 /*
 	Description : 对外提供的方法
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-04-23
+	Version : v0.2
+	Date : 2021-06-29
 */
 
 package gathertool
@@ -56,21 +56,6 @@ func NewGet(url string, vs ...interface{}) (*Context,error){
 		return nil, err
 	}
 	return	Req(request, vs...)
-}
-
-
-// Get 请求直接执行
-func GetRun(url string, vs ...interface{}) (ctx *Context,err error) {
-	if !isUrl(url) {
-		err = errors.New("请求 url 为空.")
-		return
-	}
-	request, err := http.NewRequest("GET", url, nil)
-	ctx, err = Req(request, vs...)
-	if ctx != nil {
-		ctx.Do()
-	}
-	return
 }
 
 
@@ -226,7 +211,7 @@ type Header map[string]string
 func Req(request *http.Request, vs ...interface{}) (*Context,error){
 	var (
 		client *http.Client
-		maxTimes RetryTimes = 100
+		maxTimes RetryTimes = 10
 		task *Task
 		start StartFunc
 		succeed SucceedFunc

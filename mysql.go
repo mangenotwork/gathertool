@@ -5,6 +5,8 @@
 	Date : 2021-04-29
 */
 
+// bug : 存在null值， 解析报错
+
 package gathertool
 
 import (

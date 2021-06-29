@@ -1,8 +1,8 @@
 /*
 	Description : 请求上下文
 	Author : ManGe
-	Version : v0.3
-	Date : 2021-05-19
+	Version : v0.4
+	Date : 2021-06-29
 */
 
 package gathertool
@@ -10,6 +10,8 @@ package gathertool
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -268,6 +270,41 @@ func (c *Context) Do() func(){
 	}
 
 	return nil
+}
+
+func (c *Context) String() string {
+	if c.RespBody != nil {
+		return string(c.RespBody)
+	}
+	return ""
+}
+
+func (c *Context) CheckReqMd5() string {
+	var buffer bytes.Buffer
+	url := c.Req.URL.String()
+	reqBodyBytes, _ := ioutil.ReadAll(c.Req.Body)
+	methd := c.Req.Method
+	buffer.WriteString(url)
+	buffer.Write(reqBodyBytes)
+	buffer.WriteString(methd)
+	h := md5.New()
+	h.Write(buffer.Bytes())
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (c *Context) CheckMd5() string {
+	var buffer bytes.Buffer
+	url := c.Req.URL.String()
+	reqBodyBytes, _ := ioutil.ReadAll(c.Req.Body)
+	methd := c.Req.Method
+	buffer.WriteString(url)
+	buffer.Write(reqBodyBytes)
+	buffer.WriteString(methd)
+	buffer.WriteString(c.Resp.Status)
+	buffer.Write(c.RespBody)
+	h := md5.New()
+	h.Write(buffer.Bytes())
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 // add header
