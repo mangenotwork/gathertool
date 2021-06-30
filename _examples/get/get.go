@@ -9,19 +9,19 @@ import (
 )
 
 func main(){
-	//SimpleGet1()
-	//SimpleGet2()
-	//SimpleGet3()
-	//SimpleGet4()
+	SimpleGet1()
+	SimpleGet2()
+	SimpleGet3()
+	SimpleGet4()
 
-	Case()
+	//Case()
 }
 
 
 // 简单的get请求实例, 写法一： 方法做为请求函数的参数；
 func SimpleGet1(){
 	// 创建请求
-	c, err := gt.Get("http://192.168.0.1",
+	ctx := gt.NewGet("http://192.168.0.1",
 		//设置请求成功后的方法： 请求的数据
 		gt.SucceedFunc(func(ctx *gt.Context){
 			log.Println(string(ctx.RespBody))
@@ -37,69 +37,42 @@ func SimpleGet1(){
 			time.Sleep(1*time.Second)
 		}),
 	)
-	if err != nil {
-		log.Println("请求创建失败: ", err)
-		return
-	}
 	// 执行创建的请求
-	c.Do()
+	ctx.Do()
 }
 
 
 // 最简单的get请求实例， 写法二： 上下文处理；
 func SimpleGet2(){
 	// 创建请求
-	c, err := gt.Get("http://192.168.0.1")
-	if err != nil {
-		log.Println("请求创建失败: ", err)
-		return
-	}
-	// 执行创建的请求
-	c.Do()
+	ctx, err := gt.Get("http://192.168.0.1")
 	// 打印请求结果与请求错误
-	log.Println(string(c.RespBody), c.Err)
+	log.Println(ctx.RespBodyString(), err)
 }
 
 
 // 简单的get请求实例, 写法三： 给请求设置方法；
 func SimpleGet3()  {
 	// 创建请求
-	c, err := gt.Get("http://192.168.0.1")
-	if err != nil {
-		log.Println("请求创建失败: ", err)
-		return
-	}
-	//设置请求成功后的方法
-	c.SetSucceedFunc(func(ctx *gt.Context){
+	gt.NewGet("http://192.168.0.1").SetSucceedFunc(func(ctx *gt.Context){
+		//设置请求成功后的方法
 		log.Println(string(ctx.RespBody))
-	})
-	//设置请求失败后的方法
-	c.SetFailedFunc(func(ctx *gt.Context){
+	}).SetFailedFunc(func(ctx *gt.Context){
+		//设置请求失败后的方法
 		log.Println(ctx.Err)
-	})
-	//设置重试次数
-	c.SetRetryTimes(5)
-	//设置重试前的方法
-	c.SetRetryFunc(func(*gt.Context) {
+	}).SetRetryFunc(func(*gt.Context) {
+		//设置重试前的方法
 		time.Sleep(1*time.Second)
-	})
-	// 执行创建的请求
-	c.Do()
+	}).Do()
 }
 
 // 简单的get请求实例, 写法四： 外部函数为请求方法；
 func SimpleGet4(){
-	c, err := gt.Get("http://192.168.0.1",
+	gt.NewGet("http://192.168.0.1",
 		gt.SucceedFunc(succeed),
 		gt.FailedFunc(fail),
 		gt.RetryFunc(retry),
-		)
-	if err != nil {
-		log.Println("请求创建失败: ", err)
-		return
-	}
-	// 执行创建的请求
-	c.Do()
+	).Do()
 }
 
 // 成功后的方法

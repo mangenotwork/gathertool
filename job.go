@@ -63,11 +63,7 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 				}
 				task := queue.Poll()
 				log.Println("第",i,"个任务取的值： ", task)
-				ctx, err := Get(task.Url, task)
-				if err != nil {
-					log.Println(err)
-					return
-				}
+				ctx := NewGet(task.Url, task)
 				if client != nil {
 					ctx.Client = client
 				}
@@ -143,11 +139,7 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 				}
 				task := queue.Poll()
 				log.Println("第",i,"个任务取的值： ", task, task.HeaderMap)
-				ctx, err := PostJson(task.Url, task.JsonParam, task)
-				if err != nil {
-					log.Println(err)
-					return
-				}
+				ctx := NewPost(task.Url, []byte(task.JsonParam), "application/json;", task)
 				if client != nil {
 					ctx.Client = client
 				}

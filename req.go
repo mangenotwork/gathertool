@@ -30,59 +30,58 @@ type ReqTimeOut int
 type ReqTimeOutMs int
 
 
-// Get 请求, 当请求失败或状态码是失败的则会先执行 ff 再回调
-func Get(url string, vs ...interface{}) (cxt *Context,err error){
+// Get 请求
+func Get(url string, vs ...interface{}) (*Context, error) {
 	if !isUrl(url) {
-		err = UrlNil
-		return
+		return nil,UrlBad
 	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil{
-		log.Println("err->", err)
-		return
+		return nil, err
 	}
-	cxt, err = Req(request, vs...)
-	cxt.Do()
-	return
+	ctx := Req(request, vs...)
+	ctx.Do()
+	return ctx,nil
 }
 
-func NewGet(url string, vs ...interface{}) (*Context,error){
+func NewGet(url string, vs ...interface{}) *Context {
 	if !isUrl(url) {
-		return nil, UrlBad
+		loger(UrlBad)
+		return nil
 	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil{
-		log.Println("err->", err)
-		return nil, err
+		loger("NewGet err->", err)
+		return nil
 	}
 	return	Req(request, vs...)
 }
 
 
 // POST 请求
-func Post(url string, data []byte, contentType string, vs ...interface{}) (cxt *Context,err error){
+func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil{
-		log.Println("err->", err)
 		return nil, err
 	}
 	request.Header.Set("Content-Type", contentType)
-	cxt, err = Req(request, vs...)
+	cxt := Req(request, vs...)
 	cxt.Do()
-	return
+	return cxt, nil
 }
 
-func NewPost(url string, data []byte, contentType string, vs ...interface{}) (*Context,error){
+func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Context {
 	if !isUrl(url) {
-		return nil, UrlBad
+		loger(UrlBad)
+		return nil
 	}
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil{
-		log.Println("err->", err)
-		return nil, err
+		loger("NewPost err->", err)
+		return nil
 	}
 	request.Header.Set("Content-Type", contentType)
 	return	Req(request, vs...)
@@ -90,42 +89,47 @@ func NewPost(url string, data []byte, contentType string, vs ...interface{}) (*C
 
 
 // POST json 请求
-func PostJson(url string, jsonStr string, vs ...interface{}) (cxt *Context,err error){
+func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
 	request, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonStr)))
 	if err != nil{
-		log.Println("err->", err)
 		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	cxt, err = Req(request, vs...)
+	cxt := Req(request, vs...)
 	cxt.Do()
-	return
+	return cxt, nil
 }
 
 
 // POST Form
-func PostForm(url string, data url.Values, vs ...interface{}) (*Context,error){
+func PostForm(url string, data url.Values, vs ...interface{}) (*Context, error){
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
-	request, _ := http.NewRequest("POST", url, strings.NewReader(data.Encode()))
+	request, err := http.NewRequest("POST", url, strings.NewReader(data.Encode()))
+	if err != nil{
+		return nil, err
+	}
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	return	Req(request, vs...)
+	cxt := Req(request, vs...)
+	cxt.Do()
+	return cxt, nil
 }
 
 
 // Put
-func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context,error){
+func Put(url string, data []byte, contentType string, vs ...interface{}) *Context {
 	if !isUrl(url) {
-		return nil, UrlBad
+		loger(UrlBad)
+		return nil
 	}
 	request, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
 	if err != nil{
-		log.Println("err->", err)
-		return nil, err
+		loger("err->", err)
+		return nil
 	}
 	request.Header.Set("Content-Type", contentType)
 	return	Req(request, vs...)
@@ -133,42 +137,45 @@ func Put(url string, data []byte, contentType string, vs ...interface{}) (*Conte
 
 
 // Delete
-func Delete(url string, vs ...interface{}) (*Context,error){
+func Delete(url string, vs ...interface{}) *Context {
 	if !isUrl(url) {
-		return nil, UrlBad
+		loger(UrlBad)
+		return nil
 	}
 	request, err := http.NewRequest("DELETE", url, nil)
 	if err != nil{
-		log.Println("err->", err)
-		return nil, err
+		loger("err->", err)
+		return nil
 	}
 	return	Req(request, vs...)
 }
 
 
 // Options
-func Options(url string, vs ...interface{}) (*Context,error){
+func Options(url string, vs ...interface{}) *Context {
 	if !isUrl(url) {
-		return nil, UrlBad
+		loger(UrlBad)
+		return nil
 	}
 	request, err := http.NewRequest("OPTIONS", url, nil)
 	if err != nil{
-		log.Println("err->", err)
-		return nil, err
+		loger("err->", err)
+		return nil
 	}
 	return	Req(request, vs...)
 }
 
 
 // Request 请求
-func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context,error){
+func Request(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
 	if !isUrl(url) {
-		return nil, UrlBad
+		loger(UrlBad)
+		return nil
 	}
 	request, err := http.NewRequest(method, url, bytes.NewBuffer([]byte(data)))
 	if err != nil{
-		log.Println("err->", err)
-		return nil, err
+		loger("err->", err)
+		return nil
 	}
 	request.Header.Set("Content-Type", contentType)
 	return	Req(request, vs...)
@@ -176,16 +183,16 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 
 
 // Upload
-func Upload(url, savePath string, vs ...interface{})  error {
+func Upload(url, savePath string, vs ...interface{}) (*Context, error) {
 	if !isUrl(url) {
-		return UrlBad
+		return nil, UrlBad
 	}
-	c,err := Get(url,vs)
-	if err != nil{
-		return err
-	}
+	c := NewGet(url,vs)
 	c.Upload(savePath)
-	return nil
+	if c.Err != nil {
+		return c, c.Err
+	}
+	return c, nil
 }
 
 
@@ -200,7 +207,6 @@ func isUrl(url string) bool {
 
 type Header map[string]string
 
-
 // Req 初始化请求
 // @url  请求链接
 // @maxTimes  重试次数
@@ -208,7 +214,7 @@ type Header map[string]string
 // @ff  请求失败后做的事情, 403等，502等
 // @vs  可变参数
 // @vs UserAgentType  设置指定类型 user agent 如 AndroidAgent
-func Req(request *http.Request, vs ...interface{}) (*Context,error){
+func Req(request *http.Request, vs ...interface{}) *Context {
 	var (
 		client *http.Client
 		maxTimes RetryTimes = 10
@@ -328,7 +334,7 @@ func Req(request *http.Request, vs ...interface{}) (*Context,error){
 		RetryFunc: retry,
 		EndFunc: end,
 		IsLog: true,
-	},nil
+	}
 }
 
 func SearchDomain(ip string){

@@ -31,6 +31,9 @@ type StressUrl struct {
 	// 接口传入的json
 	JsonData string
 
+	// 接口传入类型
+	ContentType string
+
 	stateCodeList []*stateCodeData
 	stateCodeListMux *sync.Mutex
 }
@@ -140,9 +143,9 @@ func (s *StressUrl) Run(vs ...interface{}){
 				//log.Println("第",i,"个任务取的值： ", task)
 				switch s.Method {
 					case "get","Get","GET":
-						ctx, err = Get(task.Url, client, succeedFunc, reqTimeout, reqTimeoutms, header)
+						ctx = NewGet(task.Url, client, succeedFunc, reqTimeout, reqTimeoutms, header)
 					case "post","Post","POST":
-						ctx, err = PostJson(task.Url, s.JsonData, client, succeedFunc, reqTimeout, reqTimeoutms,
+						ctx = NewPost(task.Url, []byte(s.JsonData), s.ContentType, client, succeedFunc, reqTimeout, reqTimeoutms,
 							header)
 					default:
 						log.Println("未知 Method.")

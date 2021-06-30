@@ -110,27 +110,34 @@ type Context struct {
 }
 
 // SetSucceedFunc 设置成功后的方法
-func (c *Context) SetSucceedFunc(successFunc func(c *Context)){
+func (c *Context) SetSucceedFunc(successFunc func(c *Context)) *Context {
+	log.Println("SetSucceedFunc")
 	c.SucceedFunc = successFunc
+	return c
 }
 
 // SetFailed 设置错误后的方法
-func (c *Context) SetFailedFunc(failedFunc func(c *Context)) {
+func (c *Context) SetFailedFunc(failedFunc func(c *Context)) *Context {
 	c.FailedFunc = failedFunc
+	return c
 }
 
 // SetRetryFunc 设置重试，在重试前的方法
-func (c *Context) SetRetryFunc(retryFunc func(c *Context)) {
+func (c *Context) SetRetryFunc(retryFunc func(c *Context)) *Context {
 	c.RetryFunc = retryFunc
+	return c
 }
 
 // SetRetryTimes 设置重试次数
-func (c *Context) SetRetryTimes(times int) {
+func (c *Context) SetRetryTimes(times int) *Context {
 	c.MaxTimes = RetryTimes(times)
+	return c
 }
 
 // Do 执行请求
 func (c *Context) Do() func(){
+
+	log.Println("run Do")
 
 	var bodyBytes []byte
 
@@ -272,7 +279,7 @@ func (c *Context) Do() func(){
 	return nil
 }
 
-func (c *Context) String() string {
+func (c *Context) RespBodyString() string {
 	if c.RespBody != nil {
 		return string(c.RespBody)
 	}
