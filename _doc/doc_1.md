@@ -48,7 +48,11 @@ gt.Get(`http://192.168.0.1`, RetryTimes(50))
 ```go
 gt.Get(`http://192.168.0.1`, &gt.Task{})
 ```
-- IsLog : 是否打印日志
+- IsLog : 是否打印日志, 默认打开
+- ProxyUrl(url string) : 设置代理
+```go
+gt.Get(`http://192.168.0.1`, gt.ProxyUrl("http://192.168.0.2:8888"))
+```
 
 ## 状态码事件
 > 状态码对应事件的全局的，可初始化设置，也可随时重置
@@ -83,8 +87,8 @@ gt.Get(`http://192.168.0.1`, &gt.Task{})
 - SetStatusCodeRetryEvent(code int) ： 将指定状态码设置为执行重试事件
 - SetStatusCodeFailEvent(code int) ： 将指定状态码设置为执行失败事件
 
-## 一、 get请求
-### 1. Get(url string) get请求，返回上下文；
+## 一、 基础请求
+### Get(url string) (*Context, error)  ： get请求
 
 ```go
 // 无事件参数的请求
@@ -98,3 +102,69 @@ func succeed(ctx *gt.Context) {
 }
 ```
 
+### NewGet(url string) *Context ： 新建一个get请求上下文
+```go
+gt.NewGet(`http://192.168.0.1`).SetSucceedFunc(succeed).Do()
+func succeed(ctx *gt.Context) {
+    log.Println(ctx.RespBodyString(), ctx)
+}
+```
+
+### Post(url string, data []byte, contentType string) (*Context, error) ： Post请求
+```go
+ctx, err := gt.Post(`https://httpbin.org/post`, []byte(`{"a":"a"}`), "application/json;")
+log.Println(ctx.RespBodyString(), err)
+```
+
+### PostJson(url string, jsonStr string) (*Context, error) : Post请求 - json参数
+```go
+ctx, err := gt.PostJson(`https://httpbin.org/post`, `{"a":"a"}`)
+log.Println(ctx.RespBodyString(), err)
+```
+
+### PostForm(url string, data url.Values) (*Context, error)  : Post请求 - Form 
+```go
+ctx, err := gt.PostForm(`https://httpbin.org/post`, url.Values(`a=123`))
+log.Println(ctx.RespBodyString(), err)
+```
+
+
+### NewPost(url string, data []byte, contentType string) *Context  ： 新建一个post请求上下文
+```go
+gt.NewPost(`https://httpbin.org/post`, []byte(`{"a":"a"}`), "application/json;").SetSucceedFunc(succeed).Do()
+func succeed(ctx *gt.Context) {
+    log.Println(ctx.RespBodyString(), ctx)
+}
+```
+
+### NewPut(url string, data []byte, contentType string) *Context  : 新建一个put请求上下文
+```go
+gt.NewPut(`https://httpbin.org/put`, []byte(`{"a":"a"}`), "application/json;").SetSucceedFunc(succeed).Do()
+func succeed(ctx *gt.Context) {
+    log.Println(ctx.RespBodyString(), ctx)
+}
+```
+
+### Put(url string, data []byte, contentType string) (*Context, error)  : put请求
+```go
+ctx, err := gt.Put(`https://httpbin.org/put`, url.Values(`a=123`))
+log.Println(ctx.RespBodyString(), err)
+```
+
+### NewDelete(url string, vs ...interface{}) *Context
+
+### Delete(url string, vs ...interface{}) (*Context, error) 
+
+### NewOptions(url string, vs ...interface{}) *Context 
+
+### Options(url string, vs ...interface{}) (*Context, error)
+
+### Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error)
+
+### NewRequest(url, method string, data []byte, contentType string, vs ...interface{}) *Context
+
+### Upload(url, savePath string, vs ...interface{}) (*Context, error) : 上传
+
+### Req(request *http.Request, vs ...interface{}) *Context
+
+### SearchDomain(ip string)  : 获取ip 对应的 domain

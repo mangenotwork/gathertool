@@ -18,6 +18,7 @@ import (
 	"math"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -44,6 +45,9 @@ type EndFunc func(c *Context)
 
 // 是否开启日志
 type IsLog bool
+
+// 代理地址
+type ProxyUrl string
 
 // 请求上下文
 type Context struct {
@@ -324,6 +328,12 @@ func (c *Context) AddHeader(k,v string) {
 // add Cookie
 func (c *Context) AddCookie(cookie *http.Cookie){
 	c.Req.AddCookie(cookie)
+}
+
+// set proxy
+func (c *Context) SetProxy(proxyUrl string) {
+	proxy, _ := url.Parse(proxyUrl)
+	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
 }
 
 // Upload 下载

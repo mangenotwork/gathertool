@@ -121,7 +121,24 @@ func PostForm(url string, data url.Values, vs ...interface{}) (*Context, error){
 
 
 // Put
-func Put(url string, data []byte, contentType string, vs ...interface{}) *Context {
+func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context, error){
+	if !isUrl(url) {
+		loger(UrlBad)
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
+	if err != nil{
+		loger("err->", err)
+		return nil, err
+	}
+	request.Header.Set("Content-Type", contentType)
+	cxt :=	Req(request, vs...)
+	cxt.Do()
+	return cxt, nil
+}
+
+// NewPut
+func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context{
 	if !isUrl(url) {
 		loger(UrlBad)
 		return nil
@@ -132,12 +149,11 @@ func Put(url string, data []byte, contentType string, vs ...interface{}) *Contex
 		return nil
 	}
 	request.Header.Set("Content-Type", contentType)
-	return	Req(request, vs...)
+	return Req(request, vs...)
 }
 
-
-// Delete
-func Delete(url string, vs ...interface{}) *Context {
+// NewDelete
+func NewDelete(url string, vs ...interface{}) *Context {
 	if !isUrl(url) {
 		loger(UrlBad)
 		return nil
@@ -151,8 +167,24 @@ func Delete(url string, vs ...interface{}) *Context {
 }
 
 
-// Options
-func Options(url string, vs ...interface{}) *Context {
+// Delete
+func Delete(url string, vs ...interface{}) (*Context, error) {
+	if !isUrl(url) {
+		loger(UrlBad)
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest("DELETE", url, nil)
+	if err != nil{
+		loger("err->", err)
+		return nil, err
+	}
+	cxt :=	Req(request, vs...)
+	cxt.Do()
+	return cxt, nil
+}
+
+// NewOptions
+func NewOptions(url string, vs ...interface{}) *Context {
 	if !isUrl(url) {
 		loger(UrlBad)
 		return nil
@@ -165,9 +197,42 @@ func Options(url string, vs ...interface{}) *Context {
 	return	Req(request, vs...)
 }
 
+// Options
+func Options(url string, vs ...interface{}) (*Context, error) {
+	if !isUrl(url) {
+		loger(UrlBad)
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest("OPTIONS", url, nil)
+	if err != nil{
+		loger("err->", err)
+		return nil, err
+	}
+	cxt :=	Req(request, vs...)
+	cxt.Do()
+	return cxt, nil
+}
+
 
 // Request 请求
-func Request(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
+func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
+	if !isUrl(url) {
+		loger(UrlBad)
+		return nil, UrlBad
+	}
+	request, err := http.NewRequest(method, url, bytes.NewBuffer([]byte(data)))
+	if err != nil{
+		loger("err->", err)
+		return nil, err
+	}
+	request.Header.Set("Content-Type", contentType)
+	cxt :=	Req(request, vs...)
+	cxt.Do()
+	return cxt, nil
+}
+
+// NewRequest 请求
+func NewRequest(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
 	if !isUrl(url) {
 		loger(UrlBad)
 		return nil
@@ -227,6 +292,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		reqTimeOut ReqTimeOut
 		reqTimeOutMs ReqTimeOutMs
 		islog IsLog
+		proxyUrl string
 	)
 
 	//添加默认的Header
@@ -278,6 +344,8 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			reqTimeOutMs = vv
 		case IsLog:
 			islog = vv
+		case ProxyUrl:
+			proxyUrl = string(vv)
 		}
 	}
 
@@ -306,9 +374,17 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		client.Timeout =  time.Duration(reqTimeOutMs) * time.Millisecond
 	}
 
+	if proxyUrl != "" {
+		proxy, err := url.Parse(proxyUrl)
+		if err != nil {
+			loger("设置代理失败:", err)
+		}else{
+			client.Transport =  &http.Transport{Proxy: http.ProxyURL(proxy)}
+		}
+	}
+
 	// 避免连接连接数太多
 	client.Transport = &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
 			DialContext: (&net.Dialer{
 				Timeout:   30 * time.Second,
 				KeepAlive: 30 * time.Second,
@@ -318,7 +394,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			IdleConnTimeout:       90 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
-		}
+	}
 
 	if l := request.Header.Get("Content-Length"); l != "" {
 		request.ContentLength = Str2Int64(l)
