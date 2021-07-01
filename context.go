@@ -42,6 +42,8 @@ type RetryFunc func(c *Context)
 // 请求结束后的方法类型
 type EndFunc func(c *Context)
 
+// 是否开启日志
+type IsLog bool
 
 // 请求上下文
 type Context struct {
@@ -100,7 +102,7 @@ type Context struct {
 	Ms time.Duration
 
 	// 是否显示日志, 默认是显示的
-	IsLog bool
+	IsLog IsLog
 
 	// 指定失败执行重试事件
 	err2retry bool

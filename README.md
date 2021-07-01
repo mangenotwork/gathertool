@@ -1,6 +1,6 @@
 # gathertool
 轻量级爬虫，接口测试，压力测试框架, 提高开发对应场景的golang程序的效率。
-文档： https://380949.baklib-free.com/
+文档： [点击开始](https://github.com/mangenotwork/gathertool/tree/main/_doc/doc_1.md)
 
 ## 概念
 1. 一个请求含有 请求成功后方法， 请求重试前方法，请求失败后方法；举个例子 

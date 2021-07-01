@@ -226,6 +226,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		end EndFunc
 		reqTimeOut ReqTimeOut
 		reqTimeOutMs ReqTimeOutMs
+		islog IsLog
 	)
 
 	//添加默认的Header
@@ -275,6 +276,8 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			reqTimeOut = vv
 		case ReqTimeOutMs:
 			reqTimeOutMs = vv
+		case IsLog:
+			islog = vv
 		}
 	}
 
@@ -333,7 +336,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		FailedFunc: failed,
 		RetryFunc: retry,
 		EndFunc: end,
-		IsLog: true,
+		IsLog: islog,
 	}
 }
 
