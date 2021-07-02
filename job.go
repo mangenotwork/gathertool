@@ -10,6 +10,7 @@ package gathertool
 import (
 	"log"
 	"net/http"
+	"runtime"
 	"sync"
 )
 
@@ -35,6 +36,8 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 		failed FailedFunc
 		err2Retry Err2Retry
 	)
+
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	for _,v := range vs{
 		switch vv := v.(type) {

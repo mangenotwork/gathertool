@@ -77,6 +77,18 @@ var (
 	listUCAgent = []int{26,27,28,29}
 )
 
+var AgentType = map[UserAgentType][]int {
+	PCAgent: listPCAgent,
+	WindowsAgent: listWindowsAgent,
+	LinuxAgent: listLinuxAgent,
+	MacAgent: listMacAgent,
+	AndroidAgent: listAndroidAgent,
+	IosAgent: listIosAgent,
+	PhoneAgent: listPhoneAgent,
+	WindowsPhoneAgent: listWindowsPhoneAgent,
+	UCAgent: listUCAgent,
+}
+
 
 // GetAgent 随机获取那种类型的 user-agent
 func GetAgent(agentType UserAgentType) string {
@@ -124,4 +136,9 @@ func GetAgent(agentType UserAgentType) string {
 		}
 	}
 	return ""
+}
+
+func SetAgent(agentType UserAgentType, agent string) {
+	UserAgentMap[len(UserAgentMap)] = agent
+	AgentType[agentType] = append(AgentType[agentType], len(UserAgentMap))
 }

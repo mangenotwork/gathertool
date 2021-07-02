@@ -15,8 +15,8 @@ var fileLinks = map[string]string{
 
 func main(){
 	// 普通下载
-	err := gt.Upload("https://jyzd.bfsu.edu.cn/uploadfile/bfsu/front/default/upload_file_35256.pdf", "/home/mange/Desktop/upload_file_3.pdf")
-	log.Println(err)
+	ctx, err := gt.Upload("https://jyzd.bfsu.edu.cn/uploadfile/bfsu/front/default/upload_file_35256.pdf", "/home/mange/Desktop/upload_file_3.pdf")
+	log.Println(ctx.Resp.StatusCode, err)
 	//for k,v := range fileLinks{
 	//	gt.Upload(k,v)
 	//}
