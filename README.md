@@ -1,17 +1,78 @@
 # gathertool
 轻量级爬虫，接口测试，压力测试框架, 提高开发对应场景的golang程序的效率。
-文档： [点击开始](https://github.com/mangenotwork/gathertool/tree/main/_doc/doc_1.md)
 
-## 概念
-1. 一个请求含有 请求成功后方法， 请求重试前方法，请求失败后方法；举个例子 
- 请一个URL  请求遇到状态200或302等算成功，则执行成功后方法。  请求遇到403或502
- 等需要执行重试，则执行重试方法，重试方法主要含添加等待时间更换代理IP等。 遇到404
- 或500等算失败则执行失败方法。
- 
-2. 并发执行，第一需要创建TODO队列，等TODO队列加载完后，每个队列对象含有上下文，
-在创建时应该富裕上文数据或对象，开始执行并发任务，每个并发任务是一个独立的cilet，
-当队列任务取完后则整个并发结束。注意这里的每个并发任务都是独立的，没有chan操作。
+## 文档： [点击开始](https://github.com/mangenotwork/gathertool/tree/main/_doc/doc_1.md)
 
+## 开始
+> go get github.com/mangenotwork/gathertool
+
+```go
+import gt "github.com/mangenotwork/gathertool"
+
+func main(){
+    caseUrl := "https://www.baidu.com"
+    ctx, err := gt.Get(caseUrl)
+    if err != nil {
+        log.Println(err)
+    }
+    log.Println(ctx.RespBodyString)
+}
+```
+
+> 含请求事件请求
+```go
+import gt "github.com/mangenotwork/gathertool"
+
+func main(){
+
+    gt.NewGet(`http://192.168.0.1`).SetStartFunc(func(ctx *gt.Context){
+            log.Println("请求前： 添加代理等等操作")
+            ctx.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+        }
+    ).SetSucceedFunc(func(ctx *gt.Context){
+            log.Println("请求成功： 处理数据或存储等等")
+            log.Println(ctx.RespBodyString())
+        }
+    ).SetFailedFunc(func(ctx *gt.Context){
+            log.Println("请求失败： 记录失败等等")
+            log.Println(ctx.Err)
+        }
+    ).SetRetryFunc(func(ctx *gt.Context){
+             log.Println("请求重试： 更换代理或添加等待时间等等")
+             ctx.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+        }
+    ).SetEndFunc(func(ctx *gt.Context){
+             log.Println("请求结束： 记录结束，处理数据等等")
+             log.Println(ctx)
+        }
+    ).Do()
+    
+}
+```
+
+> 优雅的写法
+```go
+func main(){
+    gt.NewGet(`http://192.168.0.1`).SetSucceedFunc(succeed).SetFailedFunc(failed).SetRetryFunc(retry).Do()
+    gt.NewGet(`http://www.baidu.com`).SetSucceedFunc(baiduSucceed).SetFailedFunc(failed).SetRetryFunc(retry).Do()
+}
+// 请求成功： 处理数据或存储等等
+func succeed(ctx *gt.Context){
+    log.Println(ctx.RespBodyString())
+}
+// 请求失败： 记录失败等等
+func failed(ctx *gt.Context){
+    log.Println(ctx.Err)
+}
+// 请求重试： 更换代理或添加等待时间等等
+func retry(ctx *gt.Context){
+    ctx.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+}
+// 百度请求成功后
+func baiduSucceed(ctx *gt.Context){
+    log.Println(ctx.RespBodyString())
+}
+```
 
 ## 实例
 -  [Get请求](https://github.com/mangenotwork/gathertool/tree/main/_examples/get)
