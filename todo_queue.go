@@ -29,6 +29,7 @@ type Queue struct {
 	list []*Task
 }
 
+
 // 任务对象
 type Task struct {
 	Url string
@@ -44,7 +45,7 @@ type Task struct {
 }
 
 // CrawlerTask
-func CrawlerTask(url,jsonParam string, vs ...interface{}) *Task {
+func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 	header := &http.Header{}
 
 	for _, v := range vs {
@@ -144,7 +145,7 @@ type UploadQueue struct {
 	list []*Task
 }
 
-// NewQueue 新建一个队列
+// NewQueue 新建一个下载队列
 func NewUploadQueue() TodoQueue {
 	list := make([]*Task, 0)
 	return &UploadQueue{list: list, mux: &sync.Mutex{}}

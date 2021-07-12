@@ -326,7 +326,8 @@ func (c *Context) AddHeader(k,v string) {
 }
 
 // add Cookie
-func (c *Context) AddCookie(cookie *http.Cookie){
+func (c *Context) AddCookie(k, v string){
+	cookie := &http.Cookie{Name: k, Value: v, HttpOnly: true}
 	c.Req.AddCookie(cookie)
 }
 
