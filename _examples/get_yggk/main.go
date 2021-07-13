@@ -28,7 +28,7 @@ var (
 	user = "root"
 	password = "root123"
 	database = "spider"
-	tableName = "yggk_zszc_1"
+	tableName = "yggk_zszc_2"
 )
 
 func init(){
@@ -77,22 +77,6 @@ func main(){
 		gt.FailedFunc(Fail),
 	)
 	log.Println(" 并发执行三级页面 完成")
-
-
-	////测试第二级页面
-	//c,_ := gt.Get("https://gaokao.chsi.com.cn/zsgs/zhangcheng/listZszc--schId-1.dhtml",
-	//	gt.SucceedFunc(Pg2Succeed))
-	//c.Do()
-
-	//测试第三级页面
-	//for i:=0; i<100;i++{
-	//	go func(){
-	//		c,_ := gt.Get("https://gaokao.chsi.com.cn/zsgs/zhangcheng/listVerifedZszc--infoId-2697675279,method-view,schId-1.dhtml",
-	//			gt.SucceedFunc(Pg3Succeed))
-	//		c.Do()
-	//	}()
-	//}
-	//time.Sleep(10*time.Second)
 }
 
 // 抓取第一级页面成功后
@@ -132,7 +116,6 @@ func Pg2Succeed(ctx *gt.Context){
 		return
 	}
 	result := dom.Find(".zszcdel table tbody")
-	//log.Println(result.Html())
 	result.Find("tr").Each(func(i int, tr *goquery.Selection){
 		td := tr.Find("td")
 		zszcName := td.Eq(0).Text()
@@ -150,7 +133,6 @@ func Pg2Succeed(ctx *gt.Context){
 //
 func Pg3Succeed(ctx *gt.Context){
 	html := string(ctx.RespBody)
-	//log.Println(html)
 	dom,err := gt.NewGoquery(html)
 	if err != nil{
 		log.Println(err)

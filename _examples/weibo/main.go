@@ -10,9 +10,9 @@ import (
 
 func main(){
 
-	case1()
+	//case1()
 
-	//case2()
+	case2()
 
 	//case3()
 }
@@ -97,7 +97,6 @@ func case2(){
 	// cb 固定值 gen_callback
 	//getTidUrl := "https://passport.weibo.com/visitor/genvisitor?cb=gen_callback&fp={\"os\":\"1\",\"browser\":\"Chrome70,0,3538,25\",\"fonts\":\"undefined\",\"screenInfo\":\"1920*1080*24\",\"plugins\":\"\"}"
 	//ctx, _ := gt.Get(getTidUrl)
-	//ctx.Do()
 	//log.Println(string(ctx.RespBody))
 
 
@@ -113,7 +112,6 @@ func case2(){
 
 	getSubUrl := "https://passport.weibo.com/visitor/visitor?a=incarnate&t=h2b7xQtQwqk2cEjMgH/0AaWYvpijlgCCAs3qDzj2W58=&w=3&c&cb=restore_back&from=weibo"
 	ctx,_ := gt.Get(getSubUrl)
-	ctx.Do()
 	log.Println(ctx.Resp)
 	log.Println(ctx.Resp.Cookies())
 	log.Println(string(ctx.RespBody))

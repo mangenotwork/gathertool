@@ -22,9 +22,8 @@ func getSchoolList(){
 }
 
 func getSchoolListSuueed(ctx *gt.Context) {
-	log.Println("run getSchoolListSuueed")
 	//log.Println("ctx = ", ctx)
-	//log.Println(ctx.String())
+	log.Println(ctx.RespBodyString())
 	log.Println(ctx.CheckReqMd5())
 	log.Println(ctx.CheckMd5())
 }

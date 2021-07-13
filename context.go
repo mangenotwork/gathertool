@@ -117,7 +117,6 @@ type Context struct {
 
 // SetSucceedFunc 设置成功后的方法
 func (c *Context) SetSucceedFunc(successFunc func(c *Context)) *Context {
-	log.Println("SetSucceedFunc")
 	c.SucceedFunc = successFunc
 	return c
 }
@@ -142,8 +141,6 @@ func (c *Context) SetRetryTimes(times int) *Context {
 
 // Do 执行请求
 func (c *Context) Do() func(){
-
-	log.Println("run Do")
 
 	var bodyBytes []byte
 
