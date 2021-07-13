@@ -574,9 +574,38 @@ test4.Run(gt.SucceedFunc(func(c *gt.Context) {
 ## 8. redis
 > redis 的方法使用 github.com/garyburd/redigo/redis
 
-#### 
+#### func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds)   ： 实例化redis对象
 
-    
+#### func NewRedisPool(host, port, password string, db, maxIdle, maxActive, idleTimeoutSec int, vs ...interface{}) (*Rds)  ： 实例化redis对象
+
+#### type Rds struct   ：  redis对象
+
+#### func (*Rds) RedisConn() (err error)  ： redis 连接
+
+#### func (*Rds) RedisPool() error  :  redis 连接池连接 *redis.Pool.Get() 获取redis连接
+     
+#### func (*Rds) SelectDB(dbNumber int) error  ：  redis 切换db
+
+#### func RedisDELKeys(rds *Rds, keys string, jobNumber int)  : 高并发删除key
+    jobNumber 并发数
+```go
+rds := gt.NewRedisPool(redis_host, redis_port, redis_password, dbnumber, 5, 10, 10,
+		gt.NewSSHInfo(ssh_addr, ssh_user, ssh_password))                                                       
+gt.RedisDELKeys(rds, "in:*", 1000)
+
+```
+
+## 9. mysql
+> mysql 的方法使用 github.com/go-sql-driver/mysql
+
+
+## 10. mongo
+> mongo 的方法使用 go.mongodb.org/mongo-driver
+
+## 11. github.com/PuerkitoBio/goquery
+> 提取数据推荐使用 github.com/PuerkitoBio/goquery
+
+## 
     
      
 
