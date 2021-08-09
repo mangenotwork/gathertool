@@ -7,11 +7,6 @@
 
 package gathertool
 
-import (
-	"errors"
-	"syscall"
-)
-
 // StatusCodeMap 状态码处理映射
 // success 该状态码对应执行成功函数
 // fail    该状态码对应执行失败函数
@@ -56,31 +51,31 @@ func SetStatusCodeFailEvent(code int){
 	StatusCodeMap[code] = "fail"
 }
 
-// 设置为最大 socket open file
-func SetMaxOpenFile() error {
-	var rLimit syscall.Rlimit
-
-	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	if err != nil {
-		return err
-	}
-
-	rLimit.Cur = rLimit.Max
-	return syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-}
-
-// 设置指定 socket open file
-func SetRLimit(number int) error {
-	var rLimit syscall.Rlimit
-	var n = uint64(number)
-
-	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	if err != nil {
-		return err
-	}
-	if n > rLimit.Max {
-		return errors.New("设置失败：操过最大 Rlimit")
-	}
-	rLimit.Cur = n
-	return syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-}
+//// 设置为最大 socket open file
+//func SetMaxOpenFile() error {
+//	var rLimit syscall.Rlimit
+//
+//	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+//	if err != nil {
+//		return err
+//	}
+//
+//	rLimit.Cur = rLimit.Max
+//	return syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+//}
+//
+//// 设置指定 socket open file
+//func SetRLimit(number int) error {
+//	var rLimit syscall.Rlimit
+//	var n = uint64(number)
+//
+//	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+//	if err != nil {
+//		return err
+//	}
+//	if n > rLimit.Max {
+//		return errors.New("设置失败：操过最大 Rlimit")
+//	}
+//	rLimit.Cur = n
+//	return syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+//}
