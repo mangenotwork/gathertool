@@ -36,7 +36,7 @@ func StringValue(i interface{}) string {
 	}
 
 	if reflect.ValueOf(i).Kind() == reflect.String{
-		return i.(string)
+		return "'"+i.(string)+"'"
 	}
 
 	var buf bytes.Buffer

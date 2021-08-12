@@ -1,11 +1,10 @@
 /*
 	Description : mysql 相关方法
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-04-29
+	Version : v0.2
+	Date : 2021-08-12
 */
 
-// bug : 存在null值， 解析报错
 
 package gathertool
 
@@ -25,15 +24,15 @@ import (
 var MysqlDB = &Mysql{}
 
 type Mysql struct {
-	Host string
-	Port int
-	User string
-	Password string
-	DataBase string
-	MaxOpenConn int
-	MaxIdleConn int
+	host string
+	port int
+	user string
+	password string
+	dataBase string
+	maxOpenConn int
+	maxIdleConn int
 	DB *sql.DB
-	Log bool
+	log bool
 }
 
 // 给mysql对象进行连接
@@ -51,12 +50,14 @@ func NewMysql(host string,port int, user, password, database string) (*Mysql, er
 		port = 3369
 	}
 	return &Mysql{
-		Host : host,
-		Port : port,
-		User : user,
-		Password : password,
-		DataBase : database,
-		Log: true,
+		host : host,
+		port : port,
+		user : user,
+		password : password,
+		dataBase : database,
+		log: true,
+		maxOpenConn: 10,
+		maxIdleConn: 10,
 	}, nil
 }
 
@@ -68,28 +69,38 @@ func GetMysqlDBConn() (*Mysql,error) {
 
 // 关闭日志
 func (m *Mysql) CloseLog(){
-	m.Log = false
+	m.log = false
+}
+
+// SetMaxOpenConn
+func (m *Mysql) SetMaxOpenConn(number int) {
+	m.maxOpenConn = number
+}
+
+// SetMaxIdleConn
+func (m *Mysql) SetMaxIdleConn(number int) {
+	m.maxIdleConn = number
 }
 
 // 连接mysql
 func (m *Mysql) Conn() (err error){
 	m.DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s:%d)/%s",
-		m.User, m.Password, "tcp", m.Host, m.Port, m.DataBase))
+		m.user, m.password, "tcp", m.host, m.port, m.dataBase))
 	if err != nil {
-		if m.Log{
+		if m.log{
 			log.Println("[Sql] Conn Fail : " + err.Error())
 		}
 		return err
 	}
-	m.DB.SetConnMaxLifetime(100*time.Second)  //最大连接周期，超过时间的连接就close
-	if m.MaxOpenConn < 1{
-		m.MaxOpenConn = 10
+	m.DB.SetConnMaxLifetime(time.Hour)  //最大连接周期，超过时间的连接就close
+	if m.maxOpenConn < 1{
+		m.maxOpenConn = 10
 	}
-	if m.MaxIdleConn < 1{
-		m.MaxIdleConn = 5
+	if m.maxIdleConn < 1{
+		m.maxIdleConn = 5
 	}
-	m.DB.SetMaxOpenConns(m.MaxOpenConn)//设置最大连接数
-	m.DB.SetMaxIdleConns(m.MaxIdleConn) //设置闲置连接数
+	m.DB.SetMaxOpenConns(m.maxOpenConn)//设置最大连接数
+	m.DB.SetMaxIdleConns(m.maxIdleConn) //设置闲置连接数
 	return
 }
 
@@ -153,7 +164,7 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 	}
 
 	rows,err := m.DB.Query(sql)
-	if m.Log{
+	if m.log{
 		log.Println("[Sql] Exec : " + sql)
 		if err != nil{
 			log.Println("[Sql] Error : " + err.Error())
@@ -230,7 +241,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	}
 	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_,err :=  m.DB.Exec(createSql.String())
-	if m.Log{
+	if m.log{
 		loger("[Sql] Exec : " + createSql.String())
 		if err != nil{
 			loger("[Sql] Error : " + err.Error())
@@ -283,7 +294,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	insertSql.WriteString(valueSql.String())
 	insertSql.WriteString(");")
 	_, err := m.DB.Exec(insertSql.String())
-	if m.Log{
+	if m.log{
 		loger("[Sql] Exec : " + insertSql.String())
 		if err != nil{
 			loger("[Sql] Error : " + err.Error())
@@ -299,8 +310,11 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 
 // 执行 Update
 func (m *Mysql) Update(sql string) error {
+	if m.DB == nil{
+		_=m.Conn()
+	}
 	_, err := m.DB.Exec(sql)
-	if m.Log{
+	if m.log{
 		loger("[Sql] Exec : " + sql)
 		if err != nil{
 			loger("[Sql] Error : " + err.Error())
@@ -311,8 +325,11 @@ func (m *Mysql) Update(sql string) error {
 
 // 执行sql Exec
 func (m *Mysql) Exec(sql string) error {
+	if m.DB == nil{
+		_=m.Conn()
+	}
 	_, err := m.DB.Exec(sql)
-	if m.Log{
+	if m.log{
 		loger("[Sql] Exec : " + sql)
 		if err != nil{
 			loger("[Sql] Error : " + err.Error())
@@ -328,7 +345,7 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	}
 
 	rows,err := m.DB.Query(sql)
-	if m.Log{
+	if m.log{
 		log.Println("[Sql] Exec : " + sql)
 		if err != nil{
 			log.Println("[Sql] Error : " + err.Error())
@@ -368,7 +385,7 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 // Delete
 func (m *Mysql) Delete(sql string) error {
 	_, err := m.DB.Exec(sql)
-	if m.Log{
+	if m.log{
 		loger("[Sql] Exec : " + sql)
 		if err != nil{
 			loger("[Sql] Error : " + err.Error())

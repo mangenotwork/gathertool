@@ -1,8 +1,8 @@
 /*
 	Description : 并发工作任务
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-04-28
+	Version : v0.2
+	Date : 2021-08-12
 */
 
 package gathertool
@@ -14,8 +14,29 @@ import (
 	"sync"
 )
 
-//TODO:  StartJob 开始运行并发， 取task 的 method
-func StartJob(){}
+// StartJob 开始运行并发
+func StartJob(jobNumber int, queue TodoQueue,f func(task *Task)){
+	var wg sync.WaitGroup
+	for job:=0;job<jobNumber;job++{
+		wg.Add(1)
+		go func(i int){
+			log.Println("启动第",i ,"个任务")
+			defer wg.Done()
+			for {
+				if queue.IsEmpty() {
+					break
+				}
+				task := queue.Poll()
+				log.Println("第", i, "个任务取的值： ", task)
+
+				f(task)
+			}
+			log.Println("第",i ,"个任务结束！！")
+		}(job)
+	}
+	wg.Wait()
+	log.Println("执行完成！！！")
+}
 
 // 设置遇到错误执行 Retry 事件
 type Err2Retry bool
@@ -177,4 +198,9 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 	}
 	wg.Wait()
 	log.Println("执行完成！！！")
+}
+
+// CPUMax 多核执行
+func CPUMax(){
+	runtime.GOMAXPROCS(runtime.NumCPU())
 }
