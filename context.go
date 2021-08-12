@@ -353,6 +353,10 @@ func (c *Context) Upload(filePath string) func(){
 	c.Resp,c.Err = c.Client.Do(c.Req)
 
 	// 是否超时
+	// 自 Go 1.6开始， 所有的超时导致的网络错误都可以通过net.Error的Timeout()方法检查。
+	// if err, ok := err.(net.Error); ok && err.Timeout() {
+	//    ……
+	// }
 	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)"){
 		if c.RetryFunc != nil {
 			c.RetryFunc(c)

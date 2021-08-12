@@ -566,4 +566,13 @@ func FileMd5sum(fileName string) string {
 }
 
 
+// 三元表达式
+// use: IF(a>b, a, b).(int)
+func IF(condition bool, a, b interface{}) interface{} {
+	if condition {
+		return a
+	}
+	return b
+}
+
 // TODO 二进制字符串 -> 字符串

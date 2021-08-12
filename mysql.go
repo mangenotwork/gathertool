@@ -374,6 +374,10 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 		item := make(map[string]string)
 		for i, data := range cache {
 			d := *data.(*interface{})
+			if d == nil {
+				item[columns[i]] = ""
+				continue
+			}
 			item[columns[i]] = string(d.([]byte)) //取实际类型
 		}
 		list = append(list, item)
