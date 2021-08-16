@@ -44,6 +44,16 @@ type Task struct {
 	FileName string
 }
 
+func (task Task) GetDataStr(key string) string {
+	v, ok := task.Data[key]
+	if ok {
+		if  vStr, yes := v.(string); yes {
+			return vStr
+		}
+	}
+	return ""
+}
+
 // CrawlerTask
 func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 	header := &http.Header{}
