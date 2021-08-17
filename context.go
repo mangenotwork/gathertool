@@ -289,6 +289,26 @@ func (c *Context) RespBodyString() string {
 	return ""
 }
 
+func (c *Context) RespBodyMap() map[string]interface{} {
+	var tempMap map[string]interface{}
+	err := json.Unmarshal(c.RespBody, &tempMap)
+	if err != nil {
+		loger(err)
+		return nil
+	}
+	return tempMap
+}
+
+func (c *Context) RespBodyArr() []interface{} {
+	var tempArr []interface{}
+	err := json.Unmarshal(c.RespBody, &tempArr)
+	if err != nil {
+		loger(err)
+		return nil
+	}
+	return tempArr
+}
+
 func (c *Context) CheckReqMd5() string {
 	var buffer bytes.Buffer
 	url := c.Req.URL.String()

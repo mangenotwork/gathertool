@@ -36,6 +36,20 @@ func StringValue(i interface{}) string {
 	}
 
 	if reflect.ValueOf(i).Kind() == reflect.String{
+		return i.(string)
+	}
+
+	var buf bytes.Buffer
+	stringValue(reflect.ValueOf(i), 0, &buf)
+	return buf.String()
+}
+
+func StringValueMysql(i interface{}) string {
+	if i == nil {
+		return ""
+	}
+
+	if reflect.ValueOf(i).Kind() == reflect.String{
 		return "'"+i.(string)+"'"
 	}
 

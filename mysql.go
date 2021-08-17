@@ -281,7 +281,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	valueSql.WriteString(" (")
  	for k,v := range fieldData {
 		fieldSql.WriteString(k)
-		valueSql.WriteString(StringValue(v))
+		valueSql.WriteString(StringValueMysql(v))
 		n++
 		if n < line{
 			fieldSql.WriteString(", ")
