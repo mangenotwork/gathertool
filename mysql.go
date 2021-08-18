@@ -1,8 +1,8 @@
 /*
 	Description : mysql 相关方法
 	Author : ManGe
-	Version : v0.2
-	Date : 2021-08-12
+	Version : v0.3
+	Date : 2021-08-18
 */
 
 
@@ -18,6 +18,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"sync"
 )
 
 // 开放的mysql对象
@@ -33,6 +34,8 @@ type Mysql struct {
 	maxIdleConn int
 	DB *sql.DB
 	log bool
+	tableTemp  map[string]tableDescribe //表结构缓存
+	once *sync.Once
 }
 
 // 给mysql对象进行连接
@@ -49,7 +52,7 @@ func NewMysql(host string,port int, user, password, database string) (*Mysql, er
 	if port < 1 {
 		port = 3369
 	}
-	return &Mysql{
+	m := &Mysql{
 		host : host,
 		port : port,
 		user : user,
@@ -58,7 +61,12 @@ func NewMysql(host string,port int, user, password, database string) (*Mysql, er
 		log: true,
 		maxOpenConn: 10,
 		maxIdleConn: 10,
-	}, nil
+		once: &sync.Once{},
+	}
+	m.once.Do(func() {
+		m.tableTemp = make(map[string]tableDescribe)
+	})
+	return m, nil
 }
 
 // 获取mysql 连接
@@ -114,19 +122,27 @@ type TableInfo struct {
 	Extra    string
 }
 
+type tableDescribe struct {
+	Base map[string]string
+}
+
 // Describe 获取表结构
-func (m *Mysql) Describe(table string) (map[string]string, error){
+func (m *Mysql) Describe(table string) (tableDescribe, error){
 	if m.DB == nil{
 		_=m.Conn()
 	}
 
+	if v,ok := m.tableTemp[table]; ok {
+		return v, nil
+	}
+
 	if table == ""{
-		return nil, errors.New("table name is null.")
+		return tableDescribe{}, errors.New("table name is null.")
 	}
 
 	rows,err := m.DB.Query("DESCRIBE " + table)
 	if err != nil{
-		return nil, err
+		return tableDescribe{}, err
 	}
 	defer rows.Close()
 	fieldMap := make(map[string]string,0)
@@ -154,7 +170,14 @@ func (m *Mysql) Describe(table string) (map[string]string, error){
 		fieldMap[result.Field] = fiedlType
 	}
 
-	return fieldMap, nil
+	td := tableDescribe{
+		Base : fieldMap,
+	}
+
+	// 缓存
+	m.tableTemp[table] = td
+
+	return td, nil
 }
 
 // Select 查询语句 返回 map
@@ -279,15 +302,30 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 		_=m.Conn()
 	}
 
+	// 表结构Describe
+	m.Describe(table)
+	describe := m.tableTemp[table]
+	log.Println("[describe] = ", describe)
+	isDescribe := describe.Base != nil
 	insertSql.WriteString("insert ")
 	insertSql.WriteString(table)
 	fieldSql.WriteString(" (")
 	valueSql.WriteString(" (")
- 	for k,v := range fieldData {
-		fieldSql.WriteString(k)
-		valueSql.WriteString(StringValueMysql(v))
+
+	for k,v := range fieldData {
 		n++
-		if n < line{
+		vType,ok := describe.Base[k];
+		if isDescribe && !ok {
+			continue
+		}
+		fieldSql.WriteString(k)
+		vStr := StringValueMysql(v)
+		_,isStr := v.(string)
+		if vType == "string" && !isStr {
+			vStr = "'"+vStr+"'"
+		}
+		valueSql.WriteString(vStr)
+		if n < line-1{
 			fieldSql.WriteString(", ")
 			valueSql.WriteString(", ")
 		}
@@ -305,7 +343,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 		}
 	}
 
- 	return err
+	return err
 }
 
 // TODO: 新增数据结构体
