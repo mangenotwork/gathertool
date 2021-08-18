@@ -42,6 +42,7 @@ type Task struct {
 	SavePath string
 	SaveDir string
 	FileName string
+	once *sync.Once
 }
 
 func (task Task) GetDataStr(key string) string {
@@ -53,6 +54,15 @@ func (task Task) GetDataStr(key string) string {
 	}
 	return ""
 }
+
+func (task Task) AddData(key string, value interface{}) Task {
+	task.once.Do(func() {
+		task.Data = make(map[string]interface{})
+	})
+	task.Data[key] = value
+	return task
+}
+
 
 // CrawlerTask
 func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {

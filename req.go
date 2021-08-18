@@ -21,6 +21,17 @@ import (
 	"time"
 )
 
+const (
+	POST    = "POST"
+	GET     = "GET"
+	HEAD    = "HEAD"
+	PUT     = "PUT"
+	DELETE  = "DELETE"
+	PATCH   = "PATCH"
+	OPTIONS = "OPTIONS"
+	ANY     = ""
+)
+
 var (
 	UrlBad error = errors.New("url is bad.") // 错误的url
 	UrlNil error = errors.New("url is null.") // 空的url
@@ -35,7 +46,7 @@ func Get(url string, vs ...interface{}) (*Context, error) {
 	if !isUrl(url) {
 		return nil,UrlBad
 	}
-	request, err := http.NewRequest("GET", url, nil)
+	request, err := http.NewRequest(GET, url, nil)
 	if err != nil{
 		return nil, err
 	}
@@ -49,7 +60,7 @@ func NewGet(url string, vs ...interface{}) *Context {
 		loger(UrlBad)
 		return nil
 	}
-	request, err := http.NewRequest("GET", url, nil)
+	request, err := http.NewRequest(GET, url, nil)
 	if err != nil{
 		loger("NewGet err->", err)
 		return nil
@@ -63,11 +74,18 @@ func Post(url string, data []byte, contentType string, vs ...interface{}) (*Cont
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+
+	request, err := http.NewRequest(POST, url, bytes.NewBuffer(data))
 	if err != nil{
 		return nil, err
 	}
-	request.Header.Set("Content-Type", contentType)
+
+	if contentType == "" {
+		request.Header.Set("Content-Type", "application/json;")
+	} else {
+		request.Header.Set("Content-Type", contentType)
+	}
+
 	cxt := Req(request, vs...)
 	cxt.Do()
 	return cxt, nil
@@ -78,12 +96,19 @@ func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Co
 		loger(UrlBad)
 		return nil
 	}
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+
+	request, err := http.NewRequest(POST, url, bytes.NewBuffer(data))
 	if err != nil{
 		loger("NewPost err->", err)
 		return nil
 	}
-	request.Header.Set("Content-Type", contentType)
+
+	if contentType == "" {
+		request.Header.Set("Content-Type", "application/json;")
+	} else {
+		request.Header.Set("Content-Type", contentType)
+	}
+
 	return	Req(request, vs...)
 }
 
@@ -93,7 +118,7 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonStr)))
+	request, err := http.NewRequest(POST, url, bytes.NewBuffer([]byte(jsonStr)))
 	if err != nil{
 		return nil, err
 	}
@@ -109,7 +134,7 @@ func PostForm(url string, data url.Values, vs ...interface{}) (*Context, error){
 	if !isUrl(url) {
 		return nil, UrlBad
 	}
-	request, err := http.NewRequest("POST", url, strings.NewReader(data.Encode()))
+	request, err := http.NewRequest(POST, url, strings.NewReader(data.Encode()))
 	if err != nil{
 		return nil, err
 	}
@@ -126,7 +151,7 @@ func Put(url string, data []byte, contentType string, vs ...interface{}) (*Conte
 		loger(UrlBad)
 		return nil, UrlBad
 	}
-	request, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(PUT, url, bytes.NewBuffer([]byte(data)))
 	if err != nil{
 		loger("err->", err)
 		return nil, err
@@ -143,7 +168,7 @@ func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Con
 		loger(UrlBad)
 		return nil
 	}
-	request, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(PUT, url, bytes.NewBuffer([]byte(data)))
 	if err != nil{
 		loger("err->", err)
 		return nil
@@ -158,7 +183,7 @@ func NewDelete(url string, vs ...interface{}) *Context {
 		loger(UrlBad)
 		return nil
 	}
-	request, err := http.NewRequest("DELETE", url, nil)
+	request, err := http.NewRequest(DELETE, url, nil)
 	if err != nil{
 		loger("err->", err)
 		return nil
@@ -173,7 +198,7 @@ func Delete(url string, vs ...interface{}) (*Context, error) {
 		loger(UrlBad)
 		return nil, UrlBad
 	}
-	request, err := http.NewRequest("DELETE", url, nil)
+	request, err := http.NewRequest(DELETE, url, nil)
 	if err != nil{
 		loger("err->", err)
 		return nil, err
@@ -189,7 +214,7 @@ func NewOptions(url string, vs ...interface{}) *Context {
 		loger(UrlBad)
 		return nil
 	}
-	request, err := http.NewRequest("OPTIONS", url, nil)
+	request, err := http.NewRequest(OPTIONS, url, nil)
 	if err != nil{
 		loger("err->", err)
 		return nil
@@ -203,7 +228,7 @@ func Options(url string, vs ...interface{}) (*Context, error) {
 		loger(UrlBad)
 		return nil, UrlBad
 	}
-	request, err := http.NewRequest("OPTIONS", url, nil)
+	request, err := http.NewRequest(OPTIONS, url, nil)
 	if err != nil{
 		loger("err->", err)
 		return nil, err

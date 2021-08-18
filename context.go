@@ -338,20 +338,29 @@ func (c *Context) CheckMd5() string {
 }
 
 // add header
-func (c *Context) AddHeader(k,v string) {
+func (c *Context) AddHeader(k,v string) *Context {
 	c.Req.Header.Add(k,v)
+	return c
 }
 
 // add Cookie
-func (c *Context) AddCookie(k, v string){
+func (c *Context) AddCookie(k, v string) *Context {
 	cookie := &http.Cookie{Name: k, Value: v, HttpOnly: true}
 	c.Req.AddCookie(cookie)
+	return c
 }
 
 // set proxy
-func (c *Context) SetProxy(proxyUrl string) {
+func (c *Context) SetProxy(proxyUrl string) *Context {
 	proxy, _ := url.Parse(proxyUrl)
 	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
+	return c
+}
+
+// set proxy func
+func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
+	c.Client.Transport = f()
+	return c
 }
 
 // Upload 下载
