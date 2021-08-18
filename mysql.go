@@ -1,8 +1,8 @@
 /*
 	Description : mysql 相关方法
 	Author : ManGe
-	Version : v0.3
-	Date : 2021-08-18
+	Version : v0.2
+	Date : 2021-08-12
 */
 
 
@@ -286,10 +286,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	var (
 		insertSql bytes.Buffer
-		fieldSql bytes.Buffer
-		valueSql bytes.Buffer
 		line = len(fieldData)
-		n = 0
 	)
 
 	if table == ""{
@@ -302,47 +299,47 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 		_=m.Conn()
 	}
 
-	// 表结构Describe
 	m.Describe(table)
 	describe := m.tableTemp[table]
-	log.Println("[describe] = ", describe)
 	isDescribe := describe.Base != nil
 	insertSql.WriteString("insert ")
 	insertSql.WriteString(table)
-	fieldSql.WriteString(" (")
-	valueSql.WriteString(" (")
+	fieldStr := " ("
+	valueStr := " ("
 
 	for k,v := range fieldData {
-		n++
 		vType,ok := describe.Base[k];
 		if isDescribe && !ok {
 			continue
 		}
-		fieldSql.WriteString(k)
+		fieldStr += k+", "
 		vStr := StringValueMysql(v)
 		_,isStr := v.(string)
 		if vType == "string" && !isStr {
 			vStr = "'"+vStr+"'"
 		}
-		valueSql.WriteString(vStr)
-		if n < line-1{
-			fieldSql.WriteString(", ")
-			valueSql.WriteString(", ")
-		}
+		valueStr += vStr + ", "
 	}
 
-	insertSql.WriteString(fieldSql.String())
+	if fieldStr[len(fieldStr)-2:] == ", " {
+		fieldStr = fieldStr[:len(fieldStr)-2]
+	}
+	if valueStr[len(valueStr)-2:] == ", " {
+		valueStr = valueStr[:len(valueStr)-2]
+	}
+
+	insertSql.WriteString(fieldStr)
 	insertSql.WriteString(") VALUES ")
-	insertSql.WriteString(valueSql.String())
+	insertSql.WriteString(valueStr)
 	insertSql.WriteString(");")
 	_, err := m.DB.Exec(insertSql.String())
+
 	if m.log{
 		loger("[Sql] Exec : " + insertSql.String())
 		if err != nil{
 			loger("[Sql] Error : " + err.Error())
 		}
 	}
-
 	return err
 }
 
