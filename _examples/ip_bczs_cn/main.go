@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -29,8 +30,7 @@ func main(){
 
 // 请求成功执行
 func IPListSucceed(cxt *gt.Context){
-	html := string(cxt.RespBody)
-	dom,err := gt.NewGoquery(html)
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(cxt.RespBodyString()))
 	if err != nil{
 		log.Println(err)
 		return
@@ -54,9 +54,8 @@ func IPListSucceed(cxt *gt.Context){
 }
 
 // 获取详情信息成功的处理
-func GetIPSucceed(c *gt.Context){
-	html := string(c.RespBody)
-	dom,err := gt.NewGoquery(html)
+func GetIPSucceed(cxt *gt.Context){
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(cxt.RespBodyString()))
 	if err != nil{
 		log.Println(err)
 		return
@@ -65,7 +64,7 @@ func GetIPSucceed(c *gt.Context){
 	if err != nil{
 		log.Println(err)
 	}
-	log.Println(c.Task.Data, result)
+	log.Println(cxt.Task.Data, result)
 	time.Sleep(5*time.Second)
 }
 

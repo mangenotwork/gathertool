@@ -142,7 +142,7 @@ func MD5(str string) string  {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// json转map函数，通用
+// Json2Map json转map函数，通用
 func Json2Map(str string) map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal([]byte(str), &tempMap)
@@ -153,37 +153,52 @@ func Json2Map(str string) map[string]interface{} {
 	return tempMap
 }
 
-// interface{} -> map[string]interface{}
+// Any2Map interface{} -> map[string]interface{}
 func Any2Map(data interface{}) map[string]interface{}{
-	return data.(map[string]interface{})
+	if v, ok := data.(map[string]interface{}); ok {
+		return v
+	}
+	return nil
 }
 
-// interface{} -> string
+// Any2String interface{} -> string
 func Any2String(data interface{}) string {
 	return StringValue(data)
 }
 
-// interface{} -> int
+// Any2Int interface{} -> int
 func Any2Int(data interface{}) int {
-	return data.(int)
+	if v, ok := data.(int); ok {
+		return v
+	}
+	return 0
 }
 
-// interface{} -> int64
+// Any2int64 interface{} -> int64
 func Any2int64(data interface{}) int64 {
-	return data.(int64)
+	if v, ok := data.(int64); ok {
+		return v
+	}
+	return 0
 }
 
-// interface{} -> []interface{}
-func Any2AnyList(data interface{}) []interface{} {
-	return data.([]interface{})
+// Any2Arr interface{} -> []interface{}
+func Any2Arr(data interface{}) []interface{} {
+	if v,ok := data.([]interface{}); ok {
+		return v
+	}
+	return nil
 }
 
-// interface{} -> float64
+// Any2Float64 interface{} -> float64
 func Any2Float64(data interface{}) float64 {
-	return data.(float64)
+	if v,ok := data.(float64); ok {
+		return v
+	}
+	return 0
 }
 
-// interface{} -> []string
+// Any2Strings interface{} -> []string
 func Any2Strings(data interface{}) []string{
 	listValue,ok := data.([]interface{})
 	if !ok {

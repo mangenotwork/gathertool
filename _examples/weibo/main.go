@@ -50,7 +50,7 @@ func succed(ctx *gt.Context) {
 	html = strings.Replace(html,"\\n","", -1)
 	html = strings.Replace(html,"\\","", -1)
 
-	dom,err := gt.NewGoquery(html)
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil{
 		log.Println(err)
 		return

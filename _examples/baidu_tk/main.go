@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	gt "github.com/mangenotwork/gathertool"
 	"log"
+	"strings"
 )
 
 func main(){
@@ -22,7 +23,7 @@ func getZJ(){
 		panic(err)
 	}
 
-	dom,err := gt.NewGoquery(c.RespBodyString())
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(c.RespBodyString()))
 	if err != nil{
 		log.Println(err)
 		return

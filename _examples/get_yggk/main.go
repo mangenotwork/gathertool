@@ -13,6 +13,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -82,7 +83,7 @@ func main(){
 // 抓取第一级页面成功后
 func Pg1Succeed(ctx *gt.Context){
 	html := string(ctx.RespBody)
-	dom,err := gt.NewGoquery(html)
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil{
 		log.Println(err)
 		return
@@ -110,7 +111,7 @@ func Pg1Succeed(ctx *gt.Context){
 // 抓取第二级页面成功后
 func Pg2Succeed(ctx *gt.Context){
 	html := string(ctx.RespBody)
-	dom,err := gt.NewGoquery(html)
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil{
 		log.Println(err)
 		return
@@ -133,7 +134,7 @@ func Pg2Succeed(ctx *gt.Context){
 //
 func Pg3Succeed(ctx *gt.Context){
 	html := string(ctx.RespBody)
-	dom,err := gt.NewGoquery(html)
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil{
 		log.Println(err)
 		return
@@ -148,6 +149,7 @@ func Pg3Succeed(ctx *gt.Context){
 	schoolName := gt.StringValue(ctx.Task.Data["school_name"]) // 转换成字符串
 	zszcName := gt.StringValue(ctx.Task.Data["zszcName"])
 	fbTime := gt.StringValue(ctx.Task.Data["fbTime"])
+
 	err = gt.MysqlDB.Insert(tableName, map[string]interface{}{
 		"school_name": gt.CleaningStr(schoolName), // 清理字符串前后空格和换行符等
 		"zszcName" : gt.CleaningStr(zszcName),

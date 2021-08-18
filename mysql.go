@@ -17,8 +17,8 @@ import (
 	"log"
 	"reflect"
 	"strings"
-	"time"
 	"sync"
+	"time"
 )
 
 // 开放的mysql对象
@@ -342,6 +342,10 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	}
 	return err
 }
+
+// TODO: 表是否存在
+
+// TODO: 新增数据 如果没有表则创建表
 
 // TODO: 新增数据结构体
 
