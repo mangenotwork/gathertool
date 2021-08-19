@@ -14,9 +14,10 @@ func TestConn(t *testing.T){
 		database = "spider"
 	)
 	db,err := NewMysql(host, port, user, password, database)
-	log.Println(db,err)
-	err = db.Conn()
+	//log.Println(db,err)
+	//err = db.Conn()
 	log.Println(err)
+	log.Println(db.IsHaveTable("task"))
 	//data, err := db.Select("select * from task limit 2;")
 	//log.Println(err, len(data))
 	//for _,v := range data{
@@ -44,15 +45,15 @@ func TestConn(t *testing.T){
 	//data, err := db.Query("show binary logs")
 	//log.Println(data, err)
 
-	data, err := db.Query("show binlog events in 'mysql-bin.000033' limit 10")
-	log.Println( err)
-	for _, v := range data{
-		log.Println(v)
-		log.Println("Log_name", v["Log_name"])
-		log.Println("Pos", v["Pos"])
-		log.Println("Event_type", v["Event_type"])
-		log.Println("Server_id", v["Server_id"])
-		log.Println("End_log_pos", v["End_log_pos"])
-		log.Println("Info", v["Info"])
-	}
+	//data, err := db.Query("show binlog events in 'mysql-bin.000033' limit 10")
+	//log.Println( err)
+	//for _, v := range data{
+	//	log.Println(v)
+	//	log.Println("Log_name", v["Log_name"])
+	//	log.Println("Pos", v["Pos"])
+	//	log.Println("Event_type", v["Event_type"])
+	//	log.Println("Server_id", v["Server_id"])
+	//	log.Println("End_log_pos", v["End_log_pos"])
+	//	log.Println("Info", v["Info"])
+	//}
 }

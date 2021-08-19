@@ -1,8 +1,8 @@
 /*
 	Description : mysql 相关方法
 	Author : ManGe
-	Version : v0.2
-	Date : 2021-08-12
+	Version : v0.3
+	Date : 2021-08-19
 */
 
 
@@ -21,6 +21,11 @@ import (
 	"time"
 )
 
+const (
+	SHOW_TABLES = "SHOW TABLES"
+	TABLE_NAME_NULL = "table name is null."
+)
+
 // 开放的mysql对象
 var MysqlDB = &Mysql{}
 
@@ -34,18 +39,21 @@ type Mysql struct {
 	maxIdleConn int
 	DB *sql.DB
 	log bool
-	tableTemp  map[string]tableDescribe //表结构缓存
+	tableTemp  map[string]*tableDescribe //表结构缓存
 	once *sync.Once
+	allTN *allTableName
 }
 
-// 给mysql对象进行连接
-func NewMysqlDB(host string,port int, user, password, database string)(err error){
+// NewMysqlDB 给mysql对象进行连接
+func NewMysqlDB(host string, port int, user, password, database string) (err error) {
 	MysqlDB, err = NewMysql(host,port, user, password, database)
-	err = MysqlDB.Conn()
-	return
+	if err != nil {
+		return
+	}
+	return MysqlDB.Conn()
 }
 
-func NewMysql(host string,port int, user, password, database string) (*Mysql, error) {
+func NewMysql(host string, port int, user, password, database string) (*Mysql, error) {
 	if len(host) < 1 {
 		return nil, errors.New("Host is Null.")
 	}
@@ -64,18 +72,18 @@ func NewMysql(host string,port int, user, password, database string) (*Mysql, er
 		once: &sync.Once{},
 	}
 	m.once.Do(func() {
-		m.tableTemp = make(map[string]tableDescribe)
+		m.tableTemp = make(map[string]*tableDescribe)
 	})
 	return m, nil
 }
 
-// 获取mysql 连接
+// GetMysqlDBConn 获取mysql 连接
 func GetMysqlDBConn() (*Mysql,error) {
 	err := MysqlDB.Conn()
 	return MysqlDB, err
 }
 
-// 关闭日志
+// CloseLog 关闭日志
 func (m *Mysql) CloseLog(){
 	m.log = false
 }
@@ -90,7 +98,7 @@ func (m *Mysql) SetMaxIdleConn(number int) {
 	m.maxIdleConn = number
 }
 
-// 连接mysql
+// Conn 连接mysql
 func (m *Mysql) Conn() (err error){
 	m.DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s:%d)/%s",
 		m.user, m.password, "tcp", m.host, m.port, m.dataBase))
@@ -112,6 +120,35 @@ func (m *Mysql) Conn() (err error){
 	return
 }
 
+func (m *Mysql) allTableName() (err error) {
+	if m.DB == nil{
+		_=m.Conn()
+	}
+	m.allTN = newAllTableName()
+	rows,err := m.DB.Query(SHOW_TABLES)
+	if err != nil{
+		return
+	}
+
+	for rows.Next() {
+		var result string
+		err = rows.Scan(&result)
+		log.Println(err, result)
+		m.allTN.add(result)
+	}
+
+	_=rows.Close()
+	return
+}
+
+// IsHaveTable 表是否存在
+func (m *Mysql) IsHaveTable(name string) bool {
+	if m.allTN == nil {
+		_=m.allTableName()
+	}
+	return m.allTN.isHave(name)
+}
+
 // 表信息
 type TableInfo struct {
 	Field    string
@@ -126,8 +163,42 @@ type tableDescribe struct {
 	Base map[string]string
 }
 
+// 记录当前库的所有表名
+type allTableName struct{
+	mut *sync.Mutex
+	tableName map[string]struct{}
+}
+
+func newAllTableName() *allTableName {
+	return &allTableName{
+		mut: &sync.Mutex{},
+		tableName: make(map[string]struct{}),
+	}
+}
+
+func (a *allTableName) add(name string) *allTableName{
+	a.mut.Lock()
+	a.tableName[name] = struct{}{}
+	a.mut.Unlock()
+	return a
+}
+
+func (a *allTableName) remove(name string) *allTableName{
+	a.mut.Lock()
+	delete(a.tableName, name)
+	a.mut.Unlock()
+	return a
+}
+
+func (a *allTableName) isHave(name string) bool {
+	a.mut.Lock()
+	_, ok := a.tableName[name]
+	a.mut.Unlock()
+	return ok
+}
+
 // Describe 获取表结构
-func (m *Mysql) Describe(table string) (tableDescribe, error){
+func (m *Mysql) Describe(table string) (*tableDescribe, error){
 	if m.DB == nil{
 		_=m.Conn()
 	}
@@ -137,16 +208,15 @@ func (m *Mysql) Describe(table string) (tableDescribe, error){
 	}
 
 	if table == ""{
-		return tableDescribe{}, errors.New("table name is null.")
+		return &tableDescribe{}, errors.New(TABLE_NAME_NULL)
 	}
 
 	rows,err := m.DB.Query("DESCRIBE " + table)
 	if err != nil{
-		return tableDescribe{}, err
+		return &tableDescribe{}, err
 	}
-	defer rows.Close()
-	fieldMap := make(map[string]string,0)
 
+	fieldMap := make(map[string]string,0)
 	for rows.Next() {
 		result := &TableInfo{}
 		err = rows.Scan(&result.Field, &result.Type, &result.Null, &result.Key, &result.Default, &result.Extra)
@@ -169,14 +239,14 @@ func (m *Mysql) Describe(table string) (tableDescribe, error){
 		}
 		fieldMap[result.Field] = fiedlType
 	}
+	_=rows.Close()
 
-	td := tableDescribe{
+	td := &tableDescribe{
 		Base : fieldMap,
 	}
 
 	// 缓存
 	m.tableTemp[table] = td
-
 	return td, nil
 }
 
@@ -196,7 +266,7 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
 	columns, err := rows.Columns()
 	if err != nil{
 		return nil,err
@@ -223,11 +293,11 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 		}
 		list = append(list, item)
 	}
-	//_ = rows.Close()
+	_ = rows.Close()
 	return list, nil
 }
 
-// 从select语句获取 table name
+// selectGetTable 从select语句获取 table name
 func (m *Mysql) selectGetTable(sql string) string{
 	tList := strings.Split(sql,"from ")
 	if len(tList) > 1{
@@ -241,6 +311,7 @@ func (m *Mysql) selectGetTable(sql string) string{
 
 // NewTable 创建表
 // 字段顺序不固定
+// fields  字段:类型； name:varchar(10);
 func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	var (
 		createSql bytes.Buffer
@@ -274,6 +345,10 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 			loger("[Sql] Error : " + err.Error())
 		}
 	}
+	if m.allTN == nil {
+		_=m.allTableName()
+	}
+	m.allTN.add(table)
 	return nil
 }
 
@@ -281,25 +356,9 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 // TODO: NewTable - 2 创建表  字段顺序需要固定
 
 
-
-// Insert 新增数据
-func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
-	var (
-		insertSql bytes.Buffer
-		line = len(fieldData)
-	)
-
-	if table == ""{
-		return errors.New("table is null")
-	}
-	if line < 1{
-		return errors.New("fiedls len is 0")
-	}
-	if m.DB == nil{
-		_=m.Conn()
-	}
-
-	m.Describe(table)
+func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
+	var insertSql bytes.Buffer
+	_,_=m.Describe(table)
 	describe := m.tableTemp[table]
 	isDescribe := describe.Base != nil
 	insertSql.WriteString("insert ")
@@ -343,15 +402,59 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	return err
 }
 
-// TODO: 表是否存在
 
-// TODO: 新增数据 如果没有表则创建表
+// Insert 新增数据
+func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
+	var (
+		line = len(fieldData)
+	)
+	if table == ""{
+		return errors.New("table is null")
+	}
+	if line < 1{
+		return errors.New("fiedls len is 0")
+	}
+	if m.DB == nil{
+		_=m.Conn()
+	}
+	return m.insert(table, fieldData)
+}
+
+// InsertAt 新增数据 如果没有表则先创建表
+func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error{
+	var (
+		line = len(fieldData)
+	)
+	if table == ""{
+		return errors.New("table is null")
+	}
+	if line < 1{
+		return errors.New("fiedls len is 0")
+	}
+	if m.DB == nil{
+		_=m.Conn()
+	}
+	if m.allTN == nil {
+		_=m.allTableName()
+	}
+	if !m.allTN.isHave(table) {
+		newField := make(map[string]string)
+		for k,v := range fieldData {
+			newField[k] = dataType2Mysql(v)
+		}
+		err := m.NewTable(table, newField)
+		if err != nil {
+			return err
+		}
+	}
+	return m.insert(table, fieldData)
+}
 
 // TODO: 新增数据结构体
 
 // TODO: 新增数据json字符串
 
-// 执行 Update
+// Update
 func (m *Mysql) Update(sql string) error {
 	if m.DB == nil{
 		_=m.Conn()
@@ -366,7 +469,7 @@ func (m *Mysql) Update(sql string) error {
 	return err
 }
 
-// 执行sql Exec
+// Exec
 func (m *Mysql) Exec(sql string) error {
 	if m.DB == nil{
 		_=m.Conn()
@@ -381,7 +484,7 @@ func (m *Mysql) Exec(sql string) error {
 	return err
 }
 
-// 执行sql Query
+// Query
 func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	if m.DB == nil{
 		_=m.Conn()
@@ -394,11 +497,10 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 			log.Println("[Sql] Error : " + err.Error())
 		}
 	}
-
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
 	columns, err := rows.Columns()
 	if err != nil{
 		return nil,err
@@ -425,7 +527,7 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 		}
 		list = append(list, item)
 	}
-	//_ = rows.Close()
+	_ = rows.Close()
 	return list, nil
 }
 
@@ -451,7 +553,8 @@ func (m *Mysql) ToVarChar(data interface{}) string {
 }
 
 // dataType2Mysql
-func dataType2Mysql(typ reflect.Value) string{
+func dataType2Mysql(value interface{}) string{
+	typ := reflect.ValueOf(value)
 	switch typ.Kind() {
 	case reflect.Bool:
 		return "bool"
@@ -471,7 +574,8 @@ func dataType2Mysql(typ reflect.Value) string{
 			return "datetime"
 		}
 	}
-	panic(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
+	loger(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
+	return "text"
 }
 
 // TODO 删除表
