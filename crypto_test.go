@@ -1,6 +1,7 @@
 package gathertool
 
 import (
+	"log"
 	"testing"
 )
 
@@ -52,5 +53,12 @@ func TestAES(t *testing.T){
 	loger(string(data77), err)
 	data88, err := des_ctr.Decrypt(data77, []byte("11111111"))
 	loger(string(data88), err)
+
+	txt := "api.eol.cn/gh5/api?local_province_id=11&local_type_id=1&page=1&school_id=3602&size=30&uri=apidata/api/gk/score/province&year=2015"
+	data9 := HmacSHA1(txt, "D23ABC@#56")
+	log.Println(data9)
+
+	data10 := PBKDF2([]byte("D23ABC@#56"), []byte("secret"))
+	log.Println(string(data10))
 
 }

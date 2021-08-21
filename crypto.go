@@ -20,6 +20,7 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"errors"
+	"golang.org/x/crypto/pbkdf2"
 	"hash"
 	"io"
 )
@@ -423,18 +424,17 @@ func HmacSHA512(str, key string) string {
 	return hmacFunc(sha512.New, []byte(str), []byte(key))
 }
 
+func pbkdf2Func(h func() hash.Hash, str, salt []byte) []byte {
+	return pbkdf2.Key(str, salt, 1, 32, h)
+}
+
+// PBKDF2
+func PBKDF2(str, salt []byte) ([]byte) {
+	return pbkdf2Func(sha256.New, str, salt)
+}
+
 // TODO Rabbit
 
 // TODO RC4
-
-// TODO PBKDF2
-
-// TODO MD5
-
-// TODO SHA-1
-
-// TODO SHA-2
-
-// TODO SHA-3
 
 // TODO RIPEMD-160
