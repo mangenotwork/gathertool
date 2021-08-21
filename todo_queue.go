@@ -35,8 +35,7 @@ type Task struct {
 	Url string
 	JsonParam string
 	HeaderMap *http.Header
-	// 上下文传递的数据
-	Data map[string]interface{}
+	Data map[string]interface{} // 上下文传递的数据
 	Urls []*ReqUrl // 多步骤使用
 	Type string // "", "upload", "do"
 	SavePath string
@@ -94,9 +93,6 @@ func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 	}
 }
 
-// TODO RedisTask
-
-// TODO StressTask
 
 // 单个请求地址对象
 type ReqUrl struct {

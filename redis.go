@@ -242,7 +242,7 @@ func (r *Rds) SelectDB(dbNumber int) error {
 
 // Del key
 func RedisDELKeys(rds *Rds, keys string, jobNumber int){
-
+	CPUMax()
 	rds.RedisMaxActive = rds.RedisMaxActive+jobNumber*2
 	rds.RedisMaxIdle = rds.RedisMaxIdle+jobNumber*2
 	//log.Println(rds.Pool.MaxActive, rds.Pool.MaxIdle)
@@ -277,10 +277,9 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 				task := queue.Poll()
 				log.Println("第",i,"个任务取的值： ", task.Url)
 				c := rds.Pool.Get()
-				s,err := redis.Int64(c.Do("DEL", task.Url))
+				s, err := redis.Int64(c.Do("DEL", task.Url))
 				if err != nil || s == 0 {
 					log.Println("redis command:  err : ", err)
-					queue.Add(task)
 				}else{
 					log.Println("删除成功 ！！！")
 				}

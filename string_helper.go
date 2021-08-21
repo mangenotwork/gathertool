@@ -595,6 +595,18 @@ func FileMd5sum(fileName string) string {
 }
 
 
+// []byte 字节切片 循环查找
+func SearchBytesIndex(bSrc []byte, b byte) int {
+	for i := 0; i < len(bSrc); i++ {
+		if bSrc[i] == b {
+			return i
+		}
+	}
+
+	return -1
+}
+
+
 // 三元表达式
 // use: IF(a>b, a, b).(int)
 func IF(condition bool, a, b interface{}) interface{} {
@@ -605,3 +617,5 @@ func IF(condition bool, a, b interface{}) interface{} {
 }
 
 // TODO 二进制字符串 -> 字符串
+
+
