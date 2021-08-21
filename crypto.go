@@ -11,64 +11,122 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/des"
+	"crypto/hmac"
+	"crypto/md5"
 	"crypto/rand"
+	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/sha512"
+	"encoding/base64"
+	"errors"
+	"hash"
 	"io"
 )
 
 const (
-	AES_CBC = "AES CBC"
-	AES_ECB = "AES ECB"
-	AES_CFB = "AES CFB"
-	AES_CTR = "AES CTR"
+	CBC = "CBC"
+	ECB = "ECB"
+	CFB = "CFB"
+	CTR = "CTR"
 )
-
-
-// NewAES :  use NewAES(AES_CBC)
-//	- CBC (the default)
-//	- CFB
-//	- CTR
-//	- OFB (not)
-//	- ECB
-func NewAES(typeName string, arg ...[]byte) AES {
-	iv := []byte{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6}
-	if len(arg) != 0 {
-		iv = arg[0]
-	}
-	switch typeName {
-	case "cbc", "CBC", "Cbc", AES_CBC:
-		return &CBC{
-			iv: iv,
-		}
-	case "ecb", "ECB", "Ecb", AES_ECB:
-		return &ECB{}
-	case "cfb", "CFB", "Cfb", AES_CFB:
-		return &CFB{}
-	case "ctr","CTR", "Ctr", AES_CTR:
-		return &CTR{
-			count: iv,
-		}
-	default:
-		return &CBC{
-			iv: iv,
-		}
-	}
-}
 
 type AES interface {
 	Encrypt(str, key []byte) ([]byte, error)
 	Decrypt(str, key []byte) ([]byte, error)
 }
 
-// 密码分组链接模式（Cipher Block Chaining (CBC)） default
-type CBC struct {
+type DES interface {
+	Encrypt(str, key []byte) ([]byte, error)
+	Decrypt(str, key []byte) ([]byte, error)
+}
+
+// NewAES :  use NewAES(AES_CBC)
+func NewAES(typeName string, arg ...[]byte) AES {
+	iv := []byte{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6}
+	if len(arg) != 0 {
+		iv = arg[0]
+	}
+	switch typeName {
+	case "cbc", "Cbc", CBC:
+		return &cbcObj{
+			cryptoType: "aes",
+			iv: iv,
+		}
+	case "ecb", "Ecb", ECB:
+		return &ecbObj{
+			cryptoType: "aes",
+		}
+	case "cfb", "Cfb", CFB:
+		return &cfbObj{
+			cryptoType: "aes",
+		}
+	case "ctr", "Ctr", CTR:
+		return &ctrObj{
+			cryptoType: "aes",
+			count: iv,
+		}
+	default:
+		return &cbcObj{
+			iv: iv,
+		}
+	}
+}
+
+// NewAES
+func NewDES(typeName string, arg ...[]byte) DES {
+	iv := []byte{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6}
+	if len(arg) != 0 {
+		iv = arg[0]
+	}
+	switch typeName {
+	case "cbc", "Cbc", CBC:
+		return &cbcObj{
+			cryptoType: "des",
+			iv: iv,
+		}
+	case "ecb", "Ecb", ECB:
+		return &ecbObj{
+			cryptoType: "des",
+		}
+	case "cfb", "Cfb", CFB:
+		return &cfbObj{
+			cryptoType: "des",
+		}
+	case "ctr", "Ctr", CTR:
+		return &ctrObj{
+			count: iv,
+			cryptoType: "des",
+		}
+	default:
+		return &cbcObj{
+			iv: iv,
+			cryptoType: "des",
+		}
+	}
+}
+
+// CBC : 密码分组链接模式（Cipher Block Chaining (CBC)） default
+type cbcObj struct {
+	cryptoType string
 	iv []byte
 }
 
+func (cbc *cbcObj) getBlock(key []byte) (block cipher.Block, err error) {
+	if cbc.cryptoType == "aes" {
+		block, err = aes.NewCipher(key)
+	}
+	if cbc.cryptoType == "des" {
+		block, err = des.NewCipher(key)
+	}
+	return
+}
+
 // AES CBC Encrypt
-func (cbc *CBC) Encrypt(str, key []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
+func (cbc *cbcObj) Encrypt(str, key []byte) ([]byte, error) {
+	block, err := cbc.getBlock(key)
 	if err != nil {
-		loger("[AES-CBC] ERROR:" +err.Error())
+		loger("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
@@ -80,10 +138,10 @@ func (cbc *CBC) Encrypt(str, key []byte) ([]byte, error) {
 }
 
 // AES CBC Decrypt
-func (cbc *CBC) Decrypt(str, key []byte) ([]byte, error) {
-	block,err := aes.NewCipher(key)
+func (cbc *cbcObj) Decrypt(str, key []byte) ([]byte, error) {
+	block, err := cbc.getBlock(key)
 	if err != nil {
-		loger("[AES-CBC] ERROR:" +err.Error())
+		loger("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockMode := cipher.NewCBCDecrypter(block, cbc.iv)
@@ -92,35 +150,48 @@ func (cbc *CBC) Decrypt(str, key []byte) ([]byte, error) {
 	return cbc.pkcs5UnPadding(originStr), nil
 }
 
-func (cbc *CBC) pkcs5Padding(ciphertext []byte, blockSize int) []byte {
+func (cbc *cbcObj) pkcs5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padText...)
 }
 
-func (cbc *CBC) pkcs5UnPadding(origData []byte) []byte {
+func (cbc *cbcObj) pkcs5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadDing := int(origData[length-1])
 	return origData[:(length - unpadDing)]
 }
 
-// 电码本模式（Electronic Codebook Book (ECB)）
-type ECB struct {
+// ECB : 电码本模式（Electronic Codebook Book (ECB)）
+type ecbObj struct {
+	cryptoType string
+}
+
+func (ecb *ecbObj) getBlock(key []byte) (block cipher.Block, err error) {
+	if ecb.cryptoType == "aes" {
+		block, err = aes.NewCipher(ecb.generateKey(key))
+	}
+	if ecb.cryptoType == "des" {
+		block, err = des.NewCipher(key)
+	}
+	return
 }
 
 // AES ECB Encrypt
-func (ecb *ECB) Encrypt(str, key []byte) ([]byte, error) {
-	block, err := aes.NewCipher(ecb.generateKey(key))
+func (ecb *ecbObj) Encrypt(str, key []byte) ([]byte, error) {
+	block, err := ecb.getBlock(key)
 	if err != nil {
-		loger("[AES-ECB] ERROR:" +err.Error())
+		loger("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
-	//padding
-	paddingCount := aes.BlockSize - len(str)%aes.BlockSize
-	if paddingCount != 0 {
-		str = append(str, bytes.Repeat([]byte{byte(0)}, paddingCount)...)
+	if ecb.cryptoType == "aes" {
+		str = ecb.pkcs5PaddingAes(str, blockSize)
 	}
+	if ecb.cryptoType == "des" {
+		str = ecb.pkcs5PaddingDes(str, blockSize)
+	}
+
 	//返回加密结果
 	encryptData := make([]byte, len(str))
 	//存储每次加密的数据
@@ -134,11 +205,25 @@ func (ecb *ECB) Encrypt(str, key []byte) ([]byte, error) {
 	return encryptData, nil
 }
 
+func (ecb *ecbObj) pkcs5PaddingDes(ciphertext []byte, blockSize int) []byte {
+	padding := blockSize - len(ciphertext)%blockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+func (ecb *ecbObj) pkcs5PaddingAes(ciphertext []byte, blockSize int) []byte {
+	padding := blockSize - len(ciphertext)%blockSize
+	if padding != 0 {
+		ciphertext = append(ciphertext, bytes.Repeat([]byte{byte(0)}, padding)...)
+	}
+	return ciphertext
+}
+
 // AES ECB Decrypt
-func (ecb *ECB) Decrypt(str, key []byte) ([]byte, error) {
-	block, err := aes.NewCipher(ecb.generateKey(key))
+func (ecb *ecbObj) Decrypt(str, key []byte) ([]byte, error) {
+	block, err := ecb.getBlock(key)
 	if err != nil {
-		loger("[AES-ECB] ERROR:" +err.Error())
+		loger("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
@@ -153,10 +238,14 @@ func (ecb *ECB) Decrypt(str, key []byte) ([]byte, error) {
 		copy(decryptData, tmpData)
 	}
 
+	if ecb.cryptoType == "des" {
+		return ecb.pkcs5UnPadding(decryptData), nil
+	}
+
 	return ecb.unPadding(decryptData), nil
 }
 
-func (ecb *ECB) generateKey(key []byte) (genKey []byte) {
+func (ecb *ecbObj) generateKey(key []byte) (genKey []byte) {
 	genKey = make([]byte, 16)
 	copy(genKey, key)
 	for i := 16; i < len(key); {
@@ -167,7 +256,7 @@ func (ecb *ECB) generateKey(key []byte) (genKey []byte) {
 	return genKey
 }
 
-func (ecb *ECB) unPadding(src []byte) []byte {
+func (ecb *ecbObj) unPadding(src []byte) []byte {
 	for i := len(src) - 1; ; i-- {
 		if src[i] != 0 {
 			return src[:i+1]
@@ -176,44 +265,83 @@ func (ecb *ECB) unPadding(src []byte) []byte {
 	return nil
 }
 
-
-type aesObj struct {
-
+func (ecb *ecbObj) pkcs5UnPadding(origData []byte) []byte {
+	length := len(origData)
+	unpadding := int(origData[length-1])
+	return origData[:(length - unpadding)]
 }
 
 // 密码反馈模式（Cipher FeedBack (CFB)）
-type CFB struct {
+type cfbObj struct {
+	cryptoType string
+}
+
+func (cfb *cfbObj) getBlock(key []byte) (block cipher.Block, err error) {
+	if cfb.cryptoType == "aes" {
+		block, err = aes.NewCipher(key)
+	}
+	if cfb.cryptoType == "des" {
+		block, err = des.NewCipher(key)
+	}
+	return
 }
 
 // AES CFB Encrypt
-func (cfb *CFB) Encrypt(str, key []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
+func (cfb *cfbObj) Encrypt(str, key []byte) ([]byte, error) {
+	block, err := cfb.getBlock(key)
 	if err != nil {
-		loger("[AES-CFB] ERROR:" +err.Error())
-		return []byte(""), err
+		loger("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
+		return nil, err
 	}
-	encrypted := make([]byte, aes.BlockSize+len(str))
-	iv := encrypted[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic(err)
+
+	if cfb.cryptoType == "aes" {
+		encrypted := make([]byte, aes.BlockSize+len(str))
+		iv := encrypted[:aes.BlockSize]
+		if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+			return nil, err
+		}
+		stream := cipher.NewCFBEncrypter(block, iv)
+		stream.XORKeyStream(encrypted[aes.BlockSize:], str)
+		return encrypted, nil
 	}
-	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(encrypted[aes.BlockSize:], str)
-	return encrypted, nil
+
+	if cfb.cryptoType == "des" {
+		encrypted := make([]byte, des.BlockSize+len(str))
+		iv := encrypted[:des.BlockSize]
+		if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+			return nil, err
+		}
+		stream := cipher.NewCFBEncrypter(block, iv)
+		stream.XORKeyStream(encrypted[des.BlockSize:], str)
+		return encrypted, nil
+	}
+	return nil, nil
 }
 
 // AES CFB Decrypt
-func (cfb *CFB) Decrypt(str, key []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
+func (cfb *cfbObj) Decrypt(str, key []byte) ([]byte, error) {
+	block, err := cfb.getBlock(key)
 	if err != nil {
-		loger("[AES-CFB] ERROR:" +err.Error())
-		return []byte(""), err
+		loger("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
+		return nil, err
 	}
-	if len(str) < aes.BlockSize {
-		panic("ciphertext too short")
+
+	iv := []byte{}
+	if cfb.cryptoType == "aes" {
+		if len(str) < aes.BlockSize {
+			return nil, errors.New("ciphertext too short")
+		}
+		iv = str[:aes.BlockSize]
+		str = str[aes.BlockSize:]
 	}
-	iv := str[:aes.BlockSize]
-	str = str[aes.BlockSize:]
+
+	if cfb.cryptoType == "des" {
+		if len(str) < des.BlockSize {
+			return nil, errors.New("ciphertext too short")
+		}
+		iv = str[:des.BlockSize]
+		str = str[des.BlockSize:]
+	}
 
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(str, str)
@@ -221,28 +349,42 @@ func (cfb *CFB) Decrypt(str, key []byte) ([]byte, error) {
 }
 
 // 计算器模式（Counter (CTR)）
-type CTR struct {
+type ctrObj struct {
 	count []byte //指定计数器,长度必须等于block的块尺寸
+	cryptoType string
+}
+
+func (ctr *ctrObj) getBlock(key []byte) (block cipher.Block, err error) {
+	if ctr.cryptoType == "aes" {
+		block, err = aes.NewCipher(key)
+	}
+	if ctr.cryptoType == "des" {
+		block, err = des.NewCipher(key)
+		if len(ctr.count) > des.BlockSize {
+			ctr.count = ctr.count[0:des.BlockSize]
+		}
+	}
+	return
 }
 
 // AES CTR Encrypt
-func (ctr *CTR) Encrypt(str, key []byte) ([]byte, error) {
-	return ctr.crypto(str, key, ctr.count)
+func (ctr *ctrObj) Encrypt(str, key []byte) ([]byte, error) {
+	return ctr.crypto(str, key)
 }
 
 // AES CTR Decrypt
-func (ctr *CTR) Decrypt(str, key []byte) ([]byte, error) {
-	return ctr.crypto(str, key, ctr.count)
+func (ctr *ctrObj) Decrypt(str, key []byte) ([]byte, error) {
+	return ctr.crypto(str, key)
 }
 
-func (ctr *CTR) crypto(str, key, count []byte) ([]byte, error) {
-	block,err:=aes.NewCipher(key)
+func (ctr *ctrObj) crypto(str, key []byte) ([]byte, error) {
+	block,err:=ctr.getBlock(key)
 	if err != nil {
 		loger("[AES-CTR] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	//指定分组模式
-	blockMode:=cipher.NewCTR(block,count)
+	blockMode:=cipher.NewCTR(block, ctr.count)
 	//执行加密、解密操作
 	res:=make([]byte,len(str))
 	blockMode.XORKeyStream(res,str)
@@ -251,25 +393,41 @@ func (ctr *CTR) crypto(str, key, count []byte) ([]byte, error) {
 }
 
 // 输出反馈模式（Output FeedBack (OFB)）
-type OFB struct {
+type ofbObj struct {
 }
 
+func hmacFunc(h func() hash.Hash, str, key []byte) string {
+	mac := hmac.New(h, key)
+	mac.Write(str)
+	res := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	return res
+}
 
-// TODO DES
+// HmacMD5
+func HmacMD5(str, key string) string {
+	return hmacFunc(md5.New, []byte(str), []byte(key))
+}
+
+// HmacSHA1
+func HmacSHA1(str, key string) string {
+	return hmacFunc(sha1.New, []byte(str), []byte(key))
+}
+
+// HmacSHA256
+func HmacSHA256(str, key string) string {
+	return hmacFunc(sha256.New, []byte(str), []byte(key))
+}
+
+// HmacSHA512
+func HmacSHA512(str, key string) string {
+	return hmacFunc(sha512.New, []byte(str), []byte(key))
+}
 
 // TODO Rabbit
 
 // TODO RC4
 
 // TODO PBKDF2
-
-// TODO HmacMD5
-
-// TODO HmacSHA1
-
-// TODO HmacSHA256
-
-// TODO HmacSHA512
 
 // TODO MD5
 
