@@ -1,6 +1,8 @@
 package gathertool
 
 import (
+	"crypto/md5"
+	"fmt"
 	"log"
 	"testing"
 )
@@ -58,7 +60,8 @@ func TestAES(t *testing.T){
 	data9 := HmacSHA1(txt, "D23ABC@#56")
 	log.Println(data9)
 
-	data10 := PBKDF2([]byte("D23ABC@#56"), []byte("secret"))
-	log.Println(string(data10))
+	data1010 := PBKDF2([]byte("apidata/api/gk/score/special"), []byte("secret"), 1e3, 4)
+	signStr := fmt.Sprintf("%x", md5.Sum([]byte(data1010)))
+	log.Println(signStr)
 
 }

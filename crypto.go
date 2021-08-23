@@ -135,6 +135,7 @@ func (cbc *cbcObj) Encrypt(str, key []byte) ([]byte, error) {
 	blockMode := cipher.NewCBCEncrypter(block,cbc.iv)
 	cryptData := make([]byte,len(originData))
 	blockMode.CryptBlocks(cryptData,originData)
+	P2E()
 	return cryptData, nil
 }
 
@@ -148,6 +149,7 @@ func (cbc *cbcObj) Decrypt(str, key []byte) ([]byte, error) {
 	blockMode := cipher.NewCBCDecrypter(block, cbc.iv)
 	originStr := make([]byte,len(str))
 	blockMode.CryptBlocks(originStr,str)
+	P2E()
 	return cbc.pkcs5UnPadding(originStr), nil
 }
 
@@ -203,6 +205,7 @@ func (ecb *ecbObj) Encrypt(str, key []byte) ([]byte, error) {
 		block.Encrypt(tmpData, str[index:index+blockSize])
 		copy(encryptData, tmpData)
 	}
+	P2E()
 	return encryptData, nil
 }
 
@@ -242,7 +245,7 @@ func (ecb *ecbObj) Decrypt(str, key []byte) ([]byte, error) {
 	if ecb.cryptoType == "des" {
 		return ecb.pkcs5UnPadding(decryptData), nil
 	}
-
+	P2E()
 	return ecb.unPadding(decryptData), nil
 }
 
@@ -289,6 +292,7 @@ func (cfb *cfbObj) getBlock(key []byte) (block cipher.Block, err error) {
 
 // AES CFB Encrypt
 func (cfb *cfbObj) Encrypt(str, key []byte) ([]byte, error) {
+	P2E()
 	block, err := cfb.getBlock(key)
 	if err != nil {
 		loger("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
@@ -321,6 +325,7 @@ func (cfb *cfbObj) Encrypt(str, key []byte) ([]byte, error) {
 
 // AES CFB Decrypt
 func (cfb *cfbObj) Decrypt(str, key []byte) ([]byte, error) {
+	P2E()
 	block, err := cfb.getBlock(key)
 	if err != nil {
 		loger("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
@@ -379,6 +384,7 @@ func (ctr *ctrObj) Decrypt(str, key []byte) ([]byte, error) {
 }
 
 func (ctr *ctrObj) crypto(str, key []byte) ([]byte, error) {
+	P2E()
 	block,err:=ctr.getBlock(key)
 	if err != nil {
 		loger("[AES-CTR] ERROR:" +err.Error())
@@ -424,13 +430,13 @@ func HmacSHA512(str, key string) string {
 	return hmacFunc(sha512.New, []byte(str), []byte(key))
 }
 
-func pbkdf2Func(h func() hash.Hash, str, salt []byte) []byte {
-	return pbkdf2.Key(str, salt, 1, 32, h)
+func pbkdf2Func(h func() hash.Hash, str, salt []byte, iterations, keySize int) []byte {
+	return pbkdf2.Key(str, salt, iterations, keySize, h)
 }
 
 // PBKDF2
-func PBKDF2(str, salt []byte) ([]byte) {
-	return pbkdf2Func(sha256.New, str, salt)
+func PBKDF2(str, salt []byte, iterations, keySize int) ([]byte) {
+	return pbkdf2Func(sha256.New, str, salt, iterations, keySize)
 }
 
 // TODO Rabbit

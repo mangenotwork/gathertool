@@ -133,7 +133,7 @@ func (m *Mysql) allTableName() (err error) {
 	for rows.Next() {
 		var result string
 		err = rows.Scan(&result)
-		log.Println(err, result)
+		//log.Println(err, result)
 		m.allTN.add(result)
 	}
 
@@ -220,7 +220,7 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error){
 	for rows.Next() {
 		result := &TableInfo{}
 		err = rows.Scan(&result.Field, &result.Type, &result.Null, &result.Key, &result.Default, &result.Extra)
-		log.Println(err, result)
+		//log.Println(err, result)
 		fiedlType := "null"
 		if strings.Contains(result.Type, "int"){
 			fiedlType = "int"

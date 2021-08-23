@@ -158,6 +158,9 @@ func Any2Map(data interface{}) map[string]interface{}{
 	if v, ok := data.(map[string]interface{}); ok {
 		return v
 	}
+	if reflect.ValueOf(data).Kind() == reflect.String{
+		return Json2Map(data.(string))
+	}
 	return nil
 }
 
@@ -366,6 +369,14 @@ func PanicToError(fn func()) (err error) {
 	return
 }
 
+// panic -> error
+func P2E() {
+	defer func() {
+		if r := recover(); r != nil {
+			loger("Panic error: %v", r)
+		}
+	}()
+}
 
 type Charset string
 
