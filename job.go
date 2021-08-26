@@ -8,7 +8,6 @@
 package gathertool
 
 import (
-	"log"
 	"net/http"
 	"runtime"
 	"sync"
@@ -20,22 +19,22 @@ func StartJob(jobNumber int, queue TodoQueue,f func(task *Task)){
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
 		go func(i int){
-			log.Println("启动第",i ,"个任务")
+			loger("启动第",i ,"个任务")
 			defer wg.Done()
 			for {
 				if queue.IsEmpty() {
 					break
 				}
 				task := queue.Poll()
-				log.Println("第", i, "个任务取的值： ", task)
+				loger("第", i, "个任务取的值： ", task)
 
 				f(task)
 			}
-			log.Println("第",i ,"个任务结束！！")
+			loger("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
-	log.Println("执行完成！！！")
+	loger("执行完成！！！")
 }
 
 // 设置遇到错误执行 Retry 事件
@@ -79,14 +78,14 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
 		go func(i int){
-			log.Println("启动第",i ,"个任务")
+			loger("启动第",i ,"个任务")
 			defer wg.Done()
 			for {
 				if queue.IsEmpty(){
 					break
 				}
 				task := queue.Poll()
-				log.Println("第",i,"个任务取的值： ", task)
+				loger("第",i,"个任务取的值： ", task)
 				ctx := NewGet(task.Url, task)
 				if client != nil {
 					ctx.Client = client
@@ -117,11 +116,11 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 				}
 
 			}
-			log.Println("第",i ,"个任务结束！！")
+			loger("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
-	log.Println("执行完成！！！")
+	loger("执行完成！！！")
 }
 
 
@@ -155,14 +154,14 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
 		go func(i int){
-			log.Println("启动第",i ,"个任务")
+			loger("启动第",i ,"个任务")
 			defer wg.Done()
 			for {
 				if queue.IsEmpty(){
 					break
 				}
 				task := queue.Poll()
-				log.Println("第",i,"个任务取的值： ", task, task.HeaderMap)
+				loger("第",i,"个任务取的值： ", task, task.HeaderMap)
 				ctx := NewPost(task.Url, []byte(task.JsonParam), "application/json;", task)
 				if client != nil {
 					ctx.Client = client
@@ -193,11 +192,11 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 				}
 
 			}
-			log.Println("第",i ,"个任务结束！！")
+			loger("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
-	log.Println("执行完成！！！")
+	loger("执行完成！！！")
 }
 
 // CPUMax 多核执行

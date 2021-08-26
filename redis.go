@@ -267,7 +267,7 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 		wg.Add(1)
 		go func(i int){
 			defer wg.Done()
-			log.Println("启动第",i ,"个任务")
+			loger("启动第",i ,"个任务")
 
 			for {
 				if queue.IsEmpty() || queue.Size() < 2 {
@@ -275,25 +275,25 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 				}
 
 				task := queue.Poll()
-				log.Println("第",i,"个任务取的值： ", task.Url)
+				loger("第",i,"个任务取的值： ", task.Url)
 				c := rds.Pool.Get()
 				s, err := redis.Int64(c.Do("DEL", task.Url))
 				if err != nil || s == 0 {
-					log.Println("redis command:  err : ", err)
+					loger("redis command:  err : ", err)
 				}else{
-					log.Println("删除成功 ！！！")
+					loger("删除成功 ！！！")
 				}
 				c.Close()
 
-				log.Println(fmt.Sprintf("[进度] %d/%d  %f %%", allNumber - queue.Size(),
+				loger(fmt.Sprintf("[进度] %d/%d  %f %%", allNumber - queue.Size(),
 					allNumber, (float64(allNumber - queue.Size())/float64(allNumber))*100))
 			}
 
-			log.Println("第",i ,"个任务结束！！")
+			loger("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
-	log.Println("执行完成！！！")
+	loger("执行完成！！！")
 
 }
 

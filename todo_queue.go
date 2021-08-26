@@ -29,7 +29,6 @@ type Queue struct {
 	list []*Task
 }
 
-
 // 任务对象
 type Task struct {
 	Url string
@@ -151,7 +150,7 @@ func (q *Queue) IsEmpty() bool {
 }
 
 func (q *Queue) Print() {
-	log.Println(q.list)
+	loger(q.list)
 }
 
 
@@ -219,3 +218,5 @@ func (q *UploadQueue) IsEmpty() bool {
 func (q *UploadQueue) Print() {
 	log.Println(q.list)
 }
+
+// todo 使用双向链表实现队列

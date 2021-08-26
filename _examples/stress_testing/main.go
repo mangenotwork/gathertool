@@ -48,17 +48,24 @@ func main() {
 
 
 	// 牛票票压力测试
-	nppurl1 := "http://192.168.0.9:8025/v2/index/recommend?index=1&limit=20&uid=8722"
-	token := &http.Header{}
-	token.Add("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjM4OTA1ODQsImlzcyI6Im5pdS5jbiIsIm5iZiI6MTYyMDI5MDU4NCwiSWQiOjg3MjJ9.ij45vZILk9Kr35XoiPyIhjVGmCoERKiEBk6zz6P9P0g")
-	npptest1 := gt.NewTestUrl(nppurl1,"Get",30000,3000)
-	npptest1.Run(token)
+	//nppurl1 := "http://192.168.0.9:8025/v2/index/recommend?index=1&limit=20&uid=8722"
+	//token := &http.Header{}
+	//token.Add("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjM4OTA1ODQsImlzcyI6Im5pdS5jbiIsIm5iZiI6MTYyMDI5MDU4NCwiSWQiOjg3MjJ9.ij45vZILk9Kr35XoiPyIhjVGmCoERKiEBk6zz6P9P0g")
+	//npptest1 := gt.NewTestUrl(nppurl1,"Get",30000,3000)
+	//npptest1.Run(token)
 
 	//点赞
 	//npplike := "http://192.168.0.9:8025/v2/like/add"
 	//npplike()
-
-
+	gt.CPUMax()
+	//caseurl := "https://www.jy863.com:18443/"
+	caseurl := "https://www.uks678.com:10442/api/site/gdnotice/list"
+	npptest1 := gt.NewTestUrl(caseurl,"Get",10000,1000)
+	hd := &http.Header{}
+	hd.Add("requested-device", "APP")
+	hd.Add("requested-language", "CN")
+	hd.Add("requested-site", "www.uks678.com:10442")
+	npptest1.Run(hd)
 
 
 

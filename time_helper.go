@@ -30,11 +30,20 @@ func EndDayUnix() int64 {
 	return t.Unix() + 86400
 }
 
-// TODO 获取多少分钟前的时间戳
+// 获取多少分钟前的时间戳
+func MinuteAgo(i int) int64 {
+	return time.Now().Unix() - int64(i*60)
+}
 
-// TODO 获取多少小时前的时间戳
+// 获取多少小时前的时间戳
+func HourAgo(i int) int64 {
+	return time.Now().Unix() - int64(i*3600)
+}
 
-// TODO 获取多少天前的时间戳
+// 获取多少天前的时间戳
+func DayAgo(i int) int64 {
+	return time.Now().Unix() - int64(i*3600*24)
+}
 
 // 两个时间字符串的日期差
 func Daydiff(beginDay string, endDay string) int {
@@ -45,9 +54,8 @@ func Daydiff(beginDay string, endDay string) int {
 	return int(diff / (24 * 60 * 60))
 }
 
-
 // 间隔运行
-// t: 间隔时间，  f: 运行的方法
+// t: 间隔时间， runFirst: 间隔前或者后执行  f: 运行的方法
 func TickerRun(t time.Duration, runFirst bool, f func()){
 	if runFirst {
 		f()

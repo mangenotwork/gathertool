@@ -627,6 +627,34 @@ func IF(condition bool, a, b interface{}) interface{} {
 	return b
 }
 
+// Copy slice
+func CopySlice(s []interface{}) []interface{} {
+	return append(s[:0:0], s...)
+}
+
+// CopySliceStr
+func CopySliceStr(s []string) []string{
+	return append(s[:0:0], s...)
+}
+
+func CopySliceInt(s []int) []int {
+	return append(s[:0:0], s...)
+}
+
+func CopySliceInt64(s []int64) []int64 {
+	return append(s[:0:0], s...)
+}
+
+func IsInSlice(s []interface{}, v interface{})  bool {
+	for i := range s {
+		if s[i] == v {
+			return true
+		}
+	}
+	return false
+}
+
+
 // TODO 二进制字符串 -> 字符串
 
 
