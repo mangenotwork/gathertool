@@ -227,6 +227,12 @@ func Any2Strings(data interface{}) []string{
 	return keyStringValues
 }
 
+// Any2Json interface{} -> json string
+func Any2Json(data interface{}) (string, error) {
+	jsonStr,err :=json.Marshal(data)
+	return string(jsonStr), err
+}
+
 // CleaningStr 清理字符串前后空白 和回车 换行符号
 func CleaningStr(str string) string{
 	str = strings.Replace(str, "\n","", -1)
