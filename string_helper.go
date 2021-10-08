@@ -14,8 +14,6 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"io/ioutil"
 	"log"
@@ -25,6 +23,9 @@ import (
 	"strconv"
 	"strings"
 	"unsafe"
+
+	jsoniter "github.com/json-iterator/go"
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -134,6 +135,12 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 	}
 }
 
+func OSLine() string {
+	if runtime.GOOS == "windows" {
+		return "\r\n"
+	}
+	return "\n"
+}
 
 // MD5
 func MD5(str string) string  {
@@ -142,7 +149,7 @@ func MD5(str string) string  {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// Json2Map json转map函数，通用
+// Json2Map json -> map
 func Json2Map(str string) map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal([]byte(str), &tempMap)
@@ -151,6 +158,12 @@ func Json2Map(str string) map[string]interface{} {
 		return nil
 	}
 	return tempMap
+}
+
+// Map2Json map -> json
+func Map2Json(m map[string]interface{}) (string, error) {
+	jsonStr,err :=json.Marshal(m)
+	return string(jsonStr), err
 }
 
 // Any2Map interface{} -> map[string]interface{}
@@ -653,6 +666,19 @@ func IsInSlice(s []interface{}, v interface{})  bool {
 	}
 	return false
 }
+
+
+// 批量统一替换字符串
+func ReplaceAllToOne(str string, from []string, to string) string {
+	arr := make([]string, len(from)*2)
+	for i, s := range from {
+		arr[i*2] = s
+		arr[i*2+1] = to
+	}
+	r := strings.NewReplacer(arr...)
+	return r.Replace(str)
+}
+
 
 
 // TODO 二进制字符串 -> 字符串
