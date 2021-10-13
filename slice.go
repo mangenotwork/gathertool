@@ -9,42 +9,55 @@ package gathertool
 
 import (
 	"math/rand"
+	"sync"
 	"time"
 )
 
 type sliceTool struct {}
 
-type SliceToolAPI interface {
-	CopyInt64(a []int64) []int64
-	CopyStr(a []string) []string
-	CopyInt(a []int) []int
-	ContainsByte(a []byte, x byte) bool
-	ContainsInt(a []int, x int) bool
-	ContainsInt64(a []int64, x int64) bool
-	ContainsStr(a []string, x string) bool
-	DeduplicateInt(a []int) []int
-	DeduplicateInt64(a []int64) []int64
-	DeduplicateStr(a []string) []string
-	DelInt(a []int, i int) []int
-	DelInt64(a []int64, i int) []int64
-	DelStr(a []string, i int) []string
-	MaxInt(a []int) int
-	MaxInt64(a []int64) int64
-	MinInt(a []int) int
-	MinInt64(a []int64) int64
-	PopInt(a []int) (int, []int)
-	PopInt64(a []int64) (int64, []int64)
-	PopStr(a []string) (string, []string)
-	ReverseInt(a []int) []int
-	ReverseInt64(a []int64) []int64
-	ReverseStr(a []string) []string
-	ShuffleInt(a []int) []int
-}
+var st *sliceTool
+var stOnce sync.Once
 
 // use : SliceTool().CopyInt64(a)
-func SliceTool() SliceToolAPI {
-	return sliceTool{}
+func SliceTool() *sliceTool {
+	stOnce.Do(func() {
+		st = &sliceTool{}
+	})
+
+	return st
 }
+
+//type SliceToolAPI interface {
+//	CopyInt64(a []int64) []int64
+//	CopyStr(a []string) []string
+//	CopyInt(a []int) []int
+//	ContainsByte(a []byte, x byte) bool
+//	ContainsInt(a []int, x int) bool
+//	ContainsInt64(a []int64, x int64) bool
+//	ContainsStr(a []string, x string) bool
+//	DeduplicateInt(a []int) []int
+//	DeduplicateInt64(a []int64) []int64
+//	DeduplicateStr(a []string) []string
+//	DelInt(a []int, i int) []int
+//	DelInt64(a []int64, i int) []int64
+//	DelStr(a []string, i int) []string
+//	MaxInt(a []int) int
+//	MaxInt64(a []int64) int64
+//	MinInt(a []int) int
+//	MinInt64(a []int64) int64
+//	PopInt(a []int) (int, []int)
+//	PopInt64(a []int64) (int64, []int64)
+//	PopStr(a []string) (string, []string)
+//	ReverseInt(a []int) []int
+//	ReverseInt64(a []int64) []int64
+//	ReverseStr(a []string) []string
+//	ShuffleInt(a []int) []int
+//}
+
+// use : SliceTool().CopyInt64(a)
+//func SliceTool() SliceToolAPI {
+//	return sliceTool{}
+//}
 
 // CopyInt64
 func (sliceTool) CopyInt64(a []int64) []int64 {

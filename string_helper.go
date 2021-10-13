@@ -1,8 +1,8 @@
 /*
 	Description : 数据类型相关的操作
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-04-26
+	Version : v0.2
+	Date : 2021-10-13
 */
 
 package gathertool
@@ -28,6 +28,7 @@ import (
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
+// 全局json
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // StringValue 任何类型返回值字符串形式
@@ -35,30 +36,26 @@ func StringValue(i interface{}) string {
 	if i == nil {
 		return ""
 	}
-
 	if reflect.ValueOf(i).Kind() == reflect.String{
 		return i.(string)
 	}
-
 	var buf bytes.Buffer
 	stringValue(reflect.ValueOf(i), 0, &buf)
 	return buf.String()
 }
 
+// StringValueMysql 用于mysql字符拼接使用
 func StringValueMysql(i interface{}) string {
 	if i == nil {
 		return ""
 	}
-
 	if reflect.ValueOf(i).Kind() == reflect.String{
 		return "'"+i.(string)+"'"
 	}
-
 	var buf bytes.Buffer
 	stringValue(reflect.ValueOf(i), 0, &buf)
 	return buf.String()
 }
-
 
 // stringValue 任何类型返回值字符串形式的实现方法，私有
 func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
@@ -75,25 +72,21 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 				// ignore unexported fields
 				continue
 			}
-
 			if (fv.Kind() == reflect.Ptr || fv.Kind() == reflect.Slice) && fv.IsNil() {
 				// ignore unset fields
 				continue
 			}
-
 			buf.WriteString(strings.Repeat(" ", indent+2))
 			buf.WriteString(ft.Name + ": ")
-
 			if tag := ft.Tag.Get("sensitive"); tag == "true" {
 				buf.WriteString("<sensitive>")
 			} else {
 				stringValue(fv, indent+2, buf)
 			}
-
 			buf.WriteString(",\n")
 		}
-
 		buf.WriteString("\n" + strings.Repeat(" ", indent) + "}")
+
 	case reflect.Slice:
 		nl, id, id2 := "", "", ""
 		if v.Len() > 3 {
@@ -108,11 +101,10 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 				buf.WriteString("," + nl)
 			}
 		}
-
 		buf.WriteString(nl + id + "]")
+
 	case reflect.Map:
 		buf.WriteString("{\n")
-
 		for i, k := range v.MapKeys() {
 			buf.WriteString(strings.Repeat(" ", indent+2))
 			buf.WriteString(k.String() + ": ")
@@ -122,7 +114,6 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 				buf.WriteString(",\n")
 			}
 		}
-
 		buf.WriteString("\n" + strings.Repeat(" ", indent) + "}")
 
 	default:
@@ -131,10 +122,11 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 		case string:
 			format = "%q"
 		}
-		fmt.Fprintf(buf, format, v.Interface())
+		_,_= fmt.Fprintf(buf, format, v.Interface())
 	}
 }
 
+// OSLine  系统对应换行符
 func OSLine() string {
 	if runtime.GOOS == "windows" {
 		return "\r\n"
@@ -238,7 +230,7 @@ func CleaningStr(str string) string{
 	str = strings.Replace(str, "\n","", -1)
 	str = strings.Replace(str, "\r","", -1)
 	str = strings.Replace(str, "\\n","", -1)
-	str = strings.Replace(str, "\"", "", -1)
+	//str = strings.Replace(str, "\"", "", -1)
 	str = strings.TrimSpace(str)
 	str = StrDeleteSpace(str)
 	return str
@@ -267,7 +259,7 @@ func StrDeleteSpace(str string) string {
 	return string(strList[:count-spaceCount])
 }
 
-// string -> int64
+// Str2Int64 string -> int64
 func Str2Int64(str string) int64 {
 	i, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
@@ -276,7 +268,7 @@ func Str2Int64(str string) int64 {
 	return i
 }
 
-// string -> float64
+// Str2Float64 string -> float64
 func Str2Float64(str string) float64 {
 	i, err := strconv.ParseFloat(str, 64)
 	if err != nil {
@@ -285,8 +277,7 @@ func Str2Float64(str string) float64 {
 	return i
 }
 
-
-// []uint8 -> string
+// Uint82Str []uint8 -> string
 func Uint82Str(bs []uint8) string {
 	ba := []byte{}
 	for _, b := range bs {
@@ -295,7 +286,7 @@ func Uint82Str(bs []uint8) string {
 	return string(ba)
 }
 
-// 字节的单位转换 保留两位小数
+// FileSizeFormat 字节的单位转换 保留两位小数
 func FileSizeFormat(fileSize int64) (size string) {
 	if fileSize < 1024 {
 		//return strconv.FormatInt(fileSize, 10) + "B"
@@ -313,7 +304,7 @@ func FileSizeFormat(fileSize int64) (size string) {
 	}
 }
 
-// 深copy
+// deepCopy 深copy
 func deepCopy(dst, src interface{}) error {
 	var buf bytes.Buffer
 	if err := gob.NewEncoder(&buf).Encode(src); err != nil {
@@ -322,7 +313,7 @@ func deepCopy(dst, src interface{}) error {
 	return gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
 }
 
-// Struct  ->  map
+// Struct2Map Struct  ->  map
 // hasValue=true表示字段值不管是否存在都转换成map
 // hasValue=false表示字段为空或者不为0则转换成map
 func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error) {
@@ -376,7 +367,7 @@ func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error) 
 	return mp, nil
 }
 
-// panic -> error
+// PanicToError panic -> error
 func PanicToError(fn func()) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -388,7 +379,7 @@ func PanicToError(fn func()) (err error) {
 	return
 }
 
-// panic -> error
+// P2E panic -> error
 func P2E() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -406,21 +397,25 @@ const (
 	GB2312 = Charset("GB2312")
 )
 
-// 编码转换
+// ConvertByte2String 编码转换
 func ConvertByte2String(byte []byte, charset Charset) string {
 	var str string
 	switch charset {
 	case GB18030:
 		var decodeBytes,_=simplifiedchinese.GB18030.NewDecoder().Bytes(byte)
 		str= string(decodeBytes)
+
 	case GBK:
 		var decodeBytes,_=simplifiedchinese.GBK.NewDecoder().Bytes(byte)
 		str= string(decodeBytes)
+
 	case GB2312:
 		var decodeBytes,_=simplifiedchinese.HZGB2312.NewDecoder().Bytes(byte)
 		str= string(decodeBytes)
+
 	case UTF8:
 		fallthrough
+
 	default:
 		str = string(byte)
 	}
@@ -428,8 +423,7 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	return str
 }
 
-
-// Unicode 转码
+// UnescapeUnicode Unicode 转码
 func UnescapeUnicode(raw []byte) ([]byte, error) {
 	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(raw)), `\\u`, `\u`, -1))
 	if err != nil {
@@ -438,60 +432,64 @@ func UnescapeUnicode(raw []byte) ([]byte, error) {
 	return []byte(str), nil
 }
 
-
-// base64 编码
+// Base64Encode base64 编码
 func Base64Encode(str string) string{
 	return base64.StdEncoding.EncodeToString([]byte(str))
 }
 
-// base64 解码
+// Base64Decode base64 解码
 func Base64Decode(str string) (string,error){
 	b, err := base64.StdEncoding.DecodeString(str)
 	return string(b), err
 }
 
-// base64 url 编码
+// Base64UrlEncode base64 url 编码
 func Base64UrlEncode(str string) string{
 	return base64.URLEncoding.EncodeToString([]byte(str))
 }
 
-// base64 url 解码
+// Base64UrlDecode base64 url 解码
 func Base64UrlDecode(str string) (string,error){
 	b, err := base64.URLEncoding.DecodeString(str)
 	return string(b), err
 }
 
-
-// ======== Set
+// ================================================ Set
 // 可以用于去重
 type Set map[string]struct{}
+
 func (s Set) Has(key string) bool {
 	_, ok := s[key]
 	return ok
 }
+
 func (s Set) Add(key string) {
 	s[key] = struct{}{}
 }
+
 func (s Set) Delete(key string) {
 	delete(s, key)
 }
 
-
-// ======== Stack
+// ================================================ Stack
 type Stack struct {
 	data map[int]interface{}
 }
+
 func New() *Stack{
 	s := new(Stack)
 	s.data = make(map[int]interface{})
 	return s
 }
+
 func (s *Stack) Push(data interface{}) {
 	s.data[len(s.data)] = data
 }
+
 func (s *Stack) Pop() {
 	delete(s.data, len(s.data)-1)
 }
+
 func (s *Stack) String() string {
 	info := ""
 	for i := 0; i < len(s.data); i++ {
@@ -499,7 +497,6 @@ func (s *Stack) String() string {
 	}
 	return info
 }
-
 
 // IsContainStr  字符串是否等于items中的某个元素
 func IsContainStr(items []string, item string) bool {
@@ -525,7 +522,7 @@ func FileMd5(path string) (string, error) {
 	return fmt.Sprintf("%x", md5hash.Sum(nil)), nil
 }
 
-// 目录不存在则创建
+// PathExists 目录不存在则创建
 func PathExists(path string) {
 	_, err := os.Stat(path)
 	if err != nil && os.IsNotExist(err) {
@@ -533,7 +530,7 @@ func PathExists(path string) {
 	}
 }
 
-// []byte -> string
+// Byte2Str []byte -> string
 func Byte2Str(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
@@ -545,29 +542,25 @@ func ByteToBinaryString(data byte) (str string) {
 		a = data
 		data <<= 1
 		data >>= 1
-
 		switch a {
 		case data:
 			str += "0"
 		default:
 			str += "1"
 		}
-
 		data <<= 1
 	}
 	return str
 }
 
-
-// 数组，切片去重和去空串
-func StrsDuplicates(a []string) []string{
+// StrDuplicates数组，切片去重和去空串
+func StrDuplicates(a []string) []string{
 	m := make(map[string]struct{})
 	ret := make([]string, 0, len(a))
 	for i:=0; i < len(a); i++{
 		if a[i] == ""{
 			continue
 		}
-
 		if _,ok := m[a[i]]; !ok {
 			m[a[i]] = struct{}{}
 			ret = append(ret, a[i])
@@ -577,17 +570,15 @@ func StrsDuplicates(a []string) []string{
 }
 
 
-//判断字符串是否与数组里的某个字符串相同
-func IsElementStr(list []string, element string) bool{
-	fmt.Println(list)
-	fmt.Println(element)
-	for _,k := range(list){
+// IsElementStr 判断字符串是否与数组里的某个字符串相同
+func IsElementStr(listData []string, element string) bool{
+	for _,k := range listData{
 		if k == element{ return true }
 	}
 	return false
 }
 
-//windows平台需要转一下
+// windowsPath windows平台需要转一下
 func windowsPath(path string) string {
 	if runtime.GOOS == "windows" {
 		path = strings.Replace(path, "\\", "/", -1)
@@ -595,8 +586,7 @@ func windowsPath(path string) string {
 	return path
 }
 
-
-// 获取当前运行路径
+// GetNowPath 获取当前运行路径
 func GetNowPath() string {
 	path, err := os.Getwd()
 	if err != nil {
@@ -605,8 +595,7 @@ func GetNowPath() string {
 	return windowsPath(path)
 }
 
-
-// 文件 Md5
+// FileMd5sum 文件 Md5
 func FileMd5sum(fileName string) string {
 	fin, err := os.OpenFile(fileName, os.O_RDONLY, 0644)
 	if err != nil {
@@ -614,7 +603,6 @@ func FileMd5sum(fileName string) string {
 		return ""
 	}
 	defer fin.Close()
-
 	Buf, buferr := ioutil.ReadFile(fileName)
 	if buferr != nil {
 		log.Println(fileName, buferr)
@@ -624,20 +612,17 @@ func FileMd5sum(fileName string) string {
 	return hex.EncodeToString(m[:16])
 }
 
-
-// []byte 字节切片 循环查找
+// SearchBytesIndex []byte 字节切片 循环查找
 func SearchBytesIndex(bSrc []byte, b byte) int {
 	for i := 0; i < len(bSrc); i++ {
 		if bSrc[i] == b {
 			return i
 		}
 	}
-
 	return -1
 }
 
-
-// 三元表达式
+// IF 三元表达式
 // use: IF(a>b, a, b).(int)
 func IF(condition bool, a, b interface{}) interface{} {
 	if condition {
@@ -646,7 +631,7 @@ func IF(condition bool, a, b interface{}) interface{} {
 	return b
 }
 
-// Copy slice
+// CopySlice Copy slice
 func CopySlice(s []interface{}) []interface{} {
 	return append(s[:0:0], s...)
 }
@@ -656,14 +641,17 @@ func CopySliceStr(s []string) []string{
 	return append(s[:0:0], s...)
 }
 
+// CopySliceInt
 func CopySliceInt(s []int) []int {
 	return append(s[:0:0], s...)
 }
 
+// CopySliceInt64
 func CopySliceInt64(s []int64) []int64 {
 	return append(s[:0:0], s...)
 }
 
+// IsInSlice
 func IsInSlice(s []interface{}, v interface{})  bool {
 	for i := range s {
 		if s[i] == v {
@@ -673,8 +661,7 @@ func IsInSlice(s []interface{}, v interface{})  bool {
 	return false
 }
 
-
-// 批量统一替换字符串
+// ReplaceAllToOne 批量统一替换字符串
 func ReplaceAllToOne(str string, from []string, to string) string {
 	arr := make([]string, len(from)*2)
 	for i, s := range from {
@@ -683,6 +670,15 @@ func ReplaceAllToOne(str string, from []string, to string) string {
 	}
 	r := strings.NewReplacer(arr...)
 	return r.Replace(str)
+}
+
+// MapStr2Any map[string]string -> map[string]interface{}
+func MapStr2Any(m map[string]string) map[string]interface{} {
+	dest := make(map[string]interface{})
+	for k,v := range m {
+		dest[k] = interface{}(v)
+	}
+	return dest
 }
 
 
