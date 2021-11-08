@@ -423,6 +423,19 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	return str
 }
 
+func UnicodeDec(raw string) string {
+	str, err := strconv.Unquote(strings.Replace(strconv.Quote(raw), `\\u`, `\u`, -1))
+	if err != nil {
+		return ""
+	}
+	return str
+}
+
+func UnicodeDecByte(raw []byte) []byte {
+	rawStr := string(raw)
+	return []byte(UnicodeDec(rawStr))
+}
+
 // UnescapeUnicode Unicode 转码
 func UnescapeUnicode(raw []byte) ([]byte, error) {
 	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(raw)), `\\u`, `\u`, -1))

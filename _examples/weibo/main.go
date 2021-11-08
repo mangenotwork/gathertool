@@ -12,9 +12,11 @@ func main(){
 
 	//case1()
 
-	case2()
+	//case2()
 
 	//case3()
+
+	case4()
 }
 
 func case1(){
@@ -131,3 +133,18 @@ func case2(){
 func case3(){
 	gt.MongoConn()
 }
+
+// 判断微博, 手机号是否注册
+func case4() {
+	caseUrl := "https://weibo.com/signup/v5/formcheck?type=mobilesea&zone=0086&value=18483663083&from=&__rnd="
+	log.Println(caseUrl)
+	ctx := gt.NewGet(caseUrl)
+	//ctx.Req.AddCookie(&http.Cookie{Name: "SUBP",Value: "0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWmEanFMEIiGoQ6G-cq2.Uz", HttpOnly: true})
+	//ctx.Req.AddCookie(&http.Cookie{Name: "SUB",Value: "_2AkMWNFxCf8NxqwJRmPwczW7iaIlwywzEieKgaK2ZJRMxHRl-yT9jqkEEtRB6PbRyrbM3SCWx0mYDo4gUQKpgXVmE9Bib", HttpOnly: true})
+	ctx.AddHeader("referer", "https://weibo.com/signup/signup.php")
+	ctx.AddHeader("accept-language", "zh-CN,zh;q=0.9")
+	ctx.Do()
+
+	log.Println(ctx.Resp.Status, gt.UnicodeDec(ctx.RespBodyString()))
+}
+

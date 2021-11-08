@@ -91,7 +91,7 @@ func regFind(funcName, txt string) (dataList []string) {
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{
-		loger(v)
+		//loger(v)
 		dataList = append(dataList, v[0])
 	}
 	return
