@@ -266,13 +266,12 @@ func (ecb *ecbObj) unPadding(src []byte) []byte {
 			return src[:i+1]
 		}
 	}
-	return nil
 }
 
 func (ecb *ecbObj) pkcs5UnPadding(origData []byte) []byte {
 	length := len(origData)
-	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
+	unPadding := int(origData[length-1])
+	return origData[:(length - unPadding)]
 }
 
 // 密码反馈模式（Cipher FeedBack (CFB)）

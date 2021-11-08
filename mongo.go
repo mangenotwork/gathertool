@@ -126,9 +126,6 @@ func (m *Mongo) Insert(document interface{}) error{
 	return nil
 }
 
-//
-
-
 
 func MongoConn(){
 	m, err := NewMongo("","","","")
@@ -145,13 +142,11 @@ func MongoConn(){
 		City string
 	}
 
-
 	// ===== 插入一个单独的文档
 	ash := Trainer{"aa", 10, "Pallet Town"}
 	misty := Trainer{"Misty", 10, "Cerulean City"}
 	brock := Trainer{"Brock", 15, "Pewter City"}
 	trainers := []interface{}{ash, misty, brock}
-
 
 	m.Insert(trainers)
 

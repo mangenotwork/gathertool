@@ -12,7 +12,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math"
@@ -224,8 +224,7 @@ func (c *Context) Do() func(){
 
 	defer func(c *Context){
 		if c.Resp != nil {
-			//loger("【日志】 请求 Resp close")
-			c.Resp.Body.Close()
+			_=c.Resp.Body.Close()
 		}
 	}(c)
 
@@ -311,12 +310,12 @@ func (c *Context) RespBodyArr() []interface{} {
 
 func (c *Context) CheckReqMd5() string {
 	var buffer bytes.Buffer
-	url := c.Req.URL.String()
+	urlStr := c.Req.URL.String()
 	reqBodyBytes, _ := ioutil.ReadAll(c.Req.Body)
-	methd := c.Req.Method
-	buffer.WriteString(url)
+	method := c.Req.Method
+	buffer.WriteString(urlStr)
 	buffer.Write(reqBodyBytes)
-	buffer.WriteString(methd)
+	buffer.WriteString(method)
 	h := md5.New()
 	h.Write(buffer.Bytes())
 	return hex.EncodeToString(h.Sum(nil))
@@ -324,12 +323,12 @@ func (c *Context) CheckReqMd5() string {
 
 func (c *Context) CheckMd5() string {
 	var buffer bytes.Buffer
-	url := c.Req.URL.String()
+	urlStr := c.Req.URL.String()
 	reqBodyBytes, _ := ioutil.ReadAll(c.Req.Body)
-	methd := c.Req.Method
-	buffer.WriteString(url)
+	method := c.Req.Method
+	buffer.WriteString(urlStr)
 	buffer.Write(reqBodyBytes)
-	buffer.WriteString(methd)
+	buffer.WriteString(method)
 	buffer.WriteString(c.Resp.Status)
 	buffer.Write(c.RespBody)
 	h := md5.New()
@@ -404,7 +403,7 @@ func (c *Context) Upload(filePath string) func(){
 	}
 	defer func(cxt *Context){
 		if cxt.Resp != nil {
-			cxt.Resp.Body.Close()
+			_=cxt.Resp.Body.Close()
 		}
 	}(c)
 
@@ -424,11 +423,10 @@ func (c *Context) Upload(filePath string) func(){
 		i++
 		n, err := c.Resp.Body.Read(buf)
 		sum=sum+int64(n)
+		_,_=f.Write(buf[:n])
 		if err != nil || n == 0{
-			f.Write(buf[:n])
 			break
 		}
-		f.Write(buf[:n])
 		if i%9 == 0{
 			log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum),"/", FileSizeFormat(int64(contentLength)),
 				" |\t ", math.Floor((float64(sum)/contentLength)*100),"%")
@@ -437,8 +435,6 @@ func (c *Context) Upload(filePath string) func(){
 	ct := time.Now().Sub(st)
 	log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum),"/", FileSizeFormat(int64(contentLength)),
 		" |\t ", math.Floor((float64(sum)/contentLength)*100), "%", "|\t ", ct )
-
-
 	//loger(" rep header ", c.Resp.ContentLength)
 	return nil
 }
@@ -447,10 +443,10 @@ func (c *Context) Upload(filePath string) func(){
 // CookieNext
 func (c *Context) CookieNext() error {
 	if c.Resp == nil{
-		return errors.New("Response is nil")
+		return fmt.Errorf("response is nil.")
 	}
 	if c.Req == nil {
-		return errors.New("Request is nil")
+		return fmt.Errorf("request is nil.")
 	}
 	// 上下文cookies
 	for _,cookie := range c.Resp.Cookies(){
@@ -480,7 +476,17 @@ type cookiePool struct {
 	mux sync.Mutex
 }
 
-var CookiePool = &cookiePool{}
+var CookiePool *cookiePool
+var _cookiePoolOnce sync.Once
+
+func NewCookiePool() *cookiePool {
+	_cookiePoolOnce.Do(func() {
+		CookiePool = &cookiePool{
+			cookie : make([]*http.Cookie, 0),
+		}
+	})
+	return CookiePool
+}
 
 func (c *cookiePool) Add(cookie *http.Cookie){
 	c.mux.Lock()

@@ -247,7 +247,7 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 	rds.RedisMaxIdle = rds.RedisMaxIdle+jobNumber*2
 	//log.Println(rds.Pool.MaxActive, rds.Pool.MaxIdle)
 
-	rds.RedisPool()
+	_= rds.RedisPool()
 	conn := rds.Pool.Get()
 	queue := NewQueue()
 	res, err := redis.Strings(conn.Do("keys", keys))

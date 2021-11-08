@@ -19,7 +19,7 @@ type Csv struct {
 }
 
 // 新创建一个csv对象
-func NewCsv(fileName string) (*Csv,error) {
+func NewCSV(fileName string) (*Csv,error) {
 	//创建文件
 	f, err := os.Create(fileName)
 	defer f.Close()

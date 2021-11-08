@@ -43,11 +43,7 @@ type ReqTimeOutMs int
 
 // Request 请求
 func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil, UrlBad
-	}
-	request, err := http.NewRequest(method, url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
 	if err != nil{
 		loger("err->", err)
 		return nil, err
@@ -60,11 +56,7 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 
 // NewRequest 请求
 func NewRequest(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil
-	}
-	request, err := http.NewRequest(method, url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
 	if err != nil{
 		loger("err->", err)
 		return nil
@@ -76,10 +68,7 @@ func NewRequest(url, method string, data []byte, contentType string, vs ...inter
 
 // Upload
 func Upload(url, savePath string, vs ...interface{}) (*Context, error) {
-	if !isUrl(url) {
-		return nil, UrlBad
-	}
-	c := NewGet(url,vs)
+	c := NewGet(urlStr(url), vs)
 	c.Upload(savePath)
 	if c.Err != nil {
 		return c, c.Err
@@ -94,6 +83,17 @@ func isUrl(url string) bool {
 		return false
 	}
 	return true
+}
+
+func urlStr(url string) string {
+	l := len(url)
+	if l < 1 {
+		panic("url is null")
+	}
+	if l > 8 && (url[:7] == "http://" || url[:8] == "https://") {
+		return url
+	}
+	return "http://" + url
 }
 
 

@@ -23,7 +23,6 @@ func SliceTool() *sliceTool {
 	stOnce.Do(func() {
 		st = &sliceTool{}
 	})
-
 	return st
 }
 

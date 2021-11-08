@@ -1,14 +1,15 @@
 /*
-	Description : gathertool 网络请求，爬虫，测试 实用库
-	Author : ManGe
-	Version : v0.1
-	Date : 2021-0828
 
 ▀██    ██▀                      ▄▄█▀▀▀▄█
  ███  ███   ▄▄▄▄   ▄▄ ▄▄▄      ▄█▀     ▀    ▄▄▄▄
  █▀█▄▄▀██  ▀▀ ▄██   ██  ██     ██    ▄▄▄▄ ▄█▄▄▄██
  █ ▀█▀ ██  ▄█▀ ██   ██  ██     ▀█▄    ██  ██
 ▄█▄ █ ▄██▄ ▀█▄▄▀█▀ ▄██▄ ██▄     ▀▀█▄▄▄▀█   ▀█▄▄▄▀
+
+	Description : gathertool 网络请求，爬虫，测试 实用库
+	Author : ManGe
+	Version : v0.2
+	Date : 2021-0828
 
 */
 
@@ -23,10 +24,7 @@ import (
 
 // Get 请求
 func Get(url string, vs ...interface{}) (*Context, error) {
-	if !isUrl(url) {
-		return nil,UrlBad
-	}
-	request, err := http.NewRequest(GET, url, nil)
+	request, err := http.NewRequest(GET, urlStr(url), nil)
 	if err != nil{
 		return nil, err
 	}
@@ -36,14 +34,9 @@ func Get(url string, vs ...interface{}) (*Context, error) {
 }
 
 func NewGet(url string, vs ...interface{}) *Context {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil
-	}
-	request, err := http.NewRequest(GET, url, nil)
+	request, err := http.NewRequest(GET, urlStr(url), nil)
 	if err != nil{
-		loger("NewGet err->", err)
-		return nil
+		panic(err)
 	}
 	return	Req(request, vs...)
 }
@@ -51,54 +44,36 @@ func NewGet(url string, vs ...interface{}) *Context {
 
 // POST 请求
 func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
-	if !isUrl(url) {
-		return nil, UrlBad
-	}
-
-	request, err := http.NewRequest(POST, url, bytes.NewBuffer(data))
+	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer(data))
 	if err != nil{
 		return nil, err
 	}
-
 	if contentType == "" {
 		request.Header.Set("Content-Type", "application/json;")
 	} else {
 		request.Header.Set("Content-Type", contentType)
 	}
-
 	cxt := Req(request, vs...)
 	cxt.Do()
 	return cxt, nil
 }
 
 func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Context {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil
-	}
-
-	request, err := http.NewRequest(POST, url, bytes.NewBuffer(data))
+	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer(data))
 	if err != nil{
-		loger("NewPost err->", err)
-		return nil
+		panic(err)
 	}
-
 	if contentType == "" {
 		request.Header.Set("Content-Type", "application/json;")
 	} else {
 		request.Header.Set("Content-Type", contentType)
 	}
-
 	return	Req(request, vs...)
 }
 
-
 // POST json 请求
 func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
-	if !isUrl(url) {
-		return nil, UrlBad
-	}
-	request, err := http.NewRequest(POST, url, bytes.NewBuffer([]byte(jsonStr)))
+	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer([]byte(jsonStr)))
 	if err != nil{
 		return nil, err
 	}
@@ -111,10 +86,7 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 
 // POST Form
 func PostForm(url string, data url.Values, vs ...interface{}) (*Context, error){
-	if !isUrl(url) {
-		return nil, UrlBad
-	}
-	request, err := http.NewRequest(POST, url, strings.NewReader(data.Encode()))
+	request, err := http.NewRequest(POST, urlStr(url), strings.NewReader(data.Encode()))
 	if err != nil{
 		return nil, err
 	}
@@ -127,13 +99,8 @@ func PostForm(url string, data url.Values, vs ...interface{}) (*Context, error){
 
 // Put
 func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context, error){
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil, UrlBad
-	}
-	request, err := http.NewRequest(PUT, url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer([]byte(data)))
 	if err != nil{
-		loger("err->", err)
 		return nil, err
 	}
 	request.Header.Set("Content-Type", contentType)
@@ -144,14 +111,9 @@ func Put(url string, data []byte, contentType string, vs ...interface{}) (*Conte
 
 // NewPut
 func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context{
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil
-	}
-	request, err := http.NewRequest(PUT, url, bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer([]byte(data)))
 	if err != nil{
-		loger("err->", err)
-		return nil
+		panic(err)
 	}
 	request.Header.Set("Content-Type", contentType)
 	return Req(request, vs...)
@@ -159,14 +121,9 @@ func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Con
 
 // NewDelete
 func NewDelete(url string, vs ...interface{}) *Context {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil
-	}
-	request, err := http.NewRequest(DELETE, url, nil)
+	request, err := http.NewRequest(DELETE, urlStr(url), nil)
 	if err != nil{
-		loger("err->", err)
-		return nil
+		panic(err)
 	}
 	return	Req(request, vs...)
 }
@@ -174,13 +131,8 @@ func NewDelete(url string, vs ...interface{}) *Context {
 
 // Delete
 func Delete(url string, vs ...interface{}) (*Context, error) {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil, UrlBad
-	}
-	request, err := http.NewRequest(DELETE, url, nil)
+	request, err := http.NewRequest(DELETE, urlStr(url), nil)
 	if err != nil{
-		loger("err->", err)
 		return nil, err
 	}
 	cxt :=	Req(request, vs...)
@@ -190,30 +142,20 @@ func Delete(url string, vs ...interface{}) (*Context, error) {
 
 // NewOptions
 func NewOptions(url string, vs ...interface{}) *Context {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil
-	}
-	request, err := http.NewRequest(OPTIONS, url, nil)
+	request, err := http.NewRequest(OPTIONS, urlStr(url), nil)
 	if err != nil{
-		loger("err->", err)
-		return nil
+		panic(err)
 	}
 	return	Req(request, vs...)
 }
 
 // Options
 func Options(url string, vs ...interface{}) (*Context, error) {
-	if !isUrl(url) {
-		loger(UrlBad)
-		return nil, UrlBad
-	}
-	request, err := http.NewRequest(OPTIONS, url, nil)
+	request, err := http.NewRequest(OPTIONS, urlStr(url), nil)
 	if err != nil{
-		loger("err->", err)
 		return nil, err
 	}
-	cxt :=	Req(request, vs...)
+	cxt := Req(request, vs...)
 	cxt.Do()
 	return cxt, nil
 }
