@@ -7,13 +7,15 @@ import (
 )
 
 func main() {
+	gt.CPUMax()
+
 	// 普通 GET api压测
-	url := "http://192.168.0.9:18084/static_service/v1/allow/school/page"
-	test := gt.NewTestUrl(url,"Get",1000,500)
-	test.Run()
-	test.Run(gt.SucceedFunc(func(ctx *gt.Context){
-		log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
-	}))
+	//url := "http://192.168.0.9:18084/static_service/v1/allow/school/page"
+	//test := gt.NewTestUrl(url,"Get",1000,500)
+	//test.Run()
+	//test.Run(gt.SucceedFunc(func(ctx *gt.Context){
+	//	log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
+	//}))
 
 	//// 设置 GET Header 的压测
 	////url2 := "http://192.168.0.9:18084/static_service/v1/auth/video/page"
@@ -47,7 +49,7 @@ func main() {
 	// 含步骤压力测试
 
 
-	// 牛票票压力测试
+	//// 牛票票压力测试
 	//nppurl1 := "http://192.168.0.9:8025/v2/index/recommend?index=1&limit=20&uid=8722"
 	//token := &http.Header{}
 	//token.Add("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjM4OTA1ODQsImlzcyI6Im5pdS5jbiIsIm5iZiI6MTYyMDI5MDU4NCwiSWQiOjg3MjJ9.ij45vZILk9Kr35XoiPyIhjVGmCoERKiEBk6zz6P9P0g")
@@ -57,17 +59,21 @@ func main() {
 	//点赞
 	//npplike := "http://192.168.0.9:8025/v2/like/add"
 	//npplike()
-	gt.CPUMax()
+
 	//caseurl := "https://www.jy863.com:18443/"
-	caseurl := "https://www.uks678.com:10442/api/site/gdnotice/list"
-	npptest1 := gt.NewTestUrl(caseurl,"Get",10000,1000)
-	hd := &http.Header{}
-	hd.Add("requested-device", "APP")
-	hd.Add("requested-language", "CN")
-	hd.Add("requested-site", "www.uks678.com:10442")
-	npptest1.Run(hd)
+	//caseurl := "https://www.uks678.com:10442/api/site/gdnotice/list"
+	//npptest1 := gt.NewTestUrl(caseurl,"Get",10000,1000)
+	//hd := &http.Header{}
+	//hd.Add("requested-device", "APP")
+	//hd.Add("requested-language", "CN")
+	//hd.Add("requested-site", "www.uks678.com:10442")
+	//npptest1.Run(hd)
 
+	// 发帖
+	//nppTopicCreate()
 
+	//评论
+	nppComment()
 
 }
 
@@ -94,7 +100,7 @@ func npplike(){
 		log.Panic("数据库初始化失败")
 	}
 	allUid, _ := conn.Select("select uid from tbl_user_ext")
-	allTid, _ := conn.Select("select tid from tbl_topic limit 100")
+	allTid, _ := conn.Select("select tid from tbl_topic")
 	for _,v := range allUid{
 		token := GetToken(v["uid"])
 		h := &http.Header{}
@@ -102,13 +108,16 @@ func npplike(){
 		// 所有帖子
 		for _, t  := range allTid {
 			addnpplike := npplike + "?tid="+t["tid"]+"&uid="+v["uid"]
-			log.Println(addnpplike)
-			nppLikeTestQueue.Add(gt.CrawlerTask(addnpplike,"", h))
+
+			gt.Get(addnpplike, h)
+
+			//log.Println(addnpplike)
+			//nppLikeTestQueue.Add(gt.CrawlerTask(addnpplike,"", h))
 		}
 	}
-	gt.StartJobGet(2000, nppLikeTestQueue, gt.SucceedFunc(func(c *gt.Context) {
-		log.Println(string(c.RespBody))
-	}))
+	//gt.StartJobGet(100, nppLikeTestQueue, gt.SucceedFunc(func(c *gt.Context) {
+	//	log.Println(string(c.RespBody))
+	//}))
 }
 
 // npp 获取token - 通用
@@ -126,4 +135,68 @@ func GetToken(uid string) string {
 	//log.Println(data["token"])
 	token = gt.Any2String(data["token"])
 	return token
+}
+
+// 发帖
+func nppTopicCreate() {
+	caseUrl := `http://192.168.0.9:8025/v2/topic/create`
+
+	gt.NewMysqlDB(host, port, user, password, database)
+	gt.MysqlDB.CloseLog()
+	conn,err := gt.GetMysqlDBConn()
+	if err != nil {
+		log.Panic("数据库初始化失败")
+	}
+	allUid, _ := conn.Select("select uid from tbl_user_ext limit 100,10000")
+	for _,v := range allUid{
+		token := GetToken(v["uid"])
+		h := &http.Header{}
+		h.Add("token", token)
+		data := `
+{
+	"uid": `+v["uid"]+`,
+	"qi": 2021315,
+	"fid": 1,
+	"source": 1,
+	"content": "我爱牛票票"
+}`
+		ctx,err := gt.PostJson(caseUrl, data, h)
+		log.Println(ctx.RespBodyString(), err)
+	}
+
+}
+
+// 评论
+func nppComment() {
+	caseUrl := "http://192.168.0.9:8025/v1/comment/add"
+	gt.NewMysqlDB(host, port, user, password, database)
+	gt.MysqlDB.CloseLog()
+	conn,err := gt.GetMysqlDBConn()
+	if err != nil {
+		log.Panic("数据库初始化失败")
+	}
+	allUid, _ := conn.Select("select uid from tbl_user_ext")
+	allTid, _ := conn.Select("select tid from tbl_topic")
+	i:=0
+	for _,v := range allUid{
+		for _, t := range allTid {
+			token := GetToken(v["uid"])
+			h := &http.Header{}
+			h.Add("token", token)
+			i++
+			if i%3 == 0 {
+				continue
+			}
+			data := `
+{
+	"content":"我们都爱牛票票",
+	"tid": `+t["tid"]+`,
+	"cmtid":0,
+	"uid": `+v["uid"]+`,
+	"source":1
+}`
+			gt.PostJson(caseUrl, data, h)
+		}
+
+	}
 }
