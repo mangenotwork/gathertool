@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"golang.org/x/net/publicsuffix"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
@@ -36,10 +37,12 @@ const (
 var (
 	UrlBad = errors.New("url is bad.") // 错误的url
 	UrlNil = errors.New("url is null.") // 空的url
+	randEr = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
 type ReqTimeOut int
 type ReqTimeOutMs int
+type Sleep time.Duration
 
 // Request 请求
 func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
@@ -96,8 +99,39 @@ func urlStr(url string) string {
 	return "http://" + url
 }
 
+func SetSleep(min, max int) Sleep {
+	r := randEr.Intn(max) + min
+	return Sleep(time.Duration(r)*time.Second)
+}
+
+func SetSleepMs(min, max int) Sleep {
+	r := randEr.Intn(max) + min
+	return Sleep(time.Duration(r)*time.Millisecond)
+}
 
 type Header map[string]string
+
+func NewHeader() Header {
+	return Header{}
+}
+
+func (h Header) haveObj() {
+	if h == nil {
+		h = Header{}
+	}
+}
+
+func (h Header) Set(key, value string) Header {
+	h.haveObj()
+	h[key] = value
+	return h
+}
+
+func (h Header) Delete(key string) Header {
+	h.haveObj()
+	delete(h, key)
+	return h
+}
 
 // Req 初始化请求
 // @url  请求链接
@@ -120,6 +154,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		reqTimeOutMs ReqTimeOutMs
 		islog IsLog
 		proxyUrl string
+		sleep Sleep
 	)
 
 	//添加默认的Header
@@ -173,6 +208,8 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			islog = vv
 		case ProxyUrl:
 			proxyUrl = string(vv)
+		case Sleep:
+			sleep = vv
 		}
 	}
 
@@ -250,6 +287,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		RetryFunc: retry,
 		EndFunc: end,
 		IsLog: islog,
+		sleep: sleep,
 	}
 }
 
@@ -283,23 +321,6 @@ func SearchPort(ipStr string, vs ...interface{}) {
 	}
 
 	var wg sync.WaitGroup
-
-	//wg.Add(1)
-	//go func() {
-	//	defer wg.Done()
-	//	for i:=0;i<65536;i++{
-	//		ip := net.ParseIP(ipStr)
-	//
-	//		tcpAddr := &net.TCPAddr{
-	//			IP:ip,
-	//			Port:i,
-	//		}
-	//
-	//		queue.Add(&Task{
-	//			Url: tcpAddr.String(),
-	//		})
-	//	}
-	//}()
 	for job:=0;job<65536;job++{
 		wg.Add(1)
 		go func(i int){
@@ -378,9 +399,6 @@ func Ping(ip string){
 		return
 	}
 
-	//log.Println(string(msg[0 : 20+len]))
-
-	//log.Println("Got response")
 	if msg[20+5] != 13 {
 		log.Println(ip," -> ping err : Identifier not matches")
 		return

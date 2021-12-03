@@ -113,6 +113,9 @@ type Context struct {
 
 	// 是否关闭重试
 	isRetry bool
+
+	// 休眠时间
+	sleep Sleep
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -179,7 +182,12 @@ func (c *Context) Do() func(){
 	}
 	c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
-	//执行请求
+	// 设置的休眠时间
+	if c.sleep != 0 {
+		time.Sleep(time.Duration(c.sleep))
+	}
+
+	// 执行请求
 	before := time.Now()
 	c.Resp,c.Err = c.Client.Do(c.Req)
 	c.Ms = time.Now().Sub(before)
@@ -236,7 +244,7 @@ func (c *Context) Do() func(){
 
 		case "success":
 			logerTimes(2 + int(c.times), "【日志】 执行 success 事件")
-			//请求后的结果
+			// 请求后的结果
 			body, err := ioutil.ReadAll(c.Resp.Body)
 			if err != nil{
 				log.Println(err)
@@ -244,7 +252,7 @@ func (c *Context) Do() func(){
 			}
 
 			c.RespBody = body
-			//执行成功方法
+			// 执行成功方法
 			if c.SucceedFunc != nil {
 				c.SucceedFunc(c)
 			}
