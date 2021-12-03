@@ -286,6 +286,18 @@ func Uint82Str(bs []uint8) string {
 	return string(ba)
 }
 
+// Str2Bytes string -> []byte
+func Str2Bytes(s string) []byte {
+	x := (*[2]uintptr)(unsafe.Pointer(&s))
+	h := [3]uintptr{x[0], x[1], x[1]}
+	return *(*[]byte)(unsafe.Pointer(&h))
+}
+
+// Bytes2Str []byte -> string
+func Bytes2Str(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
+
 // FileSizeFormat 字节的单位转换 保留两位小数
 func FileSizeFormat(fileSize int64) (size string) {
 	if fileSize < 1024 {
@@ -692,6 +704,26 @@ func MapStr2Any(m map[string]string) map[string]interface{} {
 		dest[k] = interface{}(v)
 	}
 	return dest
+}
+
+
+const (
+	KiB = 1024
+	MiB = KiB * 1024
+	GiB = MiB * 1024
+)
+
+func HumanFriendlyTraffic(bytes uint64) string {
+	if bytes <= KiB {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	if bytes <= MiB {
+		return fmt.Sprintf("%.2f KiB", float32(bytes)/KiB)
+	}
+	if bytes <= GiB {
+		return fmt.Sprintf("%.2f MiB", float32(bytes)/MiB)
+	}
+	return fmt.Sprintf("%.2f GiB", float32(bytes)/GiB)
 }
 
 
