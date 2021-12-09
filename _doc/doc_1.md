@@ -1,9 +1,10 @@
 # gathertool 开发文档
 
 ## 1. HTTP/S 请求所有参数说明与上下文结构
-> gathertool 是一个请求工具，用于数据抓取，接口测试； 可在请求阶段执行各个事件，根据状态码自定义事件等； 可扩展性，
->传入任意自定义http请求参数与方法， 可以适用于各种代理； 还有很多创新的地方文档会根据函数与参数的说明来介绍 gathertool
->的创新；
+> gathertool 是一个请求工具，用于数据抓取，接口测试； gathertool会在请求阶段执行各个事件，可以根据状态码自定义事件； gathertool拥有很好的可扩展性，
+> 适配传入任意自定义http请求参数与方法， 可以适配各种代理； 还拥有抓取数据存储功能, 比如存储到mysql, redis, mongo, pgsql等等; 
+> 还有很多创新的地方文档会根据函数与参数的说明来介绍 gathertool的创新；
+
 - StartFunc(func (ctx *Context)) ： 请求前执行的事件函数类型；
 - SucceedFunc(func (ctx *Context)) ： 请求成功后的事件函数类型；
 - FailedFunc(func (ctx *Context))  ： 请求失败后的事件函数类型, 请求错误与默认状态码（参见默认状态码事件）会触发； 
