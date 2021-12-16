@@ -283,6 +283,15 @@ func (c *Context) Do() func(){
 					logerTimes(2 + int(c.times), "【日志】 执行 请求结束后的方法")
 					c.EndFunc(c)
 				}
+
+		default:
+			body, err := ioutil.ReadAll(c.Resp.Body)
+			if err != nil{
+				log.Println(err)
+				return nil
+			}
+			c.RespBody = body
+
 		}
 	}
 

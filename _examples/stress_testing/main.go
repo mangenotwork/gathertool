@@ -10,12 +10,12 @@ func main() {
 	gt.CPUMax()
 
 	// 普通 GET api压测
-	//url := "http://192.168.0.9:18084/static_service/v1/allow/school/page"
-	//test := gt.NewTestUrl(url,"Get",1000,500)
-	//test.Run()
-	//test.Run(gt.SucceedFunc(func(ctx *gt.Context){
-	//	log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
-	//}))
+	url := "http://rpc.dev.cn:30080/"
+	test := gt.NewTestUrl(url,"Get",2000,200)
+	test.Run()
+	test.Run(gt.SucceedFunc(func(ctx *gt.Context){
+		log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
+	}))
 
 	//// 设置 GET Header 的压测
 	////url2 := "http://192.168.0.9:18084/static_service/v1/auth/video/page"
@@ -73,7 +73,7 @@ func main() {
 	//nppTopicCreate()
 
 	//评论
-	nppComment()
+	//nppComment()
 
 }
 

@@ -225,6 +225,36 @@ func Any2Json(data interface{}) (string, error) {
 	return string(jsonStr), err
 }
 
+// Int2Hex int -> hex
+func Int2Hex(i int64) string {
+	return fmt.Sprintf("%x",i)
+}
+
+// Int642Hex int64 -> hex
+func Int642Hex(i int64) string {
+	return fmt.Sprintf("%x",i)
+}
+
+// Hex2Int hex -> int
+func Hex2Int(s string) int {
+	n, err := strconv.ParseUint(s, 16, 8)
+	if err != nil {
+		panic("Parse Error")
+	}
+	n2 := uint8(n)
+	return int(*(*int8)(unsafe.Pointer(&n2)))
+}
+
+// Hex2Int64 hex -> int
+func Hex2Int64(s string) int64 {
+	n, err := strconv.ParseUint(s, 16, 8)
+	if err != nil {
+		panic("Parse Error")
+	}
+	n2 := uint8(n)
+	return int64(*(*int8)(unsafe.Pointer(&n2)))
+}
+
 // CleaningStr 清理字符串前后空白 和回车 换行符号
 func CleaningStr(str string) string{
 	str = strings.Replace(str, "\n","", -1)
