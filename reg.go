@@ -1,8 +1,8 @@
 /*
 	Description : 正则
 	Author : ManGe
-	Version : v0.4
-	Date : 2021-12-03
+	Version : v0.5
+	Date : 2021-12-17
 */
 
 package gathertool
@@ -23,54 +23,54 @@ func RegFindAll(regStr, rest string) [][]string {
 }
 
 var regMap = map[string]string{
-	"RegHtmlA": `(?is:<a.*?</a>)`,
-	"RegHtmlTitle": `(?is:<title.*?</title>)`,
-	"RegHtmlTr": `(?is:<tr.*?</tr>)`,
-	"RegHtmlInput": `(?is:<input.*?>)`,
-	"RegHtmlTd": `(?is:<td.*?</td>)`,
-	"RegHtmlP": `(?is:<p.*?</p>)`,
-	"RegHtmlSpan": `(?is:<span.*?</span>)`,
+	"RegHtmlA": `(?is:<a.*?%s</a>)`,
+	"RegHtmlTitle": `(?is:<title.*?%s</title>)`,
+	"RegHtmlTr": `(?is:<tr.*?%s</tr>)`,
+	"RegHtmlInput": `(?is:<input.*?%s>)`,
+	"RegHtmlTd": `(?is:<td.*?%s</td>)`,
+	"RegHtmlP": `(?is:<p.*?%s</p>)`,
+	"RegHtmlSpan": `(?is:<span.*?%s</span>)`,
 	"RegHtmlSrc": `(?is:src=\".*?\")`,
 	"RegHtmlHref": `(?is:href=\".*?\")`,
-	"RegHtmlH1": `(?is:<h1.*?</h1>)`,
-	"RegHtmlH2": `(?is:<h2.*?</h2>)`,
-	"RegHtmlH3": `(?is:<h3.*?</h3>)`,
-	"RegHtmlH4": `(?is:<h4.*?</h4>)`,
-	"RegHtmlH5": `(?is:<h5.*?</h5>)`,
-	"RegHtmlH6": `(?is:<h6.*?</h6>)`,
-	"RegHtmlTbody": `(?is:<tbody.*?</tbody>)`,
-	"RegHtmlVideo": `(?is:<video.*?</video>)`,
-	"RegHtmlCanvas": `(?is:<canvas.*?</canvas>)`,
-	"RegHtmlCode": `(?is:<code.*?</code>)`,
-	"RegHtmlImg": `(?is:<img.*?/>)`,
-	"RegHtmlUl": `(?is:<ul.*?</ul>)`,
-	"RegHtmlLi": `(?is:<li.*?</li>)`,
-	"RegHtmlMeta": `(?is:<meta.*?>)`,
-	"RegHtmlSelect": `(?is:<select.*?</select>)`,
-	"RegHtmlTable": `(?is:<table.*?</table>)`,
-	"RegHtmlButton": `(?is:<button.*?</button>)`,
+	"RegHtmlH1": `(?is:<h1.*?%s</h1>)`,
+	"RegHtmlH2": `(?is:<h2.*?%s</h2>)`,
+	"RegHtmlH3": `(?is:<h3.*?%s</h3>)`,
+	"RegHtmlH4": `(?is:<h4.*?%s</h4>)`,
+	"RegHtmlH5": `(?is:<h5.*?%s</h5>)`,
+	"RegHtmlH6": `(?is:<h6.*?%s</h6>)`,
+	"RegHtmlTbody": `(?is:<tbody.*?%s</tbody>)`,
+	"RegHtmlVideo": `(?is:<video.*?%s</video>)`,
+	"RegHtmlCanvas": `(?is:<canvas.*?%s</canvas>)`,
+	"RegHtmlCode": `(?is:<code.*?%s</code>)`,
+	"RegHtmlImg": `(?is:<img.*?%s/>)`,
+	"RegHtmlUl": `(?is:<ul.*?%s</ul>)`,
+	"RegHtmlLi": `(?is:<li.*?%s</li>)`,
+	"RegHtmlMeta": `(?is:<meta.*?%s>)`,
+	"RegHtmlSelect": `(?is:<select.*?%s</select>)`,
+	"RegHtmlTable": `(?is:<table.*?%s</table>)`,
+	"RegHtmlButton": `(?is:<button.*?%s</button>)`,
 
 	// 取标签内容
-	"RegHtmlATxt" : `(?is:<a.*?>(.*?)</a>)`,
-	"RegHtmlTitleTxt" : `(?is:<title.*?>(.*?)</title>)`,
-	"RegHtmlTrTxt": `(?is:<tr.*?>(.*?)</tr>)`,
-	"RegHtmlTdTxt": `(?is:<td.*?>(.*?)</td>)`,
-	"RegHtmlPTxt": `(?is:<p.*?>(.*?)</p>)`,
-	"RegHtmlSpanTxt": `(?is:<span.*?>(.*?)</span>)`,
+	"RegHtmlATxt" : `(?is:<a.*?%s>(.*?)</a>)`,
+	"RegHtmlTitleTxt" : `(?is:<title.*?%s>(.*?)</title>)`,
+	"RegHtmlTrTxt": `(?is:<tr.*?%s>(.*?)</tr>)`,
+	"RegHtmlTdTxt": `(?is:<td.*?%s>(.*?)</td>)`,
+	"RegHtmlPTxt": `(?is:<p.*?%s>(.*?)</p>)`,
+	"RegHtmlSpanTxt": `(?is:<span.*?%s>(.*?)</span>)`,
 	"RegHtmlSrcTxt": `(?is:src=\"(.*?)\")`,
 	"RegHtmlHrefTxt": `(?is:href=\"(.*?)\")`,
-	"RegHtmlHTxt1": `(?is:<h1.*?>(.*?)</h1>)`,
-	"RegHtmlHTxt2": `(?is:<h2.*?>(.*?)</h2>)`,
-	"RegHtmlHTxt3": `(?is:<h3.*?>(.*?)</h3>)`,
-	"RegHtmlHTxt4": `(?is:<h4.*?>(.*?)</h4>)`,
-	"RegHtmlHTxt5": `(?is:<h5.*?>(.*?)</h5>)`,
-	"RegHtmlHTxt6": `(?is:<h6.*?>(.*?)</h6>)`,
-	"RegHtmlCodeTxt": `(?is:<code.*?>(.*?)</code>)`,
-	"RegHtmlUlTxt": `(?is:<ul.*?>(.*?)</ul>)`,
-	"RegHtmlLiTxt": `(?is:<li.*?>(.*?)</li>)`,
-	"RegHtmlSelectTxt": `(?is:<select.*?>(.*?)</select>)`,
-	"RegHtmlTableTxt": `(?is:<table.*?>(.*?)</table>)`,
-	"RegHtmlButtonTxt": `(?is:<button.*?>(.*?)</button>)`,
+	"RegHtmlHTxt1": `(?is:<h1.*?%s>(.*?)</h1>)`,
+	"RegHtmlHTxt2": `(?is:<h2.*?%s>(.*?)</h2>)`,
+	"RegHtmlHTxt3": `(?is:<h3.*?%s>(.*?)</h3>)`,
+	"RegHtmlHTxt4": `(?is:<h4.*?%s>(.*?)</h4>)`,
+	"RegHtmlHTxt5": `(?is:<h5.*?%s>(.*?)</h5>)`,
+	"RegHtmlHTxt6": `(?is:<h6.*?%s>(.*?)</h6>)`,
+	"RegHtmlCodeTxt": `(?is:<code.*?%s>(.*?)</code>)`,
+	"RegHtmlUlTxt": `(?is:<ul.*?%s>(.*?)</ul>)`,
+	"RegHtmlLiTxt": `(?is:<li.*?%s>(.*?)</li>)`,
+	"RegHtmlSelectTxt": `(?is:<select.*?%s>(.*?)</select>)`,
+	"RegHtmlTableTxt": `(?is:<table.*?%s>(.*?)</table>)`,
+	"RegHtmlButtonTxt": `(?is:<button.*?%s>(.*?)</button>)`,
 
 	// 删除
 	"RegDelHtml": `\<[\S\s]+?\>`,
@@ -168,12 +168,14 @@ func runFuncName()string{
 }
 
 // 执行正则提取
-func regFind(funcName, txt string) (dataList []string) {
+func regFind(funcName, txt string, property ...string) (dataList []string) {
 	regStr, ok := regMap[funcName]
 	if !ok{
 		loger("reg func is not")
 		return
 	}
+	propertyStr := strings.Join(property, " ")
+	regStr = fmt.Sprintf(regStr, propertyStr+".*?")
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{
@@ -183,59 +185,61 @@ func regFind(funcName, txt string) (dataList []string) {
 }
 
 
-func RegHtmlA(str string)[]string { return regFind(runFuncName(), str) }
+func RegHtmlA(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlTitle(str string)[]string { return regFind(runFuncName(), str) }
+func RegHtmlTitle(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlTr(str string)[]string { return regFind(runFuncName(), str) }
+func RegHtmlTr(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlInput(str string) []string { return regFind(runFuncName(), str) }
+func RegHtmlInput(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlTd(str string) []string { return regFind(runFuncName(), str) }
+func RegHtmlTd(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlP(str string) []string { return regFind(runFuncName(), str) }
+func RegHtmlP(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlSpan(str string) []string { return regFind(runFuncName(), str) }
+func RegHtmlSpan(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlSrc(str string) []string { return regFind(runFuncName(), str) }
+func RegHtmlSrc(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlHref(str string) []string { return regFind(runFuncName(), str) }
+func RegHtmlHref(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-func RegHtmlVideo(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlVideo(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlCanvas(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlCanvas(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlCode(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlCode(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlImg(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlImg(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlUl(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlUl(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlLi(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlLi(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlMeta(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlMeta(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlSelect(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlSelect(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlTable(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlTable(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlButton(str string) []string { return regFind(runFuncName(), str)}
+func RegHtmlButton(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
-func RegHtmlH(str, typeH string) []string {
+func RegHtmlH(str, typeH string, property ...string) []string {
 	funcName := runFuncName()
-	return regFind(funcName+typeH, str)
+	return regFind(funcName+typeH, str, property...)
 }
 
-func RegHtmlTbody(str string) []string { return regFind(runFuncName(), str) }
+func RegHtmlTbody(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
 
 // 执行正则提取 只取内容
-func regFindTxt(funcName, txt string) (dataList []string) {
+func regFindTxt(funcName, txt string, property ...string) (dataList []string) {
 	regStr, ok := regMap[funcName]
 	if !ok{
 		loger("reg func is not")
 		return
 	}
+	propertyStr := strings.Join(property, " ")
+	regStr = fmt.Sprintf(regStr, propertyStr+".*?")
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{
@@ -246,39 +250,39 @@ func regFindTxt(funcName, txt string) (dataList []string) {
 	return
 }
 
-func RegHtmlATxt(str string)[]string { return regFindTxt(runFuncName(), str) }
+func RegHtmlATxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlTitleTxt(str string)[]string { return regFindTxt(runFuncName(), str) }
+func RegHtmlTitleTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlTrTxt(str string)[]string { return regFindTxt(runFuncName(), str) }
+func RegHtmlTrTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlInputTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlInputTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlTdTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlTdTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlPTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlPTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlSpanTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlSpanTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlSrcTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlSrcTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlHrefTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlHrefTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlCodeTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlCodeTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlUlTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlUlTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlLiTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlLiTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlSelectTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlSelectTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlTableTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlTableTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlButtonTxt(str string) []string { return regFindTxt(runFuncName(), str) }
+func RegHtmlButtonTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
-func RegHtmlHTxt(str, typeH string) []string {
+func RegHtmlHTxt(str, typeH string, property ...string) []string {
 	funcName := runFuncName()
-	return regFindTxt(funcName+typeH, str)
+	return regFindTxt(funcName+typeH, str, property...)
 }
 
 // 删除正则匹配的字符

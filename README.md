@@ -85,11 +85,7 @@ func baiduSucceed(ctx *gt.Context){
 
 ### BUG
 - MysqlDB.NewTable() 字段参数是map, 创建的表会乱序
--  client.Transport = &http.Transport{
-  	 	MaxIdleConnsPerHost: 1000,
-      }
-  解决连接数高的问题
-  
+
 ###  常见的反爬虫策略
 - User-Agent反爬
 - IP访问频率限制
@@ -98,4 +94,9 @@ func baiduSucceed(ctx *gt.Context){
 - 数据接口加上庞大的加密解密和混淆算法
 - JS代码执行后，会发送一个带参数key的请求，后台通过判断key的值来决定是响应真实的页面，还是响应伪造或错误的页面。因为key参数是动态生成的，每次都不一样，难以分析出其生成方法，使得无法构造对应的http请求
 -
+
+### TODO
+- 分布式
+- tcp测试
+- udp测试
 
