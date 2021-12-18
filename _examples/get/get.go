@@ -68,11 +68,11 @@ func SimpleGet3()  {
 
 // 简单的get请求实例, 写法四： 外部函数为请求方法；
 func SimpleGet4(){
-	gt.NewGet("http://192.168.0.1",
+	_,_ = gt.Get("http://192.168.0.1",
 		gt.SucceedFunc(succeed),
 		gt.FailedFunc(fail),
 		gt.RetryFunc(retry),
-	).Do()
+	)
 }
 
 // 成功后的方法

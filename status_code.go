@@ -29,6 +29,7 @@ var StatusCodeMap map[int]string = map[int]string{
 	406:"retry",
 	407:"retry",
 	408:"retry",
+	412:"success",
 	500:"fail",
 	501:"fail",
 	502:"retry",

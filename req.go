@@ -1,8 +1,8 @@
 /*
 	Description : 对外提供的方法
 	Author : ManGe
-	Version : v0.2
-	Date : 2021-06-29
+	Version : v0.3
+	Date : 2021-12-18
 */
 
 package gathertool
@@ -111,8 +111,8 @@ func SetSleepMs(min, max int) Sleep {
 
 type Header map[string]string
 
-func NewHeader() Header {
-	return Header{}
+func NewHeader(data map[string]string) Header {
+	return data
 }
 
 func (h Header) haveObj() {
@@ -133,13 +133,30 @@ func (h Header) Delete(key string) Header {
 	return h
 }
 
+type Cookie map[string]string
+func NewCookie(data map[string]string) Cookie {
+	return data
+}
+
+func (c Cookie) haveObj() {
+	if c == nil {
+		c = Cookie{}
+	}
+}
+
+func (c Cookie) Set(key, value string) Cookie {
+	c.haveObj()
+	c[key] = value
+	return c
+}
+
+func (c Cookie) Delete(key string) Cookie {
+	c.haveObj()
+	delete(c, key)
+	return c
+}
+
 // Req 初始化请求
-// @url  请求链接
-// @maxTimes  重试次数
-// @sf  请求成功后做的事情, 200等
-// @ff  请求失败后做的事情, 403等，502等
-// @vs  可变参数
-// @vs UserAgentType  设置指定类型 user agent 如 AndroidAgent
 func Req(request *http.Request, vs ...interface{}) *Context {
 	var (
 		client *http.Client
@@ -186,6 +203,10 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			request.Header.Set("User-Agent", GetAgent(vv))
 		case *http.Cookie:
 			request.AddCookie(vv)
+		case Cookie:
+			for key, value := range vv {
+				request.AddCookie(&http.Cookie{Name: key, Value: value, HttpOnly: true})
+			}
 		case RetryTimes:
 			maxTimes = vv
 		case *Task:

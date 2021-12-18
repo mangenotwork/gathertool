@@ -30,8 +30,8 @@ var regMap = map[string]string{
 	"RegHtmlTd": `(?is:<td.*?%s</td>)`,
 	"RegHtmlP": `(?is:<p.*?%s</p>)`,
 	"RegHtmlSpan": `(?is:<span.*?%s</span>)`,
-	"RegHtmlSrc": `(?is:src=\".*?\")`,
-	"RegHtmlHref": `(?is:href=\".*?\")`,
+	"RegHtmlSrc": `(?is:%ssrc=\".*?\")`,
+	"RegHtmlHref": `(?is:%shref=\".*?\")`,
 	"RegHtmlH1": `(?is:<h1.*?%s</h1>)`,
 	"RegHtmlH2": `(?is:<h2.*?%s</h2>)`,
 	"RegHtmlH3": `(?is:<h3.*?%s</h3>)`,
@@ -57,8 +57,8 @@ var regMap = map[string]string{
 	"RegHtmlTdTxt": `(?is:<td.*?%s>(.*?)</td>)`,
 	"RegHtmlPTxt": `(?is:<p.*?%s>(.*?)</p>)`,
 	"RegHtmlSpanTxt": `(?is:<span.*?%s>(.*?)</span>)`,
-	"RegHtmlSrcTxt": `(?is:src=\"(.*?)\")`,
-	"RegHtmlHrefTxt": `(?is:href=\"(.*?)\")`,
+	"RegHtmlSrcTxt": `(?is:%ssrc=\"(.*?)\")`,
+	"RegHtmlHrefTxt": `(?is:%shref=\"(.*?)\")`,
 	"RegHtmlHTxt1": `(?is:<h1.*?%s>(.*?)</h1>)`,
 	"RegHtmlHTxt2": `(?is:<h2.*?%s>(.*?)</h2>)`,
 	"RegHtmlHTxt3": `(?is:<h3.*?%s>(.*?)</h3>)`,
@@ -174,8 +174,11 @@ func regFind(funcName, txt string, property ...string) (dataList []string) {
 		loger("reg func is not")
 		return
 	}
-	propertyStr := strings.Join(property, " ")
-	regStr = fmt.Sprintf(regStr, propertyStr+".*?")
+	propertyStr := ""
+	if len(property) > 0 {
+		propertyStr = strings.Join(property, " ") + ".*?"
+	}
+	regStr = fmt.Sprintf(regStr, propertyStr)
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{
@@ -238,8 +241,11 @@ func regFindTxt(funcName, txt string, property ...string) (dataList []string) {
 		loger("reg func is not")
 		return
 	}
-	propertyStr := strings.Join(property, " ")
-	regStr = fmt.Sprintf(regStr, propertyStr+".*?")
+	propertyStr := ""
+	if len(property) > 0 {
+		propertyStr = strings.Join(property, " ") + ".*?"
+	}
+	regStr = fmt.Sprintf(regStr, propertyStr)
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{

@@ -1,14 +1,15 @@
 /*
 	Description : 请求上下文
 	Author : ManGe
-	Version : v0.4
-	Date : 2021-06-29
+	Version : v0.5
+	Date : 2021-12-18
 */
 
 package gathertool
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/md5"
 	"encoding/hex"
@@ -228,6 +229,10 @@ func (c *Context) Do() func(){
 		}
 
 		return nil
+	}
+
+	if c.Resp.Header.Get("Content-Encoding") == "gzip" {
+		c.Resp.Body, _ = gzip.NewReader(c.Resp.Body)
 	}
 
 	defer func(c *Context){
