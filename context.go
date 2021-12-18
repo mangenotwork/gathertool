@@ -244,60 +244,61 @@ func (c *Context) Do() func(){
 	logerTimes(2 + int(c.times), "【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
-	if v,ok := StatusCodeMap[c.Resp.StatusCode]; ok{
-		switch v {
-
-		case "success":
-			logerTimes(2 + int(c.times), "【日志】 执行 success 事件")
-			// 请求后的结果
-			body, err := ioutil.ReadAll(c.Resp.Body)
-			if err != nil{
-				log.Println(err)
-				return nil
-			}
-
-			c.RespBody = body
-			// 执行成功方法
-			if c.SucceedFunc != nil {
-				c.SucceedFunc(c)
-			}
-
-		case "retry":
-			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-			if c.RetryFunc != nil && !c.isRetry {
-				logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
-				c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-				c.RetryFunc(c)
-				return c.Do()
-			}
-
-		case "fail":
-			if c.FailedFunc != nil{
-				logerTimes(2 + int(c.times), "【日志】 执行 failed 事件")
-				c.FailedFunc(c)
-			}
-
-		case "start":
-			if c.StartFunc != nil {
-				logerTimes(2 + int(c.times), "【日志】 执行 请求前的方法")
-				c.StartFunc(c)
-			}
-
-			case "end":
-				if c.EndFunc != nil {
-					logerTimes(2 + int(c.times), "【日志】 执行 请求结束后的方法")
-					c.EndFunc(c)
-				}
-
-		default:
-			body, err := ioutil.ReadAll(c.Resp.Body)
-			if err != nil{
-				log.Println(err)
-				return nil
-			}
-			c.RespBody = body
-
+	v,ok := StatusCodeMap[c.Resp.StatusCode]
+	switch v {
+	case "success":
+		logerTimes(2 + int(c.times), "【日志】 执行 success 事件")
+		// 请求后的结果
+		body, err := ioutil.ReadAll(c.Resp.Body)
+		if err != nil{
+			log.Println(err)
+			return nil
 		}
+
+		c.RespBody = body
+		// 执行成功方法
+		if c.SucceedFunc != nil {
+			c.SucceedFunc(c)
+		}
+
+	case "retry":
+		c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+		if c.RetryFunc != nil && !c.isRetry {
+			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			c.RetryFunc(c)
+			return c.Do()
+		}
+
+	case "fail":
+		if c.FailedFunc != nil{
+			logerTimes(2 + int(c.times), "【日志】 执行 failed 事件")
+			c.FailedFunc(c)
+		}
+
+	case "start":
+		if c.StartFunc != nil {
+			logerTimes(2 + int(c.times), "【日志】 执行 请求前的方法")
+			c.StartFunc(c)
+		}
+
+	case "end":
+		if c.EndFunc != nil {
+			logerTimes(2 + int(c.times), "【日志】 执行 请求结束后的方法")
+			c.EndFunc(c)
+		}
+
+	default:
+		ok = false
+	}
+
+	if !ok{
+		body, err := ioutil.ReadAll(c.Resp.Body)
+		if err != nil{
+			log.Println(err)
+			return nil
+		}
+		c.RespBody = body
 	}
 
 	return nil

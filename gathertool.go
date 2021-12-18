@@ -99,7 +99,7 @@ func Put(url string, data []byte, contentType string, vs ...interface{}) (*Conte
 
 // NewPut
 func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context{
-	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer(data))
 	if err != nil{
 		panic(err)
 	}

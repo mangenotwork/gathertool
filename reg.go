@@ -23,54 +23,54 @@ func RegFindAll(regStr, rest string) [][]string {
 }
 
 var regMap = map[string]string{
-	"RegHtmlA": `(?is:<a.*?%s</a>)`,
-	"RegHtmlTitle": `(?is:<title.*?%s</title>)`,
-	"RegHtmlTr": `(?is:<tr.*?%s</tr>)`,
-	"RegHtmlInput": `(?is:<input.*?%s>)`,
-	"RegHtmlTd": `(?is:<td.*?%s</td>)`,
-	"RegHtmlP": `(?is:<p.*?%s</p>)`,
-	"RegHtmlSpan": `(?is:<span.*?%s</span>)`,
-	"RegHtmlSrc": `(?is:%ssrc=\".*?\")`,
-	"RegHtmlHref": `(?is:%shref=\".*?\")`,
-	"RegHtmlH1": `(?is:<h1.*?%s</h1>)`,
-	"RegHtmlH2": `(?is:<h2.*?%s</h2>)`,
-	"RegHtmlH3": `(?is:<h3.*?%s</h3>)`,
-	"RegHtmlH4": `(?is:<h4.*?%s</h4>)`,
-	"RegHtmlH5": `(?is:<h5.*?%s</h5>)`,
-	"RegHtmlH6": `(?is:<h6.*?%s</h6>)`,
-	"RegHtmlTbody": `(?is:<tbody.*?%s</tbody>)`,
-	"RegHtmlVideo": `(?is:<video.*?%s</video>)`,
-	"RegHtmlCanvas": `(?is:<canvas.*?%s</canvas>)`,
-	"RegHtmlCode": `(?is:<code.*?%s</code>)`,
-	"RegHtmlImg": `(?is:<img.*?%s/>)`,
-	"RegHtmlUl": `(?is:<ul.*?%s</ul>)`,
-	"RegHtmlLi": `(?is:<li.*?%s</li>)`,
-	"RegHtmlMeta": `(?is:<meta.*?%s>)`,
-	"RegHtmlSelect": `(?is:<select.*?%s</select>)`,
-	"RegHtmlTable": `(?is:<table.*?%s</table>)`,
-	"RegHtmlButton": `(?is:<button.*?%s</button>)`,
+	"RegHtmlA": `(?is:<a.*?</a>)`,
+	"RegHtmlTitle": `(?is:<title.*?</title>)`,
+	"RegHtmlTr": `(?is:<tr.*?</tr>)`,
+	"RegHtmlInput": `(?is:<input.*?>)`,
+	"RegHtmlTd": `(?is:<td.*?</td>)`,
+	"RegHtmlP": `(?is:<p.*?</p>)`,
+	"RegHtmlSpan": `(?is:<span.*?</span>)`,
+	"RegHtmlSrc": `(?is:src=\".*?\")`,
+	"RegHtmlHref": `(?is:href=\".*?\")`,
+	"RegHtmlH1": `(?is:<h1.*?</h1>)`,
+	"RegHtmlH2": `(?is:<h2.*?</h2>)`,
+	"RegHtmlH3": `(?is:<h3.*?</h3>)`,
+	"RegHtmlH4": `(?is:<h4.*?</h4>)`,
+	"RegHtmlH5": `(?is:<h5.*?</h5>)`,
+	"RegHtmlH6": `(?is:<h6.*?</h6>)`,
+	"RegHtmlTbody": `(?is:<tbody.*?</tbody>)`,
+	"RegHtmlVideo": `(?is:<video.*?</video>)`,
+	"RegHtmlCanvas": `(?is:<canvas.*?</canvas>)`,
+	"RegHtmlCode": `(?is:<code.*?</code>)`,
+	"RegHtmlImg": `(?is:<img.*?/>)`,
+	"RegHtmlUl": `(?is:<ul.*?</ul>)`,
+	"RegHtmlLi": `(?is:<li.*?</li>)`,
+	"RegHtmlMeta": `(?is:<meta.*?>)`,
+	"RegHtmlSelect": `(?is:<select.*?</select>)`,
+	"RegHtmlTable": `(?is:<table.*?</table>)`,
+	"RegHtmlButton": `(?is:<button.*?</button>)`,
 
 	// 取标签内容
-	"RegHtmlATxt" : `(?is:<a.*?%s>(.*?)</a>)`,
-	"RegHtmlTitleTxt" : `(?is:<title.*?%s>(.*?)</title>)`,
-	"RegHtmlTrTxt": `(?is:<tr.*?%s>(.*?)</tr>)`,
-	"RegHtmlTdTxt": `(?is:<td.*?%s>(.*?)</td>)`,
-	"RegHtmlPTxt": `(?is:<p.*?%s>(.*?)</p>)`,
-	"RegHtmlSpanTxt": `(?is:<span.*?%s>(.*?)</span>)`,
-	"RegHtmlSrcTxt": `(?is:%ssrc=\"(.*?)\")`,
-	"RegHtmlHrefTxt": `(?is:%shref=\"(.*?)\")`,
-	"RegHtmlHTxt1": `(?is:<h1.*?%s>(.*?)</h1>)`,
-	"RegHtmlHTxt2": `(?is:<h2.*?%s>(.*?)</h2>)`,
-	"RegHtmlHTxt3": `(?is:<h3.*?%s>(.*?)</h3>)`,
-	"RegHtmlHTxt4": `(?is:<h4.*?%s>(.*?)</h4>)`,
-	"RegHtmlHTxt5": `(?is:<h5.*?%s>(.*?)</h5>)`,
-	"RegHtmlHTxt6": `(?is:<h6.*?%s>(.*?)</h6>)`,
-	"RegHtmlCodeTxt": `(?is:<code.*?%s>(.*?)</code>)`,
-	"RegHtmlUlTxt": `(?is:<ul.*?%s>(.*?)</ul>)`,
-	"RegHtmlLiTxt": `(?is:<li.*?%s>(.*?)</li>)`,
-	"RegHtmlSelectTxt": `(?is:<select.*?%s>(.*?)</select>)`,
-	"RegHtmlTableTxt": `(?is:<table.*?%s>(.*?)</table>)`,
-	"RegHtmlButtonTxt": `(?is:<button.*?%s>(.*?)</button>)`,
+	"RegHtmlATxt" : `(?is:<a.*?>(.*?)</a>)`,
+	"RegHtmlTitleTxt" : `(?is:<title.*?>(.*?)</title>)`,
+	"RegHtmlTrTxt": `(?is:<tr.*?>(.*?)</tr>)`,
+	"RegHtmlTdTxt": `(?is:<td.*?>(.*?)</td>)`,
+	"RegHtmlPTxt": `(?is:<p.*?>(.*?)</p>)`,
+	"RegHtmlSpanTxt": `(?is:<span.*?>(.*?)</span>)`,
+	"RegHtmlSrcTxt": `(?is:src=\"(.*?)\")`,
+	"RegHtmlHrefTxt": `(?is:href=\"(.*?)\")`,
+	"RegHtmlHTxt1": `(?is:<h1.*?>(.*?)</h1>)`,
+	"RegHtmlHTxt2": `(?is:<h2.*?>(.*?)</h2>)`,
+	"RegHtmlHTxt3": `(?is:<h3.*?>(.*?)</h3>)`,
+	"RegHtmlHTxt4": `(?is:<h4.*?>(.*?)</h4>)`,
+	"RegHtmlHTxt5": `(?is:<h5.*?>(.*?)</h5>)`,
+	"RegHtmlHTxt6": `(?is:<h6.*?>(.*?)</h6>)`,
+	"RegHtmlCodeTxt": `(?is:<code.*?>(.*?)</code>)`,
+	"RegHtmlUlTxt": `(?is:<ul.*?>(.*?)</ul>)`,
+	"RegHtmlLiTxt": `(?is:<li.*?>(.*?)</li>)`,
+	"RegHtmlSelectTxt": `(?is:<select.*?>(.*?)</select>)`,
+	"RegHtmlTableTxt": `(?is:<table.*?>(.*?)</table>)`,
+	"RegHtmlButtonTxt": `(?is:<button.*?>(.*?)</button>)`,
 
 	// 删除
 	"RegDelHtml": `\<[\S\s]+?\>`,
@@ -174,19 +174,18 @@ func regFind(funcName, txt string, property ...string) (dataList []string) {
 		loger("reg func is not")
 		return
 	}
-	propertyStr := ""
-	if len(property) > 0 {
-		propertyStr = strings.Join(property, " ") + ".*?"
-	}
-	regStr = fmt.Sprintf(regStr, propertyStr)
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{
-		dataList = append(dataList, v[0])
+		if len(v) < 1 {
+			continue
+		}
+		if len(property) == 0 || strings.Count(v[0],  strings.Join(property, " ")) > 0 {
+			dataList = append(dataList, v[0])
+		}
 	}
 	return
 }
-
 
 func RegHtmlA(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
@@ -241,15 +240,13 @@ func regFindTxt(funcName, txt string, property ...string) (dataList []string) {
 		loger("reg func is not")
 		return
 	}
-	propertyStr := ""
-	if len(property) > 0 {
-		propertyStr = strings.Join(property, " ") + ".*?"
-	}
-	regStr = fmt.Sprintf(regStr, propertyStr)
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _,v := range resList{
-		if len(v) > 1{
+		if len(v) < 1 {
+			continue
+		}
+		if len(property) == 0 || strings.Count(v[0],  strings.Join(property, " ")) > 0 {
 			dataList = append(dataList, v[1])
 		}
 	}
@@ -312,6 +309,47 @@ func RegDelHtml(str string) string { return replace(runFuncName(), str) }
 // 删除所有数字
 func RegDelNumber(str string) string { return replace(runFuncName(), str) }
 
+func RegDelHtmlA(str string) string { return replace("RegHtmlA", str) }
+
+func RegDelHtmlTitle(str string) string { return replace("RegHtmlTitle", str) }
+
+func RegDelHtmlTr(str string) string { return replace("RegHtmlTr", str) }
+
+func RegDelHtmlInput(str string, property ...string) string { return replace("RegHtmlInput", str) }
+
+func RegDelHtmlTd(str string, property ...string) string { return replace("RegHtmlTd", str) }
+
+func RegDelHtmlP(str string, property ...string) string { return replace("RegHtmlP", str) }
+
+func RegDelHtmlSpan(str string, property ...string) string { return replace("RegHtmlSpan", str) }
+
+func RegDelHtmlSrc(str string, property ...string) string { return replace("RegHtmlSrc", str) }
+
+func RegDelHtmlHref(str string, property ...string) string { return replace("RegHtmlHref", str) }
+
+func RegDelHtmlVideo(str string, property ...string) string { return replace("RegHtmlVideo", str)}
+
+func RegDelHtmlCanvas(str string, property ...string) string { return replace("RegHtmlCanvas", str)}
+
+func RegDelHtmlCode(str string, property ...string) string { return replace("RegHtmlCode", str)}
+
+func RegDelHtmlImg(str string, property ...string) string { return replace("RegHtmlImg", str)}
+
+func RegDelHtmlUl(str string, property ...string) string { return replace("RegHtmlUl", str)}
+
+func RegDelHtmlLi(str string, property ...string) string { return replace("RegHtmlLi", str)}
+
+func RegDelHtmlMeta(str string, property ...string) string { return replace("RegHtmlMeta", str)}
+
+func RegDelHtmlSelect(str string, property ...string) string { return replace("RegHtmlSelect", str)}
+
+func RegDelHtmlTable(str string, property ...string) string { return replace("RegHtmlTable", str)}
+
+func RegDelHtmlButton(str string, property ...string) string { return replace("RegHtmlButton", str)}
+
+func RegDelHtmlH(str, typeH string, property ...string) string { return replace("RegHtmlH"+typeH, str)}
+
+func RegDelHtmlTbody(str string, property ...string) string { return replace("RegHtmlTbody", str) }
 
 // 是否含有正则匹配的字符
 func isHaveStr(regStr, rest string) bool {
@@ -332,8 +370,6 @@ func isHave(funcName, rest string) bool {
 	}
 	return isHaveStr(regStr, rest)
 }
-
-
 
 // 验证是否含有number
 func IsNumber(str string) bool { return isHave(runFuncName(), str) }
