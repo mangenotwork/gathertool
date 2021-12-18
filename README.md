@@ -10,8 +10,7 @@
 import gt "github.com/mangenotwork/gathertool"
 
 func main(){
-    caseUrl := "https://www.baidu.com"
-    ctx, err := gt.Get(caseUrl)
+    ctx, err := gt.Get("https://www.baidu.com")
     if err != nil {
         log.Println(err)
     }

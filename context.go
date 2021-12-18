@@ -117,6 +117,13 @@ type Context struct {
 
 	// 休眠时间
 	sleep Sleep
+
+	// 输出字符串
+	Text string
+	// 输出Json
+	Json string
+	// 输出xml
+	Xml string
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -300,6 +307,8 @@ func (c *Context) Do() func(){
 		}
 		c.RespBody = body
 	}
+
+	c.Text = c.RespBodyString()
 
 	return nil
 }
