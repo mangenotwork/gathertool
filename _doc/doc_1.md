@@ -1,16 +1,20 @@
 # gathertool 开发文档
 
-## 1. HTTP/S 请求所有参数说明与上下文结构
-> gathertool 是一个请求工具，用于数据抓取，接口测试； gathertool会在请求阶段执行各个事件，可以根据状态码自定义事件； gathertool拥有很好的可扩展性，
-> 适配传入任意自定义http请求参数与方法， 可以适配各种代理； 还拥有抓取数据存储功能, 比如存储到mysql, redis, mongo, pgsql等等; 
-> 还有很多创新的地方文档会根据函数与参数的说明来介绍 gathertool的创新；
+## 1. 简介
+> gathertool 是一个高度封装的请求库, 主要用于数据抓取, 接口测试, 常见网络协议调试, 数据提取与存储等； 
+> gathertool 请求特点: 会在请求阶段执行各个事件如请求失败后的重试事件,请求前后的事件，请求成功事件等等, 可以根据请求状态码自定义这些事件； 
+> gathertool 还拥有很好的可扩展性， 适配传入任意自定义http请求对象， 能适配各种代理对象等等； 
+> gathertool 还拥有抓取数据存储功能, 比如存储到mysql, redis, mongo, pgsql等等; 
+> 还有很多创新的地方文档会根据具体方法进行介绍；
 
+## 2.1 请求事件
 - StartFunc(func (ctx *Context)) ： 请求前执行的事件函数类型；
 - SucceedFunc(func (ctx *Context)) ： 请求成功后的事件函数类型；
 - FailedFunc(func (ctx *Context))  ： 请求失败后的事件函数类型, 请求错误与默认状态码（参见默认状态码事件）会触发； 
 - RetryFunc(func (ctx *Context))  ： 请求重试前的事件函数类型, 默认状态码（参见默认状态码事件）会触发， 可以在此事件更换代理，添加等待时间等等， 重试次数默认是10次，可自行设置； 
 - EndFunc(func (ctx *Context)) ： 请求结束后的事件函数类型； 
-```、go
+
+```go
 import gt "github.com/mangenotwork/gathertool"
 
 gt.Get(`http://192.168.0.1`, 
@@ -36,24 +40,30 @@ gt.Get(`http://192.168.0.1`,
         }),
 )
 ```
-- *http.Client 
+
+## 2.2 gathertool支持的请求参数
+
+- *http.Client  
 - *http.Request 
 - *http.Response
--  Err ： 记录的错误信息
+- Err ： 记录的错误信息
 - context.Context
 - RetryTimes(n int) : 设置重试次数
 ```go
 gt.Get(`http://192.168.0.1`, RetryTimes(50))
 ```
+
 - *Task : 请求的任务对象， 这个任务可被多个请求使用,（见Task任务对象）
 ```go
 gt.Get(`http://192.168.0.1`, &gt.Task{})
 ```
+
 - IsLog : 是否打印日志, 默认打开
 - ProxyUrl(url string) : 设置代理
 ```go
 gt.Get(`http://192.168.0.1`, gt.ProxyUrl("http://192.168.0.2:8888"))
 ```
+
 
 ## 2. 状态码事件 与 UserAgent
 > 状态码对应事件的全局的，可初始化设置，也可随时重置

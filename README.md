@@ -3,9 +3,11 @@
 
 ## 文档： [点击开始](https://github.com/mangenotwork/gathertool/tree/main/_doc/doc_1.md)
 
-## 开始
+## 开始使用
 > go get github.com/mangenotwork/gathertool
 
+
+简单的get请求
 ```go
 import gt "github.com/mangenotwork/gathertool"
 
@@ -18,7 +20,7 @@ func main(){
 }
 ```
 
-> 含请求事件请求
+含请求事件请求
 ```go
 import gt "github.com/mangenotwork/gathertool"
 
@@ -49,7 +51,7 @@ func main(){
 }
 ```
 
-> 优雅的写法
+事件方法复用
 ```go
 func main(){
     gt.NewGet(`http://192.168.0.1`).SetSucceedFunc(succeed).SetFailedFunc(failed).SetRetryFunc(retry).Do()
@@ -73,6 +75,62 @@ func baiduSucceed(ctx *gt.Context){
 }
 ```
 
+post请求
+```
+    // FormData
+    postData := gt.FormData{
+        "aa":"aa",	
+    }
+    
+    // header
+    header := gt.NewHeader(map[string]string{
+        "Accept":"*/*",
+        "X-MicrosoftAjax":"Delta=true",
+        "Accept-Encoding":"gzip, deflate",
+        "XMLHttpRequest":"XMLHttpRequest",
+        "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+    })
+    
+    // cookie
+    cookie := gt.Cookie{
+        "aa":"a"
+    }
+    
+    // 随机休眠 2~6秒
+    sleep := gt.SetSleep(2,6)
+    c := gt.NewPostForm(caseUrl, postData, header, cookie, sleep)
+    c.Do()
+    html := c.RespBodyString()
+    log.Print(html)
+
+```
+
+数据存储到mysql
+```
+var (
+    host   = "192.168.0.100"
+    port      = 3306
+    user      = "root"
+    password  = "root123"
+    dbName  = "dbName"
+    db,_ = gt.NewMysql(host, port, user, password, dbName)
+)
+
+//.... 执行抓取
+data1 := "data1"
+data2 := "data2"
+
+inputdata := map[string]interface{} {
+    "data1" : data1,
+    "data2" : data2,
+}
+
+tableName := "data"
+db.Spider2022DB.InsertAt(tableName, inputdata)
+```
+
+更多方法见 [文档](https://github.com/mangenotwork/gathertool/tree/main/_doc/doc_1.md)
+
 ## 实例
 -  [Get请求](https://github.com/mangenotwork/gathertool/tree/main/_examples/get)
 -  [阳光高考招生章程抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/get_yggk)
@@ -81,9 +139,6 @@ func baiduSucceed(ctx *gt.Context){
 -  [文件下载](https://github.com/mangenotwork/gathertool/tree/main/_examples/upload_file)
 -  [无登录微博抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/weibo)
 -  [百度题库抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baidu_tk)
-
-### BUG
-- MysqlDB.NewTable() 字段参数是map, 创建的表会乱序
 
 ###  常见的反爬虫策略
 - User-Agent反爬

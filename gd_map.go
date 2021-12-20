@@ -18,6 +18,7 @@ type GDMapApi interface {
 	Len() int
 	CheckValue(value interface{}) bool // 检查是否存在某个值
 	KeyList() []string
+	AddMap(data map[string]interface{}) *gDMap
 }
 
 // 固定顺序map
@@ -48,6 +49,13 @@ func (m *gDMap) Add(key string, value interface{}) *gDMap {
 	m.keyList = append(m.keyList, key)
 	m.size ++
 	m.data[key] = value
+	return m
+}
+
+func (m *gDMap) AddMap(data map[string]interface{}) *gDMap {
+	for k,v := range data {
+		m.Add(k,v)
+	}
 	return m
 }
 
