@@ -1,8 +1,8 @@
 /*
 	Description : 加密解码相关封装方法
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-08-21
+	Version : v0.2
+	Date : 2021-12-21
 */
 
 package gathertool
@@ -20,6 +20,8 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"errors"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/pbkdf2"
 	"hash"
 	"io"
@@ -438,8 +440,79 @@ func PBKDF2(str, salt []byte, iterations, keySize int) ([]byte) {
 	return pbkdf2Func(sha256.New, str, salt, iterations, keySize)
 }
 
+// jwtEncrypt
+func jwtEncrypt(token *jwt.Token, data map[string]interface{}, secret string) (string, error) {
+	claims := make(jwt.MapClaims)
+	for k, v := range data {
+		claims[k] = v
+	}
+	token.Claims = claims
+	return token.SignedString([]byte(secret))
+}
+
+// JwtEncrypt
+func JwtEncrypt(data map[string]interface{}, secret, method string) (string, error){
+	switch method {
+	case "256":
+		return jwtEncrypt(jwt.New(jwt.SigningMethodHS256), data, secret)
+	case "384":
+		return jwtEncrypt(jwt.New(jwt.SigningMethodHS384), data, secret)
+	case "512":
+		return jwtEncrypt(jwt.New(jwt.SigningMethodHS512), data, secret)
+	}
+	return "",fmt.Errorf("未知method; method= 256 or 384 or 512 ")
+}
+
+// JwtEncrypt256
+func JwtEncrypt256(data map[string]interface{}, secret string) (string, error){
+	token := jwt.New(jwt.SigningMethodHS256)
+	return jwtEncrypt(token, data, secret)
+}
+
+// JwtEncrypt384
+func JwtEncrypt384(data map[string]interface{}, secret string) (string, error){
+	token := jwt.New(jwt.SigningMethodHS384)
+	return jwtEncrypt(token, data, secret)
+}
+
+// JwtEncrypt512
+func JwtEncrypt512(data map[string]interface{}, secret string) (string, error){
+	token := jwt.New(jwt.SigningMethodHS512)
+	return jwtEncrypt(token, data, secret)
+}
+
+// JwtDecrypt
+func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err error) {
+	data = make(map[string]interface{})
+	var secretFunc = func() jwt.Keyfunc { //按照这样的规则解析
+		return func(t *jwt.Token) (interface{}, error) {
+			return []byte(secret), nil
+		}
+	}
+	token, err := jwt.Parse(tokenString, secretFunc())
+	if err != nil {
+		err = fmt.Errorf("未知Token")
+		return
+	}
+	claim, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return
+	}
+	if !token.Valid {
+		// 令牌错误
+		return
+	}
+	for k, v := range claim {
+		data[k] =v
+	}
+	return
+}
+
+
 // TODO Rabbit
 
 // TODO RC4
 
 // TODO RIPEMD-160
+
+

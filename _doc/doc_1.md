@@ -18,23 +18,23 @@
 import gt "github.com/mangenotwork/gathertool"
 
 gt.Get(`http://192.168.0.1`, 
-        gt.StartFunc(func(ctx *Context){
+        gt.StartFunc(func(ctx *gt.Context){
             log.Println("请求前： 添加代理等等操作")
             ctx.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
         }),
-        gt.SucceedFunc(func(ctx *Context){
+        gt.SucceedFunc(func(ctx *gt.Context){
             log.Println("请求成功： 处理数据或存储等等")
             log.Println(ctx.RespBodyString())
         }),
-        gt.FailedFunc(func(ctx *Context){
+        gt.FailedFunc(func(ctx *gt.Context){
             log.Println("请求失败： 记录失败等等")
             log.Println(ctx.Err)
         }),
-        gt.RetryFunc(func(ctx *Context){
+        gt.RetryFunc(func(ctx *gt.Context){
              log.Println("请求重试： 更换代理或添加等待时间等等")
              ctx.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
         }),
-        gt.RetryFunc(func(ctx *Context){
+        gt.RetryFunc(func(ctx *gt.Context){
              log.Println("请求结束： 记录结束，处理数据等等")
              log.Println(ctx)
         }),

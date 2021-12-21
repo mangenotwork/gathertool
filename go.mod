@@ -11,4 +11,5 @@ require (
 	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 	golang.org/x/text v0.3.5
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 )
