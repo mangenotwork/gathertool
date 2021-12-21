@@ -42,32 +42,36 @@ gt.Get(`http://192.168.0.1`,
 ```
 
 ## 2.2 gathertool支持的请求参数
-
-- *http.Client  
-- *http.Request 
-- *http.Response
-- Err ： 记录的错误信息
-- context.Context
-- RetryTimes(n int) : 设置重试次数
+- http.Header :  基础库请求头
+- *http.Header : 基础库请求头
+- gathertool.Header : gathertool请求头
+- *http.Client : 基础库 http Client对象
+- gathertool.UserAgentType : 请求UserAgentType
+- *http.Cookie :  基础库http Cookie对象
+- gathertool.Cookie : gathertool请求Cookie
+- gathertool.RetryTimes : 重试次数
+- *gathertool.Task : gathertool请求任务对象, 这个任务可被多个请求使用,（见Task任务对象）
 ```go
-gt.Get(`http://192.168.0.1`, RetryTimes(50))
+    gt.Get(`http://192.168.0.1`, &gt.Task{})
 ```
-
-- *Task : 请求的任务对象， 这个任务可被多个请求使用,（见Task任务对象）
+- gathertool.StartFunc : gathertool请求前方法
+- gathertool.SucceedFunc : gathertool请求成功方法
+- gathertool.FailedFunc : gathertool请求失败方法
+- gathertool.RetryFunc : gathertool请求重试方法
+- gathertool.EndFunc : gathertool请求结束方法
+- gathertool.ReqTimeOut : gathertool请求超时时间单位秒
+- gathertool.ReqTimeOutMs : gathertool请求超时时间单位毫秒
+- gathertool.IsLog : 是否开启打印日志
+- gathertool.ProxyUrl : gathertool代理对象
 ```go
-gt.Get(`http://192.168.0.1`, &gt.Task{})
+    gt.Get(`http://192.168.0.1`, gt.ProxyUrl("http://192.168.0.2:8888"))
 ```
-
-- IsLog : 是否打印日志, 默认打开
-- ProxyUrl(url string) : 设置代理
-```go
-gt.Get(`http://192.168.0.1`, gt.ProxyUrl("http://192.168.0.2:8888"))
-```
+- gathertool.Sleep : gathertool休眠对象
 
 
-## 2. 状态码事件 与 UserAgent
+## 2.3  状态码事件
 > 状态码对应事件的全局的，可初始化设置，也可随时重置
-### 默认状态码事件
+##### 默认状态码事件
 |状态码|事件类型|事件描述|
 | :-----| ----: | :----: |
 |200|success|请求成功后事件|
@@ -93,12 +97,17 @@ gt.Get(`http://192.168.0.1`, gt.ProxyUrl("http://192.168.0.2:8888"))
 |503|retry|请求重试前的事件|
 |504|retry|请求重试前的事件|
 
-### 设置状态码事件
-- func SetStatusCodeSuccessEvent(code int) ： 将指定状态码设置为执行成功事件
-- func SetStatusCodeRetryEvent(code int) ： 将指定状态码设置为执行重试事件
-- func SetStatusCodeFailEvent(code int) ： 将指定状态码设置为执行失败事件
+##### 设置状态码事件
+##### func SetStatusCodeSuccessEvent(code int) ： 将指定状态码设置为执行成功事件
+##### func SetStatusCodeRetryEvent(code int) ： 将指定状态码设置为执行重试事件
+##### func SetStatusCodeFailEvent(code int) ： 将指定状态码设置为执行失败事件
+```go
+import gt "github.com/mangenotwork/gathertool"
+gt.SetStatusCodeSuccessEvent(412)
+gt.SetStatusCodeRetryEvent(413)
+```
 
-### UserAgent
+### 2.4 UserAgent
 > gathertool 有UserAgent Map 是全局的，可自定义，可扩展等
 > 所有请求默认使用 PCAgent随机的一个
 
@@ -114,33 +123,54 @@ gt.Get(`http://192.168.0.1`, gt.ProxyUrl("http://192.168.0.2:8888"))
 |WindowsPhoneAgent|8|WindowsPhone useragent|
 |UCAgent|9|UC useragent|
 
-#### func GetAgent(agentType UserAgentType) string ：  随机获取 user-agent
-#### func SetAgent(agentType UserAgentType, agent string) :  设置 user-agent
+##### func GetAgent(agentType UserAgentType) string ：  随机获取 user-agent
+##### func SetAgent(agentType UserAgentType, agent string) :  设置 user-agent
+```
+import gt "github.com/mangenotwork/gathertool"
+userAgent := gt.GetAgent(gt.WindowsAgent)
+gt.SetAgent(LinuxAgent, userAgent)
+```
 
 ## 3. 基础请求
-#### func Get(url string) (*Context, error)  ： get请求
-
+###3.1 get请求 
+##### func Get(url string) (*Context, error) 
 ```go
+import gt "github.com/mangenotwork/gathertool"
+
 // 无事件参数的请求
-ctx, err := gathertool.Get(`http://192.168.0.1`)
+ctx, err := gt.Get(`http://192.168.0.1`)
 log.Println(ctx.RespBodyString(), err)
 
 // 有事件参数的请求
-gathertool.Get(`http://192.168.0.1`,SucceedFunc(succeed))
+gt.Get(`http://192.168.0.1`,gt.SucceedFunc(succeed))
 func succeed(ctx *gt.Context) {
-    log.Println(ctx.RespBodyString(), ctx)
+    log.Println(ctx.RespBodyString())
 }
 ```
 
-#### func NewGet(url string) *Context ： 新建一个get请求上下文
+##### func NewGet(url string) *Context ： 新建一个get请求上下文
 ```go
-gt.NewGet(`http://192.168.0.1`).SetSucceedFunc(succeed).Do()
+ctx, _ := gt.NewGet(`http://192.168.0.1?a=aaa&b=bbb`).SetSucceedFunc(succeed)
+ctx.Do()
+
 func succeed(ctx *gt.Context) {
     log.Println(ctx.RespBodyString(), ctx)
 }
 ```
 
-#### func Post(url string, data []byte, contentType string) (*Context, error) ： Post请求
+### 3.2 Post请求
+
+#### func NewPost(url string, data []byte, contentType string) *Context  ： 新建一个post请求上下文
+```go
+ctx, _ := gt.NewPost(`https://httpbin.org/post`, []byte(`{"a":"a"}`), "application/json;")
+ctx.SetSucceedFunc(succeed)
+ctx.Do()
+func succeed(ctx *gt.Context) {
+    log.Println(ctx.RespBodyString(), ctx)
+}
+```
+
+##### func Post(url string, data []byte, contentType string) (*Context, error) 
 ```go
 ctx, err := gt.Post(`https://httpbin.org/post`, []byte(`{"a":"a"}`), "application/json;")
 log.Println(ctx.RespBodyString(), err)
@@ -158,16 +188,65 @@ ctx, err := gt.PostForm(`https://httpbin.org/post`, url.Values(`a=123`))
 log.Println(ctx.RespBodyString(), err)
 ```
 
+### 3.3 设置Header
 
-#### func NewPost(url string, data []byte, contentType string) *Context  ： 新建一个post请求上下文
+##### func (c *Context) AddHeader(k,v string) *Context
 ```go
-gt.NewPost(`https://httpbin.org/post`, []byte(`{"a":"a"}`), "application/json;").SetSucceedFunc(succeed).Do()
-func succeed(ctx *gt.Context) {
-    log.Println(ctx.RespBodyString(), ctx)
-}
+ctx, _ := gt.NewGet(`http://192.168.0.1?a=aaa&b=bbb`)
+ctx.AddHeader("key","value")
+ctx.Do()
+```
+##### func NewHeader(data map[string]string) Header
+```go
+header := gt.NewHeader(map[string]string{
+        "Accept":"*/*",
+        "X-MicrosoftAjax":"Delta=true",
+        "Accept-Encoding":"gzip, deflate",
+        "XMLHttpRequest":"XMLHttpRequest",
+        "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+})
+gt.Get(url, header)
 ```
 
-#### func NewPut(url string, data []byte, contentType string) *Context  : 新建一个put请求上下文
+### 3.4 设置Cookie
+
+##### func (c *Context) AddCookie(k, v string) *Context 
+```go
+ctx, _ := gt.NewGet(`http://192.168.0.1?a=aaa&b=bbb`)
+ctx.AddCookie("key","value")
+ctx.Do()
+```
+
+##### func NewCookie(data map[string]string) Cookie
+```go
+cookie := gt.NewCookie(map[string]string{
+        "a":"a",
+})
+gt.Get(url, cookie)
+```
+
+### 3.5 设置请求代理
+
+##### func (c *Context) SetProxy(proxyUrl string) *Context
+```
+ctx, _ := gt.NewGet(`http://192.168.0.1?a=aaa&b=bbb`)
+ctx.SetProxy("192.168.0.1")
+ctx.Do()
+```
+
+##### func (c *Context) SetProxyFunc(f func() *http.Transport) *Context
+
+### 3.6 请求后的 body
+##### func (c *Context) RespBodyString() string   字符串
+##### func (c *Context) RespBodyMap() map[string]interface{} 
+##### func (c *Context) RespBodyArr() []interface{}  
+
+### 3.7 请求唯一性确认
+##### func (c *Context) CheckReqMd5() string
+##### func (c *Context) CheckMd5() string
+
+### 3.8 Put请求
+##### func NewPut(url string, data []byte, contentType string) *Context  : 新建一个put请求上下文
 ```go
 gt.NewPut(`https://httpbin.org/put`, []byte(`{"a":"a"}`), "application/json;").SetSucceedFunc(succeed).Do()
 func succeed(ctx *gt.Context) {
@@ -175,13 +254,14 @@ func succeed(ctx *gt.Context) {
 }
 ```
 
-#### func Put(url string, data []byte, contentType string) (*Context, error)  : put请求
+##### func Put(url string, data []byte, contentType string) (*Context, error)  : put请求
 ```go
 ctx, err := gt.Put(`https://httpbin.org/put`, url.Values(`a=123`))
 log.Println(ctx.RespBodyString(), err)
 ```
 
-#### func NewDelete(url string) *Context   :  新建一个delete请求上下文
+### 3.9 Delete请求
+##### func NewDelete(url string) *Context   :  新建一个delete请求上下文
 ```go
 gt.NewDelete(`https://httpbin.org/delete`).SetSucceedFunc(succeed).Do()
 func succeed(ctx *gt.Context) {
@@ -189,13 +269,14 @@ func succeed(ctx *gt.Context) {
 }
 ```
 
-#### func Delete(url string) (*Context, error)  : delete 请求
+##### func Delete(url string) (*Context, error)  : delete 请求
 ```go
 ctx, err := gt.Delete(`https://httpbin.org/delete`)
 log.Println(ctx.RespBodyString(), err)
 ```
 
-#### func NewOptions(url string) *Context  :  新建一个options请求上下文
+### 3.10 Options请求
+##### func NewOptions(url string) *Context  :  新建一个options请求上下文
 ```go
 gt.NewOptions(`https://httpbin.org/options`).SetSucceedFunc(succeed).Do()
 func succeed(ctx *gt.Context) {
@@ -203,89 +284,32 @@ func succeed(ctx *gt.Context) {
 }
 ```
 
-#### func Options(url string) (*Context, error)   ： options请求
+##### func Options(url string) (*Context, error)   ： options请求
 ```go
 ctx, err := gt.Options(`https://httpbin.org/options`)
 log.Println(ctx.RespBodyString(), err)
 ```
 
-#### func Request(url, method string, data []byte, contentType string) (*Context, error)  ：  一个请求
+### 3.11 Request
+##### func Request(url, method string, data []byte, contentType string) (*Context, error)  ：  一个请求
 
-#### func NewRequest(url, method string, data []byte, contentType string) *Context  ：  新建一个请求上下文
+##### func NewRequest(url, method string, data []byte, contentType string) *Context  ：  新建一个请求上下文
 
-#### func Upload(url, savePath string) (*Context, error) : 下载
+### 3.12 Upload 下载
+##### func Upload(url, savePath string) (*Context, error) : 下载
 ```go
 ctx, err := gt.Upload("https://jyzd.bfsu.edu.cn/uploadfile/bfsu/front/default/upload_file_35256.pdf", "/home/mange/Desktop/upload_file_3.pdf")
 log.Println(ctx.Resp.StatusCode, err)
 ```
 
+### 3.13 Req
+
 #### func Req(request *http.Request) *Context  ：  自定义  *http.Request 的请求
 
-#### func WsClient(host, path string) (WSClient, error)  :  websocket请求
-```go
-host := "wss://xxx.api.xxx.cn"
-path := "/v1/ws?user_id=xxxx&device_id=xxxx&token=xxxxx&app_id=xxxx"
-wsc, err := gt.WsClient(host, path)
-if err != nil {
-    log.Println(err)
-    return
-}
-for {
-	err = wsc.Send([]byte(`{"type":3,"request_id":"1"}`))
-	if err != nil {
-            log.Println(err)
-            break
-        }
-	data := make([]byte,100)
-	err = wsc.Read(data)
-	if err != nil {
-		log.Println(err)
-		break
-             }
-	log.Println("data = ", string(data))
-	time.Sleep(1*time.Second)
-}
-```
 
-#### func SSHClient(user string, pass string, addr string) (*ssh.Client, error)  :  ssh 请求
-```go
-user = "root"
-password = "root123"
-addr = "192.168.0.2:22" // ip+port
-sshc, err := gt.SSHClient(user, password, addr)
-```
+## 4. Context
 
-#### [TODO]  Tcp 请求
-
-#### [TODO]  Udf 请求
-
-#### [TODO]  FTP 请求
-
-#### [TODO]  Smtp | Pop3 请求
-
-#### [TODO]  MQTT 请求
-
-#### [TODO]  grpc 等等
-
-#### type  RetryTimes int : 重试次数
-     
-#### type StartFunc func(c *Context)    : 请求开始前的方法类型
-     
-#### type SucceedFunc func(c *Context)    :  成功后的方法类型
-     
-#### type FailedFunc func(c *Context)   : 失败后的方法类型  
-
-#### type RetryFunc func(c *Context)   :  重试前的方法类型
-
-#### type EndFunc func(c *Context)   :  请求结束后的方法类型
-     
-#### type IsLog bool   :   是否开启日志
-     
-#### type ProxyUrl string  :   代理地址
-
-#### type Context struct :  请求上下文
-
-#### func (*Context) SetSucceedFunc(successFunc func(c *Context)) *Context : 设置成功后的执行方法
+##### func (*Context) SetSucceedFunc(successFunc func(c *Context)) *Context : 设置成功后的执行方法
 ```go
 gt.NewGet(`http://192.168.0.1`).SetSucceedFunc(succeed).Do()
 func succeed(ctx *gt.Context) {
@@ -293,7 +317,7 @@ func succeed(ctx *gt.Context) {
 }
 ```
 
-#### func (*Context) SetFailedFunc(failedFunc func(c *Context)) *Context : 设置错误后的方法
+##### func (*Context) SetFailedFunc(failedFunc func(c *Context)) *Context : 设置错误后的方法
 ```go
 gt.NewGet(`http://192.168.0.1`).SetFailedFunc(failed).Do()
 func failed(ctx *gt.Context) {
@@ -301,7 +325,7 @@ func failed(ctx *gt.Context) {
 }
 ```
 
-#### func (*Context) SetRetryFunc(retryFunc func(c *Context)) *Context : 设置重试，在重试前的方法
+##### func (*Context) SetRetryFunc(retryFunc func(c *Context)) *Context : 设置重试，在重试前的方法
 ```go
 gt.NewGet(`http://192.168.0.1`).SetRetryFunc(retry).Do()
 func retry(ctx *gt.Context) {
@@ -309,7 +333,7 @@ func retry(ctx *gt.Context) {
 }
 ```
 
-#### func (*Context) SetRetryTimes(times int) *Context  ：  设置重试次数
+##### func (*Context) SetRetryTimes(times int) *Context  ：  设置重试次数
 ```go
 gt.NewGet(`http://192.168.0.1`).SetRetryFunc(retry).SetRetryTimes(3).Do()
 func retry(ctx *gt.Context) {
@@ -317,76 +341,75 @@ func retry(ctx *gt.Context) {
 }
 ```
 
-#### func (*Context) Do()  ： 执行请求
+##### func (*Context) Do()  ： 执行请求
 
-#### func (*Context) RespBodyString() string  :  请求结果输出字符串
+##### func (*Context) RespBodyString() string  :  请求结果输出字符串
 ```go
 func succeed(ctx *gt.Context) {
     log.Println(ctx.RespBodyString())
 }
 ```
 
-#### func (*Context) CheckReqMd5() string :  请求的唯一md5, 请求Url+参数+methd； 使用场景确认请求的唯一性
+##### func (*Context) CheckReqMd5() string :  请求的唯一md5, 请求Url+参数+methd； 使用场景确认请求的唯一性
 
-#### func (*Context) CheckMd5() string  ：  请求的唯一md5, 请求Url+参数+methd+返回结果； 使用场景确认请求的唯一性
+##### func (*Context) CheckMd5() string  ：  请求的唯一md5, 请求Url+参数+methd+返回结果； 使用场景确认请求的唯一性
 
-#### func (*Context) AddHeader(k,v string) :  add header
+##### func (*Context) AddHeader(k,v string) :  add header
 ```go
 gt.NewGet(`http://192.168.0.1`).AddHeader("token","gathertool").Do()
 ```
 
-#### func (*Context) AddCookie(k, v string) :  add Cookie
+##### func (*Context) AddCookie(k, v string) :  add Cookie
 ```go
 gt.NewGet(`http://192.168.0.1`).AddCookie("SUBP", "0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWENAjmKyIZz1AWjDi68mRw").Do()
 ```
 
-#### func (*Context) SetProxy(proxyUrl string) :  set proxy
+##### func (*Context) SetProxy(proxyUrl string) :  set proxy
 ```go
 gt.NewGet(`http://192.168.0.1`).SetProxy("http://192.168.0.2:8888").Do()
 ```
 
-#### func (*Context) Upload(filePath string)  :  Upload 下载
+##### func (*Context) Upload(filePath string)  :  Upload 下载
 ```go
 gt.NewGet(`http://192.168.0.3:8081/img.png`).Upload("/home/Desktop/img.png").Do()
 ```   
 
-#### func (*Context) CloseLog() : close log 关闭日志
+##### func (*Context) CloseLog() : close log 关闭日志
 ```go
 gt.NewGet(`http://192.168.0.1`).CloseLog().Do()
 ``` 
 
-#### func (*Context) OpenErr2Retry() : 开启请求失败执行retry
+##### func (*Context) OpenErr2Retry() : 开启请求失败执行retry
 ```go
 gt.NewGet(`http://192.168.0.1`).OpenErr2Retry().SetRetryFunc(retry).Do()
 ``` 
 
-#### func (*Context) CloseRetry() : 关闭重试
+##### func (*Context) CloseRetry() : 关闭重试
      
-#### var CookiePool  cookie 池
+##### var CookiePool  cookie 池
 
-#### CookiePool.Add(cookie *http.Cookie)  添加
+##### CookiePool.Add(cookie *http.Cookie)  添加
 
-#### CookiePool.Get() *http.Cookie   随机获取
+##### CookiePool.Get() *http.Cookie   随机获取
 
-#### type Task struct   任务对象
+##### type Task struct   任务对象
     
-#### func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task  ： 创建一个发送任务
+##### func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task  ： 创建一个发送任务
 
-
-## 4. 队列与高并发请求
+## 5. 队列与高并发请求
 > gathertool 采用本地队列加上多个goroutine实现高并发， 每个并发函数默认开启了runtime.GOMAXPROCS(runtime.NumCPU())会充分利用每个cpu核心；
 
-#### func NewQueue() TodoQueue : 新建一个队列
+##### func NewQueue() TodoQueue : 新建一个队列
 
-#### func NewUploadQueue() TodoQueue  新建一个下载队列
+##### func NewUploadQueue() TodoQueue  新建一个下载队列
 
-#### type TodoQueue interface 队列接口
+##### type TodoQueue interface 队列接口
 
-#### func (*Queue) Add(task *Task) error   添加队列
+##### func (*Queue) Add(task *Task) error   添加队列
 
-#### func (*Queue) Poll() *Task  移除队列中最前面的额元素
+##### func (*Queue) Poll() *Task  移除队列中最前面的额元素
 
-#### func (*Queue) Clear() bool   清除队列
+##### func (*Queue) Clear() bool   清除队列
 
 ```go
 var queue = gt.NewQueue() //全局声明抓取任务队列
@@ -414,7 +437,7 @@ html := string(cxt.RespBody)
 	})
 ```
 
-#### func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{})  并发执行Get,直到队列任务为空
+##### func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{})  并发执行Get,直到队列任务为空
      // @jobNumber 并发数，
      // @queue 全局队列，
      // @client 单个并发任务的client，
@@ -429,23 +452,24 @@ gt.StartJobGet(100,queue,
 )
 ```
 
-#### func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}) 开始运行并发Post,直到队列任务为空
+##### func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}) 开始运行并发Post,直到队列任务为空
 
-## 5. 压力测试
 
-#### func NewTestUrl(url, method string, sum int64, total int) *StressUrl ： 实例化一个新的url压测
+## 6. 压力测试
+
+##### func NewTestUrl(url, method string, sum int64, total int) *StressUrl ： 实例化一个新的url压测
+```go
     // @method :请求类型
     // @sum  : 总请求次数
     // @total : 并发数
-```go
 url := "http://192.168.0.9:18084/static_service/v1/allow/school/page"
 test := gt.NewTestUrl(url,"Get",1000,500)
 test.Run()
 ```
 
-#### type StressUrl struct  ： 压力测试一个url
+##### type StressUrl struct  ： 压力测试一个url
 
-#### func (*StressUrl) Run(vs ...interface{})  ： 运行压测， vs接收请求的参数，如header 等等
+##### func (*StressUrl) Run(vs ...interface{})  ： 运行压测， vs接收请求的参数，如header 等等
 ```go
 url4 := "http://ggzyjy.sc.gov.cn/WebBuilder/frontAppAction.action?cmd=addPageView"
 test4 := gt.NewTestUrl(url4,"Post",100,10)
@@ -459,10 +483,62 @@ test4.Run(gt.SucceedFunc(func(c *gt.Context) {
 }))
 ```
      
-#### func (*StressUrl) SetJson(str string)  ： 设置压测请求的json参数
+##### func (*StressUrl) SetJson(str string)  ： 设置压测请求的json参数
+
+
+## 7. websocket
+
+##### func WsClient(host, path string) (WSClient, error)  :  websocket请求
+```go
+host := "wss://xxx.api.xxx.cn"
+path := "/v1/ws?user_id=xxxx&device_id=xxxx&token=xxxxx&app_id=xxxx"
+wsc, err := gt.WsClient(host, path)
+if err != nil {
+    log.Println(err)
+    return
+}
+for {
+	err = wsc.Send([]byte(`{"type":3,"request_id":"1"}`))
+	if err != nil {
+            log.Println(err)
+            break
+        }
+	data := make([]byte,100)
+	err = wsc.Read(data)
+	if err != nil {
+		log.Println(err)
+		break
+             }
+	log.Println("data = ", string(data))
+	time.Sleep(1*time.Second)
+}
+```
+
+
+## 8. ssh
+
+#### func SSHClient(user string, pass string, addr string) (*ssh.Client, error)  :  ssh 请求
+```go
+user = "root"
+password = "root123"
+addr = "192.168.0.2:22" // ip+port
+sshc, err := gt.SSHClient(user, password, addr)
+```
+
+## 9. Tcp
+#### [TODO]  Tcp 请求
+
+## 10. Udf
+#### [TODO]  Udf 请求
+
+
+
+
+
+
 
      
-## 6. 正则提取
+## 11. 正则提取
 
 #### func RegHtmlA(str string)[]string 
 
@@ -501,7 +577,7 @@ test4.Run(gt.SucceedFunc(func(c *gt.Context) {
 #### func RegHtmlHrefTxt(str string) []string 
 
 
-## 7. 常用函数
+## 12. 常用函数
 
 #### func StringValue(i interface{}) string 任何类型返回值字符串形式
 
@@ -582,7 +658,7 @@ test4.Run(gt.SucceedFunc(func(c *gt.Context) {
 #### func TickerRun(t time.Duration, runFirst bool, f func())  ：  间隔运行
      // t: 间隔时间，  f: 运行的方法
 
-## 8. redis
+## 13. redis
 > redis 的方法使用 github.com/garyburd/redigo/redis
 
 #### func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds)   ： 实例化redis对象
@@ -606,17 +682,19 @@ gt.RedisDELKeys(rds, "in:*", 1000)
 
 ```
 
-## 9. mysql
+## 14. mysql
 > mysql 的方法使用 github.com/go-sql-driver/mysql
 
 
-## 10. mongo
+## 15. mongo
 > mongo 的方法使用 go.mongodb.org/mongo-driver
-
-## 11. github.com/PuerkitoBio/goquery
-> 提取数据推荐使用 github.com/PuerkitoBio/goquery
-
-## 
-    
+ 
      
 
+#### [TODO]  FTP 请求
+
+#### [TODO]  Smtp | Pop3 请求
+
+#### [TODO]  MQTT 请求
+
+#### [TODO]  grpc 等等

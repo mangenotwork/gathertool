@@ -134,6 +134,7 @@ func (h Header) Delete(key string) Header {
 }
 
 type Cookie map[string]string
+
 func NewCookie(data map[string]string) Cookie {
 	return data
 }
