@@ -132,7 +132,7 @@ gt.SetAgent(LinuxAgent, userAgent)
 ```
 
 ## 3. 基础请求
-###3.1 get请求 
+### 3.1 get请求 
 ##### func Get(url string) (*Context, error) 
 ```go
 import gt "github.com/mangenotwork/gathertool"
@@ -160,7 +160,7 @@ func succeed(ctx *gt.Context) {
 
 ### 3.2 Post请求
 
-#### func NewPost(url string, data []byte, contentType string) *Context  ： 新建一个post请求上下文
+##### func NewPost(url string, data []byte, contentType string) *Context  ： 新建一个post请求上下文
 ```go
 ctx, _ := gt.NewPost(`https://httpbin.org/post`, []byte(`{"a":"a"}`), "application/json;")
 ctx.SetSucceedFunc(succeed)
@@ -176,13 +176,13 @@ ctx, err := gt.Post(`https://httpbin.org/post`, []byte(`{"a":"a"}`), "applicatio
 log.Println(ctx.RespBodyString(), err)
 ```
 
-#### func PostJson(url string, jsonStr string) (*Context, error) : Post请求 - json参数
+##### func PostJson(url string, jsonStr string) (*Context, error) : Post请求 - json参数
 ```go
 ctx, err := gt.PostJson(`https://httpbin.org/post`, `{"a":"a"}`)
 log.Println(ctx.RespBodyString(), err)
 ```
 
-#### func PostForm(url string, data url.Values) (*Context, error)  : Post请求 - Form 
+##### func PostForm(url string, data url.Values) (*Context, error)  : Post请求 - Form 
 ```go
 ctx, err := gt.PostForm(`https://httpbin.org/post`, url.Values(`a=123`))
 log.Println(ctx.RespBodyString(), err)

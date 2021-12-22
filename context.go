@@ -313,6 +313,7 @@ func (c *Context) Do() func(){
 	return nil
 }
 
+// RespBodyString
 func (c *Context) RespBodyString() string {
 	if c.RespBody != nil {
 		return string(c.RespBody)
@@ -320,6 +321,19 @@ func (c *Context) RespBodyString() string {
 	return ""
 }
 
+// Html Resp Body -> html string
+func (c *Context) Html() string {
+	html := c.RespBodyString()
+	return strings.NewReplacer(
+		"&amp;", "&",
+		"&lt;", "<",
+		"&gt;", ">",
+		"&#34;", `"`,
+		"&#39;", "'",
+	).Replace(html)
+}
+
+// RespBodyArr
 func (c *Context) RespBodyMap() map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal(c.RespBody, &tempMap)
@@ -330,6 +344,7 @@ func (c *Context) RespBodyMap() map[string]interface{} {
 	return tempMap
 }
 
+// RespBodyArr
 func (c *Context) RespBodyArr() []interface{} {
 	var tempArr []interface{}
 	err := json.Unmarshal(c.RespBody, &tempArr)
@@ -340,6 +355,7 @@ func (c *Context) RespBodyArr() []interface{} {
 	return tempArr
 }
 
+// CheckReqMd5 check req Md5
 func (c *Context) CheckReqMd5() string {
 	var buffer bytes.Buffer
 	urlStr := c.Req.URL.String()
@@ -353,6 +369,7 @@ func (c *Context) CheckReqMd5() string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+// CheckMd5 check Md5
 func (c *Context) CheckMd5() string {
 	var buffer bytes.Buffer
 	urlStr := c.Req.URL.String()

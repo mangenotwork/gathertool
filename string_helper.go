@@ -1,8 +1,8 @@
 /*
 	Description : 数据类型相关的操作
 	Author : ManGe
-	Version : v0.2
-	Date : 2021-10-13
+	Version : v0.3
+	Date : 2021-12-22
 */
 
 package gathertool
@@ -11,12 +11,17 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/ianaindex"
+	"golang.org/x/text/transform"
 	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
 	"reflect"
 	"runtime"
@@ -317,15 +322,158 @@ func Uint82Str(bs []uint8) string {
 }
 
 // Str2Bytes string -> []byte
-func Str2Bytes(s string) []byte {
+func Str2Byte(s string) []byte {
 	x := (*[2]uintptr)(unsafe.Pointer(&s))
 	h := [3]uintptr{x[0], x[1], x[1]}
 	return *(*[]byte)(unsafe.Pointer(&h))
 }
 
-// Bytes2Str []byte -> string
-func Bytes2Str(b []byte) string {
+// Byte2Str []byte -> string
+func Byte2Str(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
+}
+
+// bool -> []byte
+func Bool2Byte(b bool) []byte {
+	if b == true {
+		return []byte{1}
+	}
+	return []byte{0}
+}
+
+// []byte -> bool
+func Byte2Bool(b []byte) bool {
+	if len(b) == 0 || bytes.Compare(b, make([]byte, len(b))) == 0 {
+		return false
+	}
+	return true
+}
+
+// int -> []byte
+func Int2Byte(i int) []byte {
+	b := make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, uint32(i))
+	return b
+}
+
+// []byte -> int
+func Byte2Int(b []byte) int {
+	return int(binary.LittleEndian.Uint32(b))
+}
+
+// int64 -> []byte
+func Int642Byte(i int64) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(i))
+	return b
+}
+
+// []byte -> int64
+func Byte2Int64(b []byte) int64 {
+	return int64(binary.LittleEndian.Uint64(b))
+}
+
+// float32 -> []byte
+func Float322Byte(f float32) []byte {
+	b := make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, Float322Uint32(f))
+	return b
+}
+
+// float32 -> uint32
+func Float322Uint32(f float32) uint32 {
+	return math.Float32bits(f)
+}
+
+// []byte -> float32
+func Byte2Float32(b []byte) float32 {
+	return math.Float32frombits(binary.LittleEndian.Uint32(b))
+}
+
+// float64 -> []byte
+func Float642Byte(f float64) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, Float642Uint64(f))
+	return b
+}
+
+// float64 -> uint64
+func Float642Uint64(f float64) uint64 {
+	return math.Float64bits(f)
+}
+
+// []byte -> float64
+func Byte2Float64(b []byte) float64 {
+	return math.Float64frombits(binary.LittleEndian.Uint64(b))
+}
+
+func EncodeByte(v interface{}) []byte {
+	switch value := v.(type) {
+	case int, int8, int16, int32 :
+		return Int2Byte(value.(int))
+	case int64:
+		return Int642Byte(value)
+	case string:
+		return Str2Byte(value)
+	case bool:
+		return Bool2Byte(value)
+	case float32:
+		return Float322Byte(value)
+	case float64:
+		return Float642Byte(value)
+	}
+	return []byte("")
+}
+
+func DecodeByte(b []byte) (interface{}, error) {
+	var values interface{}
+	buf := bytes.NewBuffer(b)
+	err := binary.Read(buf, binary.BigEndian, values)
+	return values, err
+}
+
+
+// []byte -> []uint8 (bit)
+func Byte2Bit(b []byte) []uint8 {
+	bits := make([]uint8, 0)
+	for _, v := range b {
+		bits = bits2Uint(bits, uint(v), 8)
+	}
+	return bits
+}
+
+func bits2Uint(bits []uint8, ui uint, l int) []uint8 {
+	a := make([]uint8, l)
+	for i := l - 1; i >= 0; i-- {
+		a[i] = uint8(ui & 1)
+		ui >>= 1
+	}
+	if bits != nil {
+		return append(bits, a...)
+	}
+	return a
+}
+
+// []uint8 -> []byte
+func Bit2Byte(b []uint8) []byte {
+	if len(b)%8 != 0 {
+		for i := 0; i < len(b)%8; i++ {
+			b = append(b, 0)
+		}
+	}
+	by := make([]byte, 0)
+	for i := 0; i < len(b); i += 8 {
+		by = append(b, byte(bitsToUint(b[i:i+8])))
+	}
+	return by
+}
+
+func bitsToUint(bits []uint8) uint {
+	v := uint(0)
+	for _, i := range bits {
+		v = v<<1 | uint(i)
+	}
+	return v
 }
 
 // FileSizeFormat 字节的单位转换 保留两位小数
@@ -430,6 +578,8 @@ func P2E() {
 	}()
 }
 
+// ============================================  转码
+
 type Charset string
 
 const (
@@ -509,6 +659,135 @@ func Base64UrlDecode(str string) (string,error){
 	return string(b), err
 }
 
+func convert(dstCharset string, srcCharset string, src string) (dst string, err error) {
+	if dstCharset == srcCharset {
+		return src, nil
+	}
+	dst = src
+	// Converting `src` to UTF-8.
+	if srcCharset != "UTF-8" {
+		if e := getEncoding(srcCharset); e != nil {
+			tmp, err := ioutil.ReadAll(
+				transform.NewReader(bytes.NewReader([]byte(src)), e.NewDecoder()),
+			)
+			if err != nil {
+				return "", err
+			}
+			src = string(tmp)
+		} else {
+			return dst, err
+		}
+	}
+	// Do the converting from UTF-8 to `dstCharset`.
+	if dstCharset != "UTF-8" {
+		if e := getEncoding(dstCharset); e != nil {
+			tmp, err := ioutil.ReadAll(
+				transform.NewReader(bytes.NewReader([]byte(src)), e.NewEncoder()),
+			)
+			if err != nil {
+				return "", err
+			}
+			dst = string(tmp)
+		} else {
+			return dst, err
+		}
+	} else {
+		dst = src
+	}
+	return dst, nil
+}
+
+var (
+	// Alias for charsets.
+	charsetAlias = map[string]string{
+		"HZGB2312": "HZ-GB-2312",
+		"hzgb2312": "HZ-GB-2312",
+		"GB2312":   "HZ-GB-2312",
+		"gb2312":   "HZ-GB-2312",
+	}
+)
+
+func getEncoding(charset string) encoding.Encoding {
+	if c, ok := charsetAlias[charset]; ok {
+		charset = c
+	}
+	enc, err := ianaindex.MIB.Encoding(charset)
+	if err != nil {
+		log.Println(err)
+	}
+	return enc
+}
+
+// ToUTF8
+func ToUTF8(srcCharset string, src string) (dst string, err error) {
+	return convert("UTF-8", srcCharset, src)
+}
+
+// UTF8To
+func UTF8To(dstCharset string, src string) (dst string, err error) {
+	return convert(dstCharset, "UTF-8", src)
+}
+
+// ToUTF16
+func ToUTF16(srcCharset string, src string) (dst string, err error) {
+	return convert("UTF-16", srcCharset, src)
+}
+
+// UTF16To
+func UTF16To(dstCharset string, src string) (dst string, err error) {
+	return convert(dstCharset, "UTF-16", src)
+}
+
+// ToBIG5
+func ToBIG5(srcCharset string, src string) (dst string, err error) {
+	return convert("big5", srcCharset, src)
+}
+
+// BIG5To
+func BIG5To(dstCharset string, src string) (dst string, err error) {
+	return convert(dstCharset, "big5", src)
+}
+
+// ToGDK
+func ToGDK(srcCharset string, src string) (dst string, err error) {
+	return convert("gbk", srcCharset, src)
+}
+
+// GDKTo
+func GDKTo(dstCharset string, src string) (dst string, err error) {
+	return convert(dstCharset, "gbk", src)
+}
+
+// ToGB18030
+func ToGB18030(srcCharset string, src string) (dst string, err error) {
+	return convert("gb18030", srcCharset, src)
+}
+
+// GB18030To
+func GB18030To(dstCharset string, src string) (dst string, err error) {
+	return convert(dstCharset, "gb18030", src)
+}
+
+// ToGB2312
+func ToGB2312(srcCharset string, src string) (dst string, err error) {
+	return convert("GB2312", srcCharset, src)
+}
+
+// GB2312To
+func GB2312To(dstCharset string, src string) (dst string, err error) {
+	return convert(dstCharset, "GB2312", src)
+}
+
+// ToHZGB2312
+func ToHZGB2312(srcCharset string, src string) (dst string, err error) {
+	return convert("HZGB2312", srcCharset, src)
+}
+
+// HZGB2312To
+func HZGB2312To(dstCharset string, src string) (dst string, err error) {
+	return convert(dstCharset, "HZGB2312", src)
+}
+
 // ================================================ Set
 // 可以用于去重
 type Set map[string]struct{}
@@ -583,11 +862,6 @@ func PathExists(path string) {
 	if err != nil && os.IsNotExist(err) {
 		os.MkdirAll(path, 0777)
 	}
-}
-
-// Byte2Str []byte -> string
-func Byte2Str(b []byte) string {
-	return *(*string)(unsafe.Pointer(&b))
 }
 
 // ByteToBinaryString  字节 -> 二进制字符串
@@ -736,13 +1010,54 @@ func MapStr2Any(m map[string]string) map[string]interface{} {
 	return dest
 }
 
+// Exists
+func Exists(path string) bool {
+	if stat, err := os.Stat(path); stat != nil && !os.IsNotExist(err) {
+		return true
+	}
+	return false
+}
+
+// IsDir
+func IsDir(path string) bool {
+	s, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
+}
+
+// Pwd
+func Pwd() string {
+	path, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	return path
+}
+
+// Chdir
+func Chdir(dir string) error {
+	return os.Chdir(dir)
+}
+
+// IsFile
+func IsFile(path string) bool {
+	s, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !s.IsDir()
+}
 
 const (
 	KiB = 1024
 	MiB = KiB * 1024
 	GiB = MiB * 1024
+	TiB = GiB * 1024
 )
 
+// HumanFriendlyTraffic
 func HumanFriendlyTraffic(bytes uint64) string {
 	if bytes <= KiB {
 		return fmt.Sprintf("%d B", bytes)
@@ -753,9 +1068,53 @@ func HumanFriendlyTraffic(bytes uint64) string {
 	if bytes <= GiB {
 		return fmt.Sprintf("%.2f MiB", float32(bytes)/MiB)
 	}
-	return fmt.Sprintf("%.2f GiB", float32(bytes)/GiB)
+	if bytes <= TiB {
+		return fmt.Sprintf("%.2f GiB", float32(bytes)/GiB)
+	}
+	return fmt.Sprintf("%.2f TiB", float32(bytes)/TiB)
 }
 
+// StrToSize
+func StrToSize(sizeStr string) int64 {
+	i := 0
+	for ; i < len(sizeStr); i++ {
+		if sizeStr[i] == '.' || (sizeStr[i] >= '0' && sizeStr[i] <= '9') {
+			continue
+		} else {
+			break
+		}
+	}
+	var (
+		unit      = sizeStr[i:]
+		number, _ = strconv.ParseFloat(sizeStr[:i], 64)
+	)
+	if unit == "" {
+		return int64(number)
+	}
+	switch strings.ToLower(unit) {
+	case "b", "bytes":
+		return int64(number)
+	case "k", "kb", "ki", "kib", "kilobyte":
+		return int64(number * 1024)
+	case "m", "mb", "mi", "mib", "mebibyte":
+		return int64(number * 1024 * 1024)
+	case "g", "gb", "gi", "gib", "gigabyte":
+		return int64(number * 1024 * 1024 * 1024)
+	case "t", "tb", "ti", "tib", "terabyte":
+		return int64(number * 1024 * 1024 * 1024 * 1024)
+	case "p", "pb", "pi", "pib", "petabyte":
+		return int64(number * 1024 * 1024 * 1024 * 1024 * 1024)
+	case "e", "eb", "ei", "eib", "exabyte":
+		return int64(number * 1024 * 1024 * 1024 * 1024 * 1024 * 1024)
+	case "z", "zb", "zi", "zib", "zettabyte":
+		return int64(number * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024)
+	case "y", "yb", "yi", "yib", "yottabyte":
+		return int64(number * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024)
+	case "bb", "brontobyte":
+		return int64(number * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024)
+	}
+	return -1
+}
 
 
 // TODO 二进制字符串 -> 字符串
