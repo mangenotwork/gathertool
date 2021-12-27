@@ -18,6 +18,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -174,7 +175,7 @@ func (c *Context) Do() func(){
 	//重试验证
 	c.times++
 	if c.times > c.MaxTimes{
-		logerTimes(2 + int(c.times), "【日志】 请求失败操过", c.MaxTimes, "次了,结束重试操作；")
+		Error( "【日志】 请求失败操过", c.MaxTimes, "次了,结束重试操作；")
 
 		// 超过了重试次数，就算失败，则执行失败方法
 		if c.FailedFunc != nil{
@@ -207,10 +208,10 @@ func (c *Context) Do() func(){
 			strings.Contains(c.Err.Error(), ("To Many Requests")) ||
 			strings.Contains(c.Err.Error(), ("EOF")) ||
 			strings.Contains(c.Err.Error(), ("connection timed out")) ){
-		loger("【日志】 请求 超时 = ", c.Err)
+		Error("【日志】 请求 超时 = ", c.Err)
 
 		if c.RetryFunc != nil && !c.isRetry {
-			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
@@ -221,11 +222,11 @@ func (c *Context) Do() func(){
 
 	// 其他错误
 	if c.Err != nil {
-		logerTimes(2 + int(c.times), "【日志】 请求 err = ", c.Err)
+		Error("【日志】 请求 err = ", c.Err)
 
 		// 指定的失败都执行 retry
 		if c.err2retry && c.RetryFunc != nil && !c.isRetry {
-			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
@@ -248,13 +249,13 @@ func (c *Context) Do() func(){
 		}
 	}(c)
 
-	logerTimes(2 + int(c.times), "【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
+	InfoTimes( 4,"【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	v,ok := StatusCodeMap[c.Resp.StatusCode]
 	switch v {
 	case "success":
-		logerTimes(2 + int(c.times), "【日志】 执行 success 事件")
+		InfoTimes(4, "【日志】 执行 success 事件")
 		// 请求后的结果
 		body, err := ioutil.ReadAll(c.Resp.Body)
 		if err != nil{
@@ -271,7 +272,7 @@ func (c *Context) Do() func(){
 	case "retry":
 		c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 		if c.RetryFunc != nil && !c.isRetry {
-			logerTimes(2 + int(c.times), "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
@@ -279,19 +280,19 @@ func (c *Context) Do() func(){
 
 	case "fail":
 		if c.FailedFunc != nil{
-			logerTimes(2 + int(c.times), "【日志】 执行 failed 事件")
+			InfoTimes(4, "【日志】 执行 failed 事件")
 			c.FailedFunc(c)
 		}
 
 	case "start":
 		if c.StartFunc != nil {
-			logerTimes(2 + int(c.times), "【日志】 执行 请求前的方法")
+			InfoTimes(4, "【日志】 执行 请求前的方法")
 			c.StartFunc(c)
 		}
 
 	case "end":
 		if c.EndFunc != nil {
-			logerTimes(2 + int(c.times), "【日志】 执行 请求结束后的方法")
+			InfoTimes(4, "【日志】 执行 请求结束后的方法")
 			c.EndFunc(c)
 		}
 
@@ -313,7 +314,7 @@ func (c *Context) Do() func(){
 	return nil
 }
 
-// RespBodyString
+// Resp Body -> String
 func (c *Context) RespBodyString() string {
 	if c.RespBody != nil {
 		return string(c.RespBody)
@@ -321,7 +322,7 @@ func (c *Context) RespBodyString() string {
 	return ""
 }
 
-// Html Resp Body -> html string
+// Resp Body -> html string
 func (c *Context) Html() string {
 	html := c.RespBodyString()
 	return strings.NewReplacer(
@@ -333,23 +334,23 @@ func (c *Context) Html() string {
 	).Replace(html)
 }
 
-// RespBodyArr
+// Resp Body -> Map
 func (c *Context) RespBodyMap() map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal(c.RespBody, &tempMap)
 	if err != nil {
-		loger(err)
+		Error(err)
 		return nil
 	}
 	return tempMap
 }
 
-// RespBodyArr
+// Resp Body -> Arr
 func (c *Context) RespBodyArr() []interface{} {
 	var tempArr []interface{}
 	err := json.Unmarshal(c.RespBody, &tempArr)
 	if err != nil {
-		loger(err)
+		Error(err)
 		return nil
 	}
 	return tempArr
@@ -430,11 +431,17 @@ func (c *Context) Upload(filePath string) func(){
 	c.Resp,c.Err = c.Client.Do(c.Req)
 
 	// 是否超时
-	// 自 Go 1.6开始， 所有的超时导致的网络错误都可以通过net.Error的Timeout()方法检查。
-	// if err, ok := err.(net.Error); ok && err.Timeout() {
-	//    ……
-	// }
+	// Go 1.6 以下
 	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)"){
+		if c.RetryFunc != nil {
+			c.RetryFunc(c)
+			return c.Do()
+		}
+		return nil
+	}
+
+	// 自 Go 1.6开始， 所有的超时导致的网络错误都可以通过net.Error的Timeout()方法检查。
+	if err, ok := c.Err.(net.Error); ok && err.Timeout() {
 		if c.RetryFunc != nil {
 			c.RetryFunc(c)
 			return c.Do()

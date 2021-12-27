@@ -129,7 +129,7 @@ func (cbc *cbcObj) getBlock(key []byte) (block cipher.Block, err error) {
 func (cbc *cbcObj) Encrypt(str, key []byte) ([]byte, error) {
 	block, err := cbc.getBlock(key)
 	if err != nil {
-		loger("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
+		Error("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
@@ -145,7 +145,7 @@ func (cbc *cbcObj) Encrypt(str, key []byte) ([]byte, error) {
 func (cbc *cbcObj) Decrypt(str, key []byte) ([]byte, error) {
 	block, err := cbc.getBlock(key)
 	if err != nil {
-		loger("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
+		Error("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockMode := cipher.NewCBCDecrypter(block, cbc.iv)
@@ -186,7 +186,7 @@ func (ecb *ecbObj) getBlock(key []byte) (block cipher.Block, err error) {
 func (ecb *ecbObj) Encrypt(str, key []byte) ([]byte, error) {
 	block, err := ecb.getBlock(key)
 	if err != nil {
-		loger("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
+		Error("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
@@ -229,7 +229,7 @@ func (ecb *ecbObj) pkcs5PaddingAes(ciphertext []byte, blockSize int) []byte {
 func (ecb *ecbObj) Decrypt(str, key []byte) ([]byte, error) {
 	block, err := ecb.getBlock(key)
 	if err != nil {
-		loger("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
+		Error("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
@@ -296,7 +296,7 @@ func (cfb *cfbObj) Encrypt(str, key []byte) ([]byte, error) {
 	P2E()
 	block, err := cfb.getBlock(key)
 	if err != nil {
-		loger("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
+		Error("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
 		return nil, err
 	}
 
@@ -329,7 +329,7 @@ func (cfb *cfbObj) Decrypt(str, key []byte) ([]byte, error) {
 	P2E()
 	block, err := cfb.getBlock(key)
 	if err != nil {
-		loger("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
+		Error("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
 		return nil, err
 	}
 
@@ -388,7 +388,7 @@ func (ctr *ctrObj) crypto(str, key []byte) ([]byte, error) {
 	P2E()
 	block,err:=ctr.getBlock(key)
 	if err != nil {
-		loger("[AES-CTR] ERROR:" +err.Error())
+		Error("[AES-CTR] ERROR:" +err.Error())
 		return []byte(""), err
 	}
 	//指定分组模式

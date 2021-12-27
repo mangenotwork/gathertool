@@ -179,11 +179,11 @@ func (s *StressUrl) Run(vs ...interface{}){
 		//s.sumReqTime = s.sumReqTime + v.ReqTime
 	}
 
-	loger("状态码分布: ", fb)
+	Info("状态码分布: ", fb)
 	avg := float64(s.sumReqTime)/float64(s.Sum)
 	avg = avg/(1000*1000)
-	loger("平均用时： ", avg,"ms")
-	loger("最高用时: ", float64(maxTime)/(1000*1000),"ms")
-	loger("最低用时: ", float64(minTime)/(1000*1000),"ms")
-	loger("执行完成！！！")
+	Info("平均用时： ", avg,"ms")
+	Info("最高用时: ", float64(maxTime)/(1000*1000),"ms")
+	Info("最低用时: ", float64(minTime)/(1000*1000),"ms")
+	Info("执行完成！！！")
 }

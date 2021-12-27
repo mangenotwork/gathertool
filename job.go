@@ -19,22 +19,22 @@ func StartJob(jobNumber int, queue TodoQueue,f func(task *Task)){
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
 		go func(i int){
-			loger("启动第",i ,"个任务")
+			Info("启动第",i ,"个任务")
 			defer wg.Done()
 			for {
 				if queue.IsEmpty() {
 					break
 				}
 				task := queue.Poll()
-				loger("第", i, "个任务取的值： ", task)
+				Info("第", i, "个任务取的值： ", task)
 
 				f(task)
 			}
-			loger("第",i ,"个任务结束！！")
+			Info("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
-	loger("执行完成！！！")
+	Info("执行完成！！！")
 }
 
 // 设置遇到错误执行 Retry 事件
@@ -78,14 +78,14 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
 		go func(i int){
-			loger("启动第",i ,"个任务")
+			Info("启动第",i ,"个任务")
 			defer wg.Done()
 			for {
 				if queue.IsEmpty(){
 					break
 				}
 				task := queue.Poll()
-				loger("第",i,"个任务取的值： ", task)
+				Info("第",i,"个任务取的值： ", task)
 				ctx := NewGet(task.Url, task)
 				if client != nil {
 					ctx.Client = client
@@ -116,11 +116,11 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 				}
 
 			}
-			loger("第",i ,"个任务结束！！")
+			Info("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
-	loger("执行完成！！！")
+	Info("执行完成！！！")
 }
 
 
@@ -137,7 +137,6 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 	for _,v := range vs{
 		switch vv := v.(type) {
 		case *http.Client:
-			loger("have Client")
 			client = vv
 		case SucceedFunc:
 			succeed = vv
@@ -154,14 +153,14 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 	for job:=0;job<jobNumber;job++{
 		wg.Add(1)
 		go func(i int){
-			loger("启动第",i ,"个任务")
+			Info("启动第",i ,"个任务")
 			defer wg.Done()
 			for {
 				if queue.IsEmpty(){
 					break
 				}
 				task := queue.Poll()
-				loger("第",i,"个任务取的值： ", task, task.HeaderMap)
+				Info("第",i,"个任务取的值： ", task, task.HeaderMap)
 				ctx := NewPost(task.Url, []byte(task.JsonParam), "application/json;", task)
 				if client != nil {
 					ctx.Client = client
@@ -192,11 +191,11 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 				}
 
 			}
-			loger("第",i ,"个任务结束！！")
+			Info("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
-	loger("执行完成！！！")
+	Info("执行完成！！！")
 }
 
 // CPUMax 多核执行

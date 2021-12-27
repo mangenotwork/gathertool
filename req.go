@@ -48,7 +48,7 @@ type Sleep time.Duration
 func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
 	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
 	if err != nil{
-		loger("err->", err)
+		Error("err->", err)
 		return nil, err
 	}
 	request.Header.Set("Content-Type", contentType)
@@ -61,7 +61,7 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 func NewRequest(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
 	if err != nil{
-		loger("err->", err)
+		Error("err->", err)
 		return nil
 	}
 	request.Header.Set("Content-Type", contentType)
@@ -263,7 +263,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 	if proxyUrl != "" {
 		proxy, err := url.Parse(proxyUrl)
 		if err != nil {
-			loger("设置代理失败:", err)
+			Error("设置代理失败:", err)
 		}else{
 			client.Transport =  &http.Transport{Proxy: http.ProxyURL(proxy)}
 		}

@@ -6,10 +6,10 @@
  █ ▀█▀ ██  ▄█▀ ██   ██  ██     ▀█▄    ██  ██
 ▄█▄ █ ▄██▄ ▀█▄▄▀█▀ ▄██▄ ██▄     ▀▀█▄▄▄▀█   ▀█▄▄▄▀
 
-	Description : gathertool 网络请求，爬虫，测试 实用库
+	Description : gathertool 轻量级爬虫，接口测试，压力测试框架
 	Author : ManGe
-	Version : v0.3
-	Date : 2021-1218
+	Version : v0.2
+	Date : 20211227
 
 */
 

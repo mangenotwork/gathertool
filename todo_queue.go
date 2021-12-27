@@ -150,7 +150,7 @@ func (q *Queue) IsEmpty() bool {
 }
 
 func (q *Queue) Print() {
-	loger(q.list)
+	Info(q.list)
 }
 
 

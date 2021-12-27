@@ -20,18 +20,16 @@ type Csv struct {
 
 // 新创建一个csv对象
 func NewCSV(fileName string) (*Csv,error) {
-	//创建文件
 	f, err := os.Create(fileName)
 	defer f.Close()
 	if err != nil {
-		loger(err.Error())
+		Error(err.Error())
 		return nil,err
 	}
 	_,_ = f.WriteString("\xEF\xBB\xBF")
 	csvObj := &Csv{FileName: fileName}
 	csvObj.W = csv.NewWriter(f)
 	csvObj.R = csv.NewReader(f)
-
 	return csvObj,nil
 }
 

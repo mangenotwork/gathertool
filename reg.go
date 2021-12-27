@@ -171,7 +171,6 @@ func runFuncName()string{
 func regFind(funcName, txt string, property ...string) (dataList []string) {
 	regStr, ok := regMap[funcName]
 	if !ok{
-		loger("reg func is not")
 		return
 	}
 	reg := regexp.MustCompile(regStr)
@@ -237,7 +236,6 @@ func RegHtmlTbody(str string, property ...string) []string { return regFind(runF
 func regFindTxt(funcName, txt string, property ...string) (dataList []string) {
 	regStr, ok := regMap[funcName]
 	if !ok{
-		loger("reg func is not")
 		return
 	}
 	reg := regexp.MustCompile(regStr)
@@ -292,12 +290,11 @@ func RegHtmlHTxt(str, typeH string, property ...string) []string {
 func replace(funcName, rest string) string {
 	regStr, ok := regMap[funcName]
 	if !ok{
-		loger("reg func is not")
 		return ""
 	}
 	re, err := regexp.Compile(regStr)
 	if err != nil {
-		loger(err)
+		Error(err)
 		return ""
 	}
 	return re.ReplaceAllString(rest, "")
@@ -355,7 +352,7 @@ func RegDelHtmlTbody(str string, property ...string) string { return replace("Re
 func isHaveStr(regStr, rest string) bool {
 	isHave, err := regexp.MatchString(regStr, rest)
 	if err != nil {
-		loger(err)
+		Error(err)
 		return false
 	}
 	return isHave
@@ -365,7 +362,7 @@ func isHaveStr(regStr, rest string) bool {
 func isHave(funcName, rest string) bool {
 	regStr, ok := regMap[funcName]
 	if !ok{
-		loger("reg func is not")
+		Error("reg func is not")
 		return false
 	}
 	return isHaveStr(regStr, rest)
@@ -378,7 +375,7 @@ func IsNumber(str string) bool { return isHave(runFuncName(), str) }
 func IsNumber2Len(str string, l int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
-		loger("reg func is not")
+		Error("reg func is not")
 		return false
 	}
 	return isHaveStr(fmt.Sprintf(regStr, l), str)
@@ -388,7 +385,7 @@ func IsNumber2Len(str string, l int) bool {
 func IsNumber2Heard(str string, n int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
-		loger("reg func is not")
+		Error("reg func is not")
 		return false
 	}
 	return isHaveStr(fmt.Sprintf(regStr, n), str)
@@ -401,7 +398,7 @@ func IsFloat(str string) bool { return isHave(runFuncName(), str) }
 func IsFloat2Len(str string, l int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
-		loger("reg func is not")
+		Error("reg func is not")
 		return false
 	}
 	return isHaveStr(fmt.Sprintf(regStr, l), str)
@@ -480,7 +477,7 @@ func IsEngAll(str string) bool { return isHave(runFuncName(), str) }
 func IsEngLen(str string, l int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
-		loger("reg func is not")
+		Error("reg func is not")
 		return false
 	}
 	return isHaveStr(fmt.Sprintf(regStr, l), str)

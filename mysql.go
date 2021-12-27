@@ -340,9 +340,9 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_,err :=  m.DB.Exec(createSql.String())
 	if m.log{
-		loger("[Sql] Exec : " + createSql.String())
+		Error("[Sql] Exec : " + createSql.String())
 		if err != nil{
-			loger("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
 	if m.allTN == nil {
@@ -381,9 +381,9 @@ func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
 	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_,err :=  m.DB.Exec(createSql.String())
 	if m.log{
-		loger("[Sql] Exec : " + createSql.String())
+		Error("[Sql] Exec : " + createSql.String())
 		if err != nil{
-			loger("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
 	if m.allTN == nil {
@@ -435,9 +435,9 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	_, err := m.DB.Exec(insertSql.String())
 
 	if m.log{
-		loger("[Sql] Exec : " + insertSql.String())
+		Error("[Sql] Exec : " + insertSql.String())
 		if err != nil{
-			loger("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
 	return err
@@ -534,9 +534,9 @@ func (m *Mysql) Update(sql string) error {
 	}
 	_, err := m.DB.Exec(sql)
 	if m.log{
-		loger("[Sql] Exec : " + sql)
+		Error("[Sql] Exec : " + sql)
 		if err != nil{
-			loger("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
 	return err
@@ -549,9 +549,9 @@ func (m *Mysql) Exec(sql string) error {
 	}
 	_, err := m.DB.Exec(sql)
 	if m.log{
-		loger("[Sql] Exec : " + sql)
+		Error("[Sql] Exec : " + sql)
 		if err != nil{
-			loger("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
 	return err
@@ -608,9 +608,9 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 func (m *Mysql) Delete(sql string) error {
 	_, err := m.DB.Exec(sql)
 	if m.log{
-		loger("[Sql] Exec : " + sql)
+		Error("[Sql] Exec : " + sql)
 		if err != nil{
-			loger("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
 	return err
@@ -647,7 +647,7 @@ func dataType2Mysql(value interface{}) string{
 			return "datetime"
 		}
 	}
-	loger(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
+	Info(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
 	return "text"
 }
 

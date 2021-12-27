@@ -151,7 +151,7 @@ func Json2Map(str string) map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal([]byte(str), &tempMap)
 	if err != nil {
-		loger(err)
+		Error(err)
 		return nil
 	}
 	return tempMap
@@ -573,7 +573,7 @@ func PanicToError(fn func()) (err error) {
 func P2E() {
 	defer func() {
 		if r := recover(); r != nil {
-			loger("Panic error: %v", r)
+			Error("Panic error: %v", r)
 		}
 	}()
 }
