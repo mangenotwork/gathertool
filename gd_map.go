@@ -33,7 +33,7 @@ type gDMap struct {
 }
 
 // ues  NewGDMap().Add(k,v)
-func NewGDMap() GDMapApi {
+func NewGDMap() *gDMap {
 	return &gDMap{
 		data:make(map[string]interface{}),
 		keyList: make([]string, 0),

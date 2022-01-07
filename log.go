@@ -94,6 +94,6 @@ func Error(args ...interface{}) {
 }
 
 func Errorf(format string, args ...interface{}) {
-	std.Log(3, fmt.Sprintf(format, args...), 2)
+	std.Log(4, fmt.Sprintf(format, args...), 2)
 }
 

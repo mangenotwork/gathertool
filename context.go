@@ -125,6 +125,8 @@ type Context struct {
 	Json string
 	// 输出xml
 	Xml string
+	// 输出HTML
+	Html string
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -310,6 +312,9 @@ func (c *Context) Do() func(){
 	}
 
 	c.Text = c.RespBodyString()
+	c.Json = c.RespBodyString()
+	c.Xml = c.RespBodyString()
+	c.Html = c.RespBodyHtml()
 
 	return nil
 }
@@ -323,7 +328,7 @@ func (c *Context) RespBodyString() string {
 }
 
 // Resp Body -> html string
-func (c *Context) Html() string {
+func (c *Context) RespBodyHtml() string {
 	html := c.RespBodyString()
 	return strings.NewReplacer(
 		"&amp;", "&",
