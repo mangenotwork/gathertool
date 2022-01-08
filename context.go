@@ -20,6 +20,7 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"strings"
@@ -359,6 +360,17 @@ func (c *Context) RespBodyArr() []interface{} {
 		return nil
 	}
 	return tempArr
+}
+
+// GetRespHeader
+func (c *Context) GetRespHeader() string {
+	header, _ := httputil.DumpResponse(c.Resp, false)
+	return string(header)
+}
+
+// RespContentLength
+func (c *Context) RespContentLength() int64 {
+	return c.Resp.ContentLength
 }
 
 // CheckReqMd5 check req Md5

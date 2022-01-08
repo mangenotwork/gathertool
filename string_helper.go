@@ -303,6 +303,24 @@ func Str2Int64(str string) int64 {
 	return i
 }
 
+// Str2Int string -> int
+func Str2Int(str string) int {
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		return 0
+	}
+	return i
+}
+
+// Str2Int string -> int32
+func Str2Int32(str string) int32 {
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		return 0
+	}
+	return int32(i)
+}
+
 // Str2Float64 string -> float64
 func Str2Float64(str string) float64 {
 	i, err := strconv.ParseFloat(str, 64)
@@ -310,6 +328,15 @@ func Str2Float64(str string) float64 {
 		return 0
 	}
 	return i
+}
+
+// Str2Float32 string -> float32
+func Str2Float32(str string) float32 {
+	i, err := strconv.ParseFloat(str, 32)
+	if err != nil {
+		return 0
+	}
+	return float32(i)
 }
 
 // Uint82Str []uint8 -> string
@@ -407,6 +434,7 @@ func Byte2Float64(b []byte) float64 {
 	return math.Float64frombits(binary.LittleEndian.Uint64(b))
 }
 
+// EncodeByte encode byte
 func EncodeByte(v interface{}) []byte {
 	switch value := v.(type) {
 	case int, int8, int16, int32 :
@@ -425,6 +453,7 @@ func EncodeByte(v interface{}) []byte {
 	return []byte("")
 }
 
+// DecodeByte  decode byte
 func DecodeByte(b []byte) (interface{}, error) {
 	var values interface{}
 	buf := bytes.NewBuffer(b)

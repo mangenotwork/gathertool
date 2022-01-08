@@ -35,8 +35,14 @@ func NewCSV(fileName string) (*Csv,error) {
 
 // 写入csv
 func (c *Csv) Add(data []string) error{
-	return c.W.Write(data)
+	err := c.W.Write(data)
+	if err != nil {
+		return err
+	}
+	c.W.Flush()
+	return nil
 }
+
 
 // 读取所有
 func (c *Csv) ReadAll() ([][]string, error){
