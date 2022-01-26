@@ -90,7 +90,7 @@ func (c *TcpClient) ReConn() {
 	c.RConn <- struct{}{}
 }
 
-func (c *TcpClient) Run(serverHost string, f func(c *TcpClient)) {
+func (c *TcpClient) Run(serverHost string, r func(c *TcpClient, data []byte), w func(c *TcpClient)) {
 	//用于重连
 Reconnection:
 
@@ -126,18 +126,21 @@ Reconnection:
 				if err != nil{
 					if err == io.EOF {
 						log.Println(conn.Addr(), " 断开了连接!")
-						conn.Close()
-						return
 					}
+					conn.Close()
+					c.RConn <- struct{}{}
+					return
 				}
 				if n > 0 && n < 1025 {
 					log.Println(string(recv[:n]))
+					r(c, recv[:n])
 				}
+
 			}
 		}
 	}(c)
 
-	go f(c)
+	go w(c)
 
 	for {
 		select {
