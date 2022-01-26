@@ -17,10 +17,11 @@ type WSClient interface {
 	Close()
 }
 
-func WsClient(host, path string) (WSClient, error) {
+func WsClient(host, path string, isSSL bool) (WSClient, error) {
 	ws := &webSocketClient{
 		Host: host,
 		Path: path,
+		IsSSL: isSSL,
 	}
 	err := ws.conn()
 	return ws, err
@@ -31,12 +32,17 @@ type webSocketClient struct {
 	Host string
 	Path string
 	Ws *websocket.Conn
+	IsSSL bool
 }
 
 func (c *webSocketClient) conn() error {
 	var err error
 	u := c.Host + c.Path
-	c.Ws, err = websocket.Dial(u, "", "https://"+c.Host+"/")
+	if c.IsSSL {
+		c.Ws, err = websocket.Dial(u, "", "https://"+c.Host+"/")
+	}else {
+		c.Ws, err = websocket.Dial(u, "", "http://"+c.Host+"/")
+	}
 	return err
 }
 
