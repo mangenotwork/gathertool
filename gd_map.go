@@ -15,18 +15,20 @@ import (
 // 固定顺序 Map 接口
 type GDMapApi interface {
 	Add(key string, value interface{}) *gDMap
-	Del(key string) *gDMap
 	Get(key string) interface{}
-	Range(f func(k string, v interface{})) *gDMap
+	Del(key string) *gDMap
 	Len() int
-	CheckValue(value interface{}) bool // 检查是否存在某个值
 	KeyList() []string
 	AddMap(data map[string]interface{}) *gDMap
+	Range(f func(k string, v interface{})) *gDMap
+	RangeAt(f func(id int, k string, v interface{})) *gDMap
+	CheckValue(value interface{}) bool // 检查是否存在某个值
+	Reverse() //反序
 }
 
 // 固定顺序map
 type gDMap struct {
-	mux sync.RWMutex
+	mux sync.Mutex
 	data map[string]interface{}
 	keyList []string
 	size int
@@ -55,11 +57,10 @@ func (m *gDMap) Add(key string, value interface{}) *gDMap {
 	return m
 }
 
-func (m *gDMap) AddMap(data map[string]interface{}) *gDMap {
-	for k,v := range data {
-		m.Add(k,v)
-	}
-	return m
+func (m *gDMap) Get(key string) interface{} {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+	return m.data[key]
 }
 
 func (m *gDMap) Del(key string) *gDMap {
@@ -78,28 +79,38 @@ func (m *gDMap) Del(key string) *gDMap {
 	return m
 }
 
-func (m *gDMap) Get(key string) interface{} {
-	m.mux.RLock()
-	defer m.mux.RUnlock()
-	return m.data[key]
+func (m *gDMap) Len() int {
+	return m.size
+}
+
+func (m *gDMap) KeyList() []string {
+	return m.keyList
+}
+
+func (m *gDMap) AddMap(data map[string]interface{}) *gDMap {
+	for k,v := range data {
+		m.Add(k,v)
+	}
+	return m
 }
 
 func (m *gDMap) Range(f func(k string, v interface{})) *gDMap {
-	m.mux.RLock()
-	defer m.mux.RUnlock()
 	for i := 0; i < m.size; i++ {
 		f(m.keyList[i], m.data[m.keyList[i]])
 	}
 	return m
 }
 
-func (m *gDMap) Len() int {
-	return m.size
+func (m *gDMap) RangeAt(f func(id int, k string, v interface{})) *gDMap {
+	for i := 0; i < m.size; i++ {
+		f(i, m.keyList[i], m.data[m.keyList[i]])
+	}
+	return m
 }
 
 func (m *gDMap) CheckValue(value interface{}) bool {
-	m.mux.RLock()
-	defer m.mux.RUnlock()
+	m.mux.Lock()
+	defer m.mux.Unlock()
 	for i := 0; i < m.size; i++ {
 		if m.data[m.keyList[i]] == value {
 			return true
@@ -108,8 +119,10 @@ func (m *gDMap) CheckValue(value interface{}) bool {
 	return false
 }
 
-func (m *gDMap) KeyList() []string {
-	return m.keyList
+func (m *gDMap) Reverse() {
+	for i, j := 0, len(m.keyList)-1; i < j; i, j = i+1, j-1 {
+		m.keyList[i], m.keyList[j] = m.keyList[j], m.keyList[i]
+	}
 }
 
 
