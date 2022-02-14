@@ -14,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 	"reflect"
 	"strings"
 	"sync"
@@ -26,7 +25,6 @@ const (
 	TABLE_NAME_NULL = "table name is null."
 )
 
-// 开放的mysql对象
 var MysqlDB = &Mysql{}
 
 type Mysql struct {
@@ -41,7 +39,7 @@ type Mysql struct {
 	log bool
 	tableTemp  map[string]*tableDescribe //表结构缓存
 	once *sync.Once
-	allTN *allTableName
+	allTN *allTableName // 所有表名
 }
 
 // NewMysqlDB 给mysql对象进行连接
@@ -53,13 +51,16 @@ func NewMysqlDB(host string, port int, user, password, database string) (err err
 	return MysqlDB.Conn()
 }
 
+// NewMysql 创建一个mysql对象
 func NewMysql(host string, port int, user, password, database string) (*Mysql, error) {
 	if len(host) < 1 {
-		return nil, errors.New("Host is Null.")
+		return nil, fmt.Errorf("Host is Null.")
 	}
+
 	if port < 1 {
 		port = 3369
 	}
+
 	m := &Mysql{
 		host : host,
 		port : port,
@@ -74,6 +75,7 @@ func NewMysql(host string, port int, user, password, database string) (*Mysql, e
 	m.once.Do(func() {
 		m.tableTemp = make(map[string]*tableDescribe)
 	})
+
 	return m, nil
 }
 
@@ -102,19 +104,23 @@ func (m *Mysql) SetMaxIdleConn(number int) {
 func (m *Mysql) Conn() (err error){
 	m.DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s:%d)/%s",
 		m.user, m.password, "tcp", m.host, m.port, m.dataBase))
+
 	if err != nil {
 		if m.log{
-			log.Println("[Sql] Conn Fail : " + err.Error())
+			Error("[Sql] Conn Fail : " + err.Error())
 		}
 		return err
 	}
 	m.DB.SetConnMaxLifetime(time.Hour)  //最大连接周期，超过时间的连接就close
+
 	if m.maxOpenConn < 1{
 		m.maxOpenConn = 10
 	}
+
 	if m.maxIdleConn < 1{
 		m.maxIdleConn = 5
 	}
+
 	m.DB.SetMaxOpenConns(m.maxOpenConn)//设置最大连接数
 	m.DB.SetMaxIdleConns(m.maxIdleConn) //设置闲置连接数
 	return
@@ -124,6 +130,7 @@ func (m *Mysql) allTableName() (err error) {
 	if m.DB == nil{
 		_=m.Conn()
 	}
+
 	m.allTN = newAllTableName()
 	rows,err := m.DB.Query(SHOW_TABLES)
 	if err != nil{
@@ -239,8 +246,8 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error){
 		}
 		fieldMap[result.Field] = fiedlType
 	}
-	_=rows.Close()
 
+	_=rows.Close()
 	td := &tableDescribe{
 		Base : fieldMap,
 	}
@@ -258,11 +265,12 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 
 	rows,err := m.DB.Query(sql)
 	if m.log{
-		log.Println("[Sql] Exec : " + sql)
+		Info("[Sql] Exec : " + sql)
 		if err != nil{
-			log.Println("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -293,6 +301,7 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 		}
 		list = append(list, item)
 	}
+
 	_ = rows.Close()
 	return list, nil
 }
@@ -321,9 +330,11 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	if table == ""{
 		return errors.New("table is null")
 	}
+
 	if line < 1{
 		return errors.New("fiedls len is 0")
 	}
+
 	if m.DB == nil{
 		_=m.Conn()
 	}
@@ -337,17 +348,20 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 		createSql.WriteString(v)
 		createSql.WriteString(", ")
 	}
+
 	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_,err :=  m.DB.Exec(createSql.String())
 	if m.log{
-		Error("[Sql] Exec : " + createSql.String())
+		Info("[Sql] Exec : " + createSql.String())
 		if err != nil{
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
+
 	if m.allTN == nil {
 		_=m.allTableName()
 	}
+
 	m.allTN.add(table)
 	return nil
 }
@@ -362,40 +376,41 @@ func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
 	if table == ""{
 		return errors.New("table is null")
 	}
+
 	if line < 1{
 		return errors.New("fiedls len is 0")
 	}
+
 	if m.DB == nil{
 		_=m.Conn()
 	}
+
 	createSql.WriteString("CREATE TABLE ")
 	createSql.WriteString(table)
 	createSql.WriteString(" ( id int(11) NOT NULL AUTO_INCREMENT, ")
-
 	fields.Range(func(k string, v interface{}){
 		createSql.WriteString(k)
 		createSql.WriteString(" ")
 		createSql.WriteString(dataType2Mysql(v))
 		createSql.WriteString(", ")
 	})
+
 	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_,err :=  m.DB.Exec(createSql.String())
 	if m.log{
-		Error("[Sql] Exec : " + createSql.String())
+		Info("[Sql] Exec : " + createSql.String())
 		if err != nil{
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
+
 	if m.allTN == nil {
 		_=m.allTableName()
 	}
+
 	m.allTN.add(table)
 	return nil
 }
-
-
-// TODO: NewTable - 2 创建表  字段顺序需要固定
-
 
 func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	var insertSql bytes.Buffer
@@ -424,6 +439,7 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	if fieldStr[len(fieldStr)-2:] == ", " {
 		fieldStr = fieldStr[:len(fieldStr)-2]
 	}
+
 	if valueStr[len(valueStr)-2:] == ", " {
 		valueStr = valueStr[:len(valueStr)-2]
 	}
@@ -433,31 +449,34 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	insertSql.WriteString(valueStr)
 	insertSql.WriteString(");")
 	_, err := m.DB.Exec(insertSql.String())
-
 	if m.log{
-		Error("[Sql] Exec : " + insertSql.String())
+		Info("[Sql] Exec : " + insertSql.String())
 		if err != nil{
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
+
 	return err
 }
-
 
 // Insert 新增数据
 func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	var (
 		line = len(fieldData)
 	)
+
 	if table == ""{
 		return errors.New("table is null")
 	}
+
 	if line < 1{
 		return errors.New("fiedls len is 0")
 	}
+
 	if m.DB == nil{
 		_=m.Conn()
 	}
+
 	return m.insert(table, fieldData)
 }
 
@@ -466,18 +485,23 @@ func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error{
 	var (
 		line = len(fieldData)
 	)
+
 	if table == ""{
 		return errors.New("table is null")
 	}
+
 	if line < 1{
 		return errors.New("fiedls len is 0")
 	}
+
 	if m.DB == nil{
 		_=m.Conn()
 	}
+
 	if m.allTN == nil {
 		_=m.allTableName()
 	}
+
 	if !m.allTN.isHave(table) {
 		newField := make(map[string]string)
 		for k,v := range fieldData {
@@ -488,6 +512,7 @@ func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error{
 			return err
 		}
 	}
+
 	return m.insert(table, fieldData)
 }
 
@@ -496,18 +521,23 @@ func (m *Mysql) InsertAtGd(table string, fieldData *gDMap) error{
 		line = fieldData.Len()
 		fieldDataMap = make(map[string]interface{})
 	)
+
 	if table == ""{
 		return errors.New("table is null")
 	}
+
 	if line < 1{
 		return errors.New("fiedls len is 0")
 	}
+
 	if m.DB == nil{
 		_=m.Conn()
 	}
+
 	if m.allTN == nil {
 		_=m.allTableName()
 	}
+
 	if !m.allTN.isHave(table) {
 		err := m.NewTableGd(table, fieldData)
 		if err != nil {
@@ -522,23 +552,20 @@ func (m *Mysql) InsertAtGd(table string, fieldData *gDMap) error{
 	return m.insert(table, fieldDataMap)
 }
 
-
-// TODO: 新增数据结构体
-
-// TODO: 新增数据json字符串
-
 // Update
 func (m *Mysql) Update(sql string) error {
 	if m.DB == nil{
 		_=m.Conn()
 	}
+
 	_, err := m.DB.Exec(sql)
 	if m.log{
-		Error("[Sql] Exec : " + sql)
+		Info("[Sql] Exec : " + sql)
 		if err != nil{
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
+
 	return err
 }
 
@@ -547,13 +574,15 @@ func (m *Mysql) Exec(sql string) error {
 	if m.DB == nil{
 		_=m.Conn()
 	}
+
 	_, err := m.DB.Exec(sql)
 	if m.log{
-		Error("[Sql] Exec : " + sql)
+		Info("[Sql] Exec : " + sql)
 		if err != nil{
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
+
 	return err
 }
 
@@ -565,11 +594,12 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 
 	rows,err := m.DB.Query(sql)
 	if m.log{
-		log.Println("[Sql] Exec : " + sql)
+		Info("[Sql] Exec : " + sql)
 		if err != nil{
-			log.Println("[Sql] Error : " + err.Error())
+			Error("[Sql] Error : " + err.Error())
 		}
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -600,20 +630,18 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 		}
 		list = append(list, item)
 	}
+
 	_ = rows.Close()
 	return list, nil
 }
 
+
 // Delete
 func (m *Mysql) Delete(sql string) error {
-	_, err := m.DB.Exec(sql)
-	if m.log{
-		Error("[Sql] Exec : " + sql)
-		if err != nil{
-			Error("[Sql] Error : " + err.Error())
-		}
+	if strings.Index(sql, "DELETE") != -1 || strings.Index(sql, "delete") != -1 {
+		return m.Exec(sql)
 	}
-	return err
+	return fmt.Errorf("请检查sql正确性")
 }
 
 // ToVarChar  写入mysql 的字符类型
@@ -651,7 +679,18 @@ func dataType2Mysql(value interface{}) string{
 	return "text"
 }
 
-// TODO 删除表
+// DeleteTable 删除表
+func (m *Mysql) DeleteTable(tableName string) error {
+	err := m.Exec("DROP TABLE "+tableName)
+	if err != nil {
+		return err
+	}
+	m.allTN.remove(tableName)
+	return nil
+}
 
-// TODO 判断是否存
+// HasTable 判断表是否存
+func (m *Mysql) HasTable(tableName string) bool {
+	return m.allTN.isHave(tableName)
+}
 
