@@ -181,6 +181,12 @@ func Any2String(data interface{}) string {
 
 // Any2Int interface{} -> int
 func Any2Int(data interface{}) int {
+	if v, ok := data.(float64); ok {
+		return int(v)
+	}
+	if v, ok := data.(string); ok {
+		return Str2Int(v)
+	}
 	if v, ok := data.(int); ok {
 		return v
 	}
@@ -189,6 +195,12 @@ func Any2Int(data interface{}) int {
 
 // Any2int64 interface{} -> int64
 func Any2int64(data interface{}) int64 {
+	if v, ok := data.(float64); ok {
+		return int64(v)
+	}
+	if v, ok := data.(string); ok {
+		return Str2Int64(v)
+	}
 	if v, ok := data.(int64); ok {
 		return v
 	}
@@ -461,7 +473,6 @@ func DecodeByte(b []byte) (interface{}, error) {
 	return values, err
 }
 
-
 // []byte -> []uint8 (bit)
 func Byte2Bit(b []byte) []uint8 {
 	bits := make([]uint8, 0)
@@ -471,6 +482,7 @@ func Byte2Bit(b []byte) []uint8 {
 	return bits
 }
 
+// bits2Uint
 func bits2Uint(bits []uint8, ui uint, l int) []uint8 {
 	a := make([]uint8, l)
 	for i := l - 1; i >= 0; i-- {
@@ -497,6 +509,7 @@ func Bit2Byte(b []uint8) []byte {
 	return by
 }
 
+// bitsToUint
 func bitsToUint(bits []uint8) uint {
 	v := uint(0)
 	for _, i := range bits {
@@ -927,7 +940,6 @@ func StrDuplicates(a []string) []string{
 	return ret
 }
 
-
 // IsElementStr 判断字符串是否与数组里的某个字符串相同
 func IsElementStr(listData []string, element string) bool{
 	for _,k := range listData{
@@ -1144,8 +1156,5 @@ func StrToSize(sizeStr string) int64 {
 	}
 	return -1
 }
-
-
-// TODO 二进制字符串 -> 字符串
 
 
