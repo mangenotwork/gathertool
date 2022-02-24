@@ -126,6 +126,7 @@ func (m *Mysql) Conn() (err error){
 	return
 }
 
+// allTableName 所有表名
 func (m *Mysql) allTableName() (err error) {
 	if m.DB == nil{
 		_=m.Conn()
@@ -176,6 +177,7 @@ type allTableName struct{
 	tableName map[string]struct{}
 }
 
+// newAllTableName
 func newAllTableName() *allTableName {
 	return &allTableName{
 		mut: &sync.Mutex{},
@@ -183,6 +185,7 @@ func newAllTableName() *allTableName {
 	}
 }
 
+// add 添加
 func (a *allTableName) add(name string) *allTableName{
 	a.mut.Lock()
 	a.tableName[name] = struct{}{}
@@ -190,6 +193,7 @@ func (a *allTableName) add(name string) *allTableName{
 	return a
 }
 
+// remove 移除
 func (a *allTableName) remove(name string) *allTableName{
 	a.mut.Lock()
 	delete(a.tableName, name)
@@ -197,6 +201,7 @@ func (a *allTableName) remove(name string) *allTableName{
 	return a
 }
 
+// isHave 是否存在
 func (a *allTableName) isHave(name string) bool {
 	a.mut.Lock()
 	_, ok := a.tableName[name]
@@ -366,7 +371,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	return nil
 }
 
-
+// NewTableGd 创建新的固定map顺序为字段的表
 func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
 	var (
 		createSql bytes.Buffer
@@ -412,6 +417,7 @@ func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
 	return nil
 }
 
+// insert 插入操作
 func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	var insertSql bytes.Buffer
 	_,_=m.Describe(table)
@@ -516,6 +522,7 @@ func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error{
 	return m.insert(table, fieldData)
 }
 
+// InsertAtGd  固定顺序map写入
 func (m *Mysql) InsertAtGd(table string, fieldData *gDMap) error{
 	var (
 		line = fieldData.Len()
@@ -674,6 +681,8 @@ func dataType2Mysql(value interface{}) string{
 		if _, ok := typ.Interface().(time.Time); ok {
 			return "datetime"
 		}
+	default:
+		return "text"
 	}
 	Info(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
 	return "text"
