@@ -310,6 +310,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		EndFunc: end,
 		IsLog: islog,
 		sleep: sleep,
+		Param: make(map[string]interface{}),
 	}
 }
 

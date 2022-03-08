@@ -128,6 +128,9 @@ type Context struct {
 	Xml string
 	// 输出HTML
 	Html string
+
+	// 上下文参数
+	Param map[string]interface{}
 }
 
 // SetSucceedFunc 设置成功后的方法
@@ -541,6 +544,21 @@ func (c *Context) OpenErr2Retry() {
 // 关闭重试
 func (c *Context) CloseRetry() {
 	c.isRetry = true
+}
+
+// GetParam 获取上下文参数
+func (c *Context) GetParam(key string) interface{} {
+	return c.Param[key]
+}
+
+// AddParam 添加上下文参数
+func (c *Context) AddParam(key string, val interface{}) {
+	c.Param[key] = val
+}
+
+// DelParam 删除上下文参数
+func (c *Context) DelParam(key string) {
+	delete(c.Param, key)
 }
 
 // CookiePool   cookie池
