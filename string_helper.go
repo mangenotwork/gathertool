@@ -74,11 +74,9 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 			ft := v.Type().Field(i)
 			fv := v.Field(i)
 			if ft.Name[0:1] == strings.ToLower(ft.Name[0:1]) {
-				// ignore unexported fields
 				continue
 			}
 			if (fv.Kind() == reflect.Ptr || fv.Kind() == reflect.Slice) && fv.IsNil() {
-				// ignore unset fields
 				continue
 			}
 			buf.WriteString(strings.Repeat(" ", indent+2))
@@ -184,8 +182,14 @@ func Any2Int(data interface{}) int {
 	if v, ok := data.(float64); ok {
 		return int(v)
 	}
+	if v, ok := data.(float32); ok {
+		return int(v)
+	}
 	if v, ok := data.(string); ok {
 		return Str2Int(v)
+	}
+	if v, ok := data.(int64); ok {
+		return int(v)
 	}
 	if v, ok := data.(int); ok {
 		return v
@@ -198,8 +202,14 @@ func Any2int64(data interface{}) int64 {
 	if v, ok := data.(float64); ok {
 		return int64(v)
 	}
+	if v, ok := data.(float32); ok {
+		return int64(v)
+	}
 	if v, ok := data.(string); ok {
 		return Str2Int64(v)
+	}
+	if v, ok := data.(int32); ok {
+		return int64(v)
 	}
 	if v, ok := data.(int64); ok {
 		return v
@@ -219,6 +229,9 @@ func Any2Arr(data interface{}) []interface{} {
 func Any2Float64(data interface{}) float64 {
 	if v,ok := data.(float64); ok {
 		return v
+	}
+	if v,ok := data.(float32); ok {
+		return float64(v)
 	}
 	return 0
 }
@@ -372,7 +385,7 @@ func Byte2Str(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-// bool -> []byte
+// Bool2Byte bool -> []byte
 func Bool2Byte(b bool) []byte {
 	if b == true {
 		return []byte{1}
@@ -380,7 +393,7 @@ func Bool2Byte(b bool) []byte {
 	return []byte{0}
 }
 
-// []byte -> bool
+// Byte2Bool []byte -> bool
 func Byte2Bool(b []byte) bool {
 	if len(b) == 0 || bytes.Compare(b, make([]byte, len(b))) == 0 {
 		return false
@@ -388,60 +401,60 @@ func Byte2Bool(b []byte) bool {
 	return true
 }
 
-// int -> []byte
+// Int2Byte int -> []byte
 func Int2Byte(i int) []byte {
 	b := make([]byte, 4)
 	binary.LittleEndian.PutUint32(b, uint32(i))
 	return b
 }
 
-// []byte -> int
+// Byte2Int []byte -> int
 func Byte2Int(b []byte) int {
 	return int(binary.LittleEndian.Uint32(b))
 }
 
-// int64 -> []byte
+// Int642Byte int64 -> []byte
 func Int642Byte(i int64) []byte {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, uint64(i))
 	return b
 }
 
-// []byte -> int64
+// Byte2Int64 []byte -> int64
 func Byte2Int64(b []byte) int64 {
 	return int64(binary.LittleEndian.Uint64(b))
 }
 
-// float32 -> []byte
+// Float322Byte float32 -> []byte
 func Float322Byte(f float32) []byte {
 	b := make([]byte, 4)
 	binary.LittleEndian.PutUint32(b, Float322Uint32(f))
 	return b
 }
 
-// float32 -> uint32
+// Float322Uint32 float32 -> uint32
 func Float322Uint32(f float32) uint32 {
 	return math.Float32bits(f)
 }
 
-// []byte -> float32
+// Byte2Float32 []byte -> float32
 func Byte2Float32(b []byte) float32 {
 	return math.Float32frombits(binary.LittleEndian.Uint32(b))
 }
 
-// float64 -> []byte
+// Float642Byte float64 -> []byte
 func Float642Byte(f float64) []byte {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, Float642Uint64(f))
 	return b
 }
 
-// float64 -> uint64
+// Float642Uint64 float64 -> uint64
 func Float642Uint64(f float64) uint64 {
 	return math.Float64bits(f)
 }
 
-// []byte -> float64
+// Byte2Float64 []byte -> float64
 func Byte2Float64(b []byte) float64 {
 	return math.Float64frombits(binary.LittleEndian.Uint64(b))
 }
@@ -473,7 +486,7 @@ func DecodeByte(b []byte) (interface{}, error) {
 	return values, err
 }
 
-// []byte -> []uint8 (bit)
+// Byte2Bit []byte -> []uint8 (bit)
 func Byte2Bit(b []byte) []uint8 {
 	bits := make([]uint8, 0)
 	for _, v := range b {
@@ -482,7 +495,7 @@ func Byte2Bit(b []byte) []uint8 {
 	return bits
 }
 
-// bits2Uint
+// bits2Uint bits2Uint
 func bits2Uint(bits []uint8, ui uint, l int) []uint8 {
 	a := make([]uint8, l)
 	for i := l - 1; i >= 0; i-- {
@@ -495,7 +508,7 @@ func bits2Uint(bits []uint8, ui uint, l int) []uint8 {
 	return a
 }
 
-// []uint8 -> []byte
+// Bit2Byte []uint8 -> []byte
 func Bit2Byte(b []uint8) []byte {
 	if len(b)%8 != 0 {
 		for i := 0; i < len(b)%8; i++ {
@@ -509,7 +522,7 @@ func Bit2Byte(b []uint8) []byte {
 	return by
 }
 
-// bitsToUint
+// bitsToUint bitsToUint
 func bitsToUint(bits []uint8) uint {
 	v := uint(0)
 	for _, i := range bits {
@@ -543,6 +556,10 @@ func deepCopy(dst, src interface{}) error {
 		return err
 	}
 	return gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
+}
+
+func DeepCopy(dst, src interface{}) error {
+	return deepCopy(dst, src)
 }
 
 // Struct2Map Struct  ->  map
@@ -621,7 +638,7 @@ func P2E() {
 }
 
 // ============================================  转码
-
+// Charset 字符集类型
 type Charset string
 
 const (
@@ -657,6 +674,7 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	return str
 }
 
+// UnicodeDec
 func UnicodeDec(raw string) string {
 	str, err := strconv.Unquote(strings.Replace(strconv.Quote(raw), `\\u`, `\u`, -1))
 	if err != nil {
@@ -665,6 +683,7 @@ func UnicodeDec(raw string) string {
 	return str
 }
 
+// UnicodeDecByte
 func UnicodeDecByte(raw []byte) []byte {
 	rawStr := string(raw)
 	return []byte(UnicodeDec(rawStr))
@@ -701,6 +720,7 @@ func Base64UrlDecode(str string) (string,error){
 	return string(b), err
 }
 
+// convert
 func convert(dstCharset string, srcCharset string, src string) (dst string, err error) {
 	if dstCharset == srcCharset {
 		return src, nil
@@ -830,7 +850,9 @@ func HZGB2312To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "HZGB2312", src)
 }
 
-// ================================================ Set
+
+
+// ================================================ Set 集合
 // 可以用于去重
 type Set map[string]struct{}
 
@@ -847,7 +869,8 @@ func (s Set) Delete(key string) {
 	delete(s, key)
 }
 
-// ================================================ Stack
+
+// ================================================ Stack 栈
 type Stack struct {
 	data map[int]interface{}
 }
@@ -873,6 +896,8 @@ func (s *Stack) String() string {
 	}
 	return info
 }
+
+
 
 // IsContainStr  字符串是否等于items中的某个元素
 func IsContainStr(items []string, item string) bool {
@@ -924,7 +949,7 @@ func ByteToBinaryString(data byte) (str string) {
 	return str
 }
 
-// StrDuplicates数组，切片去重和去空串
+// StrDuplicates  数组，切片去重和去空串
 func StrDuplicates(a []string) []string{
 	m := make(map[string]struct{})
 	ret := make([]string, 0, len(a))
@@ -1091,6 +1116,7 @@ func IsFile(path string) bool {
 	return !s.IsDir()
 }
 
+// 字节换算
 const (
 	KiB = 1024
 	MiB = KiB * 1024
