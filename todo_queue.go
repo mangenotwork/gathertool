@@ -61,7 +61,6 @@ func (task Task) AddData(key string, value interface{}) Task {
 	return task
 }
 
-
 // CrawlerTask
 func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 	header := &http.Header{}
@@ -91,7 +90,6 @@ func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 		Type: "do",
 	}
 }
-
 
 // 单个请求地址对象
 type ReqUrl struct {
@@ -152,7 +150,6 @@ func (q *Queue) IsEmpty() bool {
 func (q *Queue) Print() {
 	Info(q.list)
 }
-
 
 // 下载队列
 type UploadQueue struct {

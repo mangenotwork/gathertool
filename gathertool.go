@@ -6,10 +6,10 @@
  █ ▀█▀ ██  ▄█▀ ██   ██  ██     ▀█▄    ██  ██
 ▄█▄ █ ▄██▄ ▀█▄▄▀█▀ ▄██▄ ██▄     ▀▀█▄▄▄▀█   ▀█▄▄▄▀
 
-	Description : gathertool 轻量级爬虫，接口测试，压力测试框架
+	Description : gathertool 轻量级爬虫，接口测试，压力测试框架, 提高开发对应场景的golang程序的效率。
 	Author : ManGe
-	Version : v0.3
-	Date : 20220127
+	Version : v0.2.8
+	Date : 2022-03-16
 
 */
 
@@ -25,14 +25,12 @@ import (
 	"strings"
 )
 
-// Get 请求
 func Get(url string, vs ...interface{}) (*Context, error) {
 	ctx := NewGet(url, vs...)
 	ctx.Do()
 	return ctx,nil
 }
 
-// NewGet
 func NewGet(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(GET, urlStr(url), nil)
 	if err != nil{
@@ -41,14 +39,12 @@ func NewGet(url string, vs ...interface{}) *Context {
 	return	Req(request, vs...)
 }
 
-// POST 请求
 func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
 	cxt := NewPost(url, data, contentType, vs...)
 	cxt.Do()
 	return cxt, nil
 }
 
-// NewPost
 func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer(data))
 	if err != nil{
@@ -62,7 +58,6 @@ func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Co
 	return	Req(request, vs...)
 }
 
-// POST json 请求
 func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 	cxt := NewPost(url, []byte(jsonStr), "application/json; charset=UTF-8", vs...)
 	cxt.Do()
@@ -72,14 +67,12 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 // FormData
 type FormData map[string]string
 
-// POST Form
 func PostForm(url string, data map[string]string, vs ...interface{}) (*Context, error){
 	cxt := NewPostForm(url, data, vs...)
 	cxt.Do()
 	return cxt, nil
 }
 
-// POST NewForm
 func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context{
 	postData := url.Values{}
 	for k,v := range data {
@@ -93,7 +86,6 @@ func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context{
 	return Req(request, vs...)
 }
 
-// POST File
 func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -136,14 +128,12 @@ func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 	return Req(request, vs...)
 }
 
-// Put
 func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context, error){
 	cxt :=	NewPut(url, data, contentType, vs...)
 	cxt.Do()
 	return cxt, nil
 }
 
-// NewPut
 func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context{
 	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer(data))
 	if err != nil{
@@ -153,14 +143,12 @@ func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Con
 	return Req(request, vs...)
 }
 
-// Delete
 func Delete(url string, vs ...interface{}) (*Context, error) {
 	cxt :=	NewDelete(url, vs...)
 	cxt.Do()
 	return cxt, nil
 }
 
-// NewDelete
 func NewDelete(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(DELETE, urlStr(url), nil)
 	if err != nil{
@@ -169,19 +157,26 @@ func NewDelete(url string, vs ...interface{}) *Context {
 	return	Req(request, vs...)
 }
 
-// Options
 func Options(url string, vs ...interface{}) (*Context, error) {
 	cxt := NewOptions(url, vs...)
 	cxt.Do()
 	return cxt, nil
 }
 
-// NewOptions
 func NewOptions(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(OPTIONS, urlStr(url), nil)
 	if err != nil{
 		panic(err)
 	}
 	return	Req(request, vs...)
+}
+
+func Upload(url, savePath string, vs ...interface{}) (*Context, error) {
+	c := NewGet(urlStr(url), vs)
+	c.Upload(savePath)
+	if c.Err != nil {
+		return c, c.Err
+	}
+	return c, nil
 }
 

@@ -154,8 +154,7 @@ func (s *StressUrl) Run(vs ...interface{}){
 		}(job)
 	}
 	wg.Wait()
-
-	log.Println("执行次数 : ", count)
+	Info("执行次数 : ", count)
 
 	var (
 		maxTime int64= 0

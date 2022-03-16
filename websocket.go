@@ -27,7 +27,6 @@ func WsClient(host, path string, isSSL bool) (WSClient, error) {
 	return ws, err
 }
 
-
 type webSocketClient struct {
 	Host string
 	Path string
@@ -59,4 +58,3 @@ func (c *webSocketClient) Read(data []byte) error{
 	_, err := c.Ws.Read(data)
 	return err
 }
-

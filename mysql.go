@@ -56,11 +56,9 @@ func NewMysql(host string, port int, user, password, database string) (*Mysql, e
 	if len(host) < 1 {
 		return nil, fmt.Errorf("Host is Null.")
 	}
-
 	if port < 1 {
 		port = 3369
 	}
-
 	m := &Mysql{
 		host : host,
 		port : port,
@@ -75,7 +73,6 @@ func NewMysql(host string, port int, user, password, database string) (*Mysql, e
 	m.once.Do(func() {
 		m.tableTemp = make(map[string]*tableDescribe)
 	})
-
 	return m, nil
 }
 
@@ -171,7 +168,7 @@ type tableDescribe struct {
 	Base map[string]string
 }
 
-// 记录当前库的所有表名
+// allTableName 记录当前库的所有表名
 type allTableName struct{
 	mut *sync.Mutex
 	tableName map[string]struct{}
@@ -232,7 +229,6 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error){
 	for rows.Next() {
 		result := &TableInfo{}
 		err = rows.Scan(&result.Field, &result.Type, &result.Null, &result.Key, &result.Default, &result.Extra)
-		//log.Println(err, result)
 		fiedlType := "null"
 		if strings.Contains(result.Type, "int"){
 			fiedlType = "int"
@@ -467,9 +463,7 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 
 // Insert 新增数据
 func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
-	var (
-		line = len(fieldData)
-	)
+	var line = len(fieldData)
 
 	if table == ""{
 		return errors.New("table is null")
@@ -488,9 +482,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 
 // InsertAt 新增数据 如果没有表则先创建表
 func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error{
-	var (
-		line = len(fieldData)
-	)
+	var line = len(fieldData)
 
 	if table == ""{
 		return errors.New("table is null")
@@ -572,7 +564,6 @@ func (m *Mysql) Update(sql string) error {
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
-
 	return err
 }
 
@@ -589,7 +580,6 @@ func (m *Mysql) Exec(sql string) error {
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
-
 	return err
 }
 

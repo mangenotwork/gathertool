@@ -41,17 +41,14 @@ func NewMongo(user, password, host, port string) (*Mongo, error){
 	if m.Host == "" {
 		m.Host = "127.0.0.1"
 	}
-
 	if m.Port == ""{
 		m.Port = "27017"
 	}
-
 	err := m.GetConn()
-
 	return m, err
 }
 
-// 建立mongodb 连接
+// GetConn 建立mongodb 连接
 func (m *Mongo) GetConn() (err error){
 	uri := fmt.Sprintf("mongodb://")
 	if m.User != "" && m.Password != ""{
@@ -81,7 +78,7 @@ func (m *Mongo) GetConn() (err error){
 }
 
 // 连接mongodb 的db
-// @dbname  DB名
+// dbname:DB名
 func (m *Mongo) GetDB(dbname string){
 	if m.Conn == nil {
 		m.GetConn()
@@ -90,8 +87,7 @@ func (m *Mongo) GetDB(dbname string){
 }
 
 // 连接mongodb 的db的集合
-// @dbname  DB名
-// @name 集合名
+// dbname:DB名;  name:集合名
 func (m *Mongo) GetCollection(dbname, name string){
 	if m.Conn == nil {
 		m.GetConn()
@@ -100,7 +96,7 @@ func (m *Mongo) GetCollection(dbname, name string){
 }
 
 // 插入数据
-// @document   可以是 Struct, 是 Slice，
+//document:可以是 Struct, 是 Slice
 func (m *Mongo) Insert(document interface{}) error{
 	if m.Collection == nil {
 		return fmt.Errorf("Collection is nil;")
@@ -147,36 +143,30 @@ func MongoConn(){
 	misty := Trainer{"Misty", 10, "Cerulean City"}
 	brock := Trainer{"Brock", 15, "Pewter City"}
 	trainers := []interface{}{ash, misty, brock}
-
 	m.Insert(trainers)
-
 }
 
-//
 func MongoConn1(){
 	// Set client options
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Check the connection
 	err = client.Ping(context.TODO(), nil)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("Connected to MongoDB!")
+	Info("Connected to MongoDB!")
 
 	// ===== 获得在test库里面Trainer集合的handle
 	collection := client.Database("test").Collection("trainers")
-	log.Println(collection)
-
+	Info(collection)
 
 	//数据结构体
 	type Trainer struct {
@@ -184,7 +174,6 @@ func MongoConn1(){
 		Age  int
 		City string
 	}
-
 
 	// ===== 插入一个单独的文档
 	//ash := Trainer{"aa", 10, "Pallet Town"}
@@ -205,7 +194,6 @@ func MongoConn1(){
 	//}
 	//log.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
 
-
 	// ===== 查找文档
 	// create a value into which the result can be decoded
 	var result Trainer
@@ -215,8 +203,6 @@ func MongoConn1(){
 		log.Println("not find err : ", err)
 	}
 	log.Printf("Found a single document: %+v\n", result)
-
-
 
 	// ===== 要查询多个文档， 使用collection.Find()，这个函数返回一个游标
 	findOptions := options.Find()
@@ -242,8 +228,6 @@ func MongoConn1(){
 	cur.Close(context.TODO())
 	log.Printf("Found multiple documents (array of pointers): %+v\n", results)
 
-
-
 	// ===== 更新文档
 	//collection.UpdateOne()函数允许你更新单一的文档
 	filterUpdate := bson.D{{"name", "aa"}}
@@ -265,7 +249,6 @@ func MongoConn1(){
 	}
 	log.Println("resultUpdate : ", resultUpdate)
 
-
 	// ===== 删除文档
 	//可以使用collection.DeleteOne() 或者 collection.DeleteMany()来删除文档
 	deleteResult, err := collection.DeleteMany(context.TODO(), bson.D{{"name", "Ash"}})
@@ -274,14 +257,12 @@ func MongoConn1(){
 	}
 	log.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
 
-
 	// ===== 关闭连接
 	err = client.Disconnect(context.TODO())
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Connection to MongoDB closed.")
-
+	Info("Connection to MongoDB closed.")
 }
 
 // TODO Mongo 连接池
@@ -291,3 +272,4 @@ func MongoConn1(){
 // TODO  查看所有Database
 
 // TODO  查看所有Collection
+

@@ -157,7 +157,7 @@ var (
 	ChineseMoneyAll = []string{"壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖", "拾", "佰", "仟", "万", "亿", "元", "角", "分", "零", "整", "正", "貳", "陸", "億", "萬", "圓"}
 )
 
-// 获取正在运行的函数名
+// runFuncName 获取正在运行的函数名
 func runFuncName()string{
 	pc := make([]uintptr,1)
 	runtime.Callers(2,pc)
@@ -167,7 +167,7 @@ func runFuncName()string{
 	return fList[len(fList)-1]
 }
 
-// 执行正则提取
+// regFind 执行正则提取
 func regFind(funcName, txt string, property ...string) (dataList []string) {
 	regStr, ok := regMap[funcName]
 	if !ok{
@@ -231,8 +231,7 @@ func RegHtmlH(str, typeH string, property ...string) []string {
 
 func RegHtmlTbody(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
-
-// 执行正则提取 只取内容
+// regFindTxt 执行正则提取 只取内容
 func regFindTxt(funcName, txt string, property ...string) (dataList []string) {
 	regStr, ok := regMap[funcName]
 	if !ok{
@@ -286,7 +285,7 @@ func RegHtmlHTxt(str, typeH string, property ...string) []string {
 	return regFindTxt(funcName+typeH, str, property...)
 }
 
-// 删除正则匹配的字符
+// replace 删除正则匹配的字符
 func replace(funcName, rest string) string {
 	regStr, ok := regMap[funcName]
 	if !ok{
@@ -300,10 +299,10 @@ func replace(funcName, rest string) string {
 	return re.ReplaceAllString(rest, "")
 }
 
-// 删除所有标签
+// RegDelHtml 删除所有标签
 func RegDelHtml(str string) string { return replace(runFuncName(), str) }
 
-// 删除所有数字
+// RegDelNumber 删除所有数字
 func RegDelNumber(str string) string { return replace(runFuncName(), str) }
 
 func RegDelHtmlA(str string) string { return replace("RegHtmlA", str) }
@@ -348,7 +347,7 @@ func RegDelHtmlH(str, typeH string, property ...string) string { return replace(
 
 func RegDelHtmlTbody(str string, property ...string) string { return replace("RegHtmlTbody", str) }
 
-// 是否含有正则匹配的字符
+// isHaveStr 是否含有正则匹配的字符
 func isHaveStr(regStr, rest string) bool {
 	isHave, err := regexp.MatchString(regStr, rest)
 	if err != nil {
@@ -358,7 +357,7 @@ func isHaveStr(regStr, rest string) bool {
 	return isHave
 }
 
-// 是否含有正则匹配的字符
+// isHave 是否含有正则匹配的字符
 func isHave(funcName, rest string) bool {
 	regStr, ok := regMap[funcName]
 	if !ok{
@@ -368,10 +367,10 @@ func isHave(funcName, rest string) bool {
 	return isHaveStr(regStr, rest)
 }
 
-// 验证是否含有number
+// IsNumber 验证是否含有number
 func IsNumber(str string) bool { return isHave(runFuncName(), str) }
 
-// 验证是否含有连续长度不超过长度l的number
+// IsNumber2Len 验证是否含有连续长度不超过长度l的number
 func IsNumber2Len(str string, l int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
@@ -381,7 +380,7 @@ func IsNumber2Len(str string, l int) bool {
 	return isHaveStr(fmt.Sprintf(regStr, l), str)
 }
 
-// 验证是否含有n开头的number
+// IsNumber2Heard 验证是否含有n开头的number
 func IsNumber2Heard(str string, n int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
@@ -391,10 +390,10 @@ func IsNumber2Heard(str string, n int) bool {
 	return isHaveStr(fmt.Sprintf(regStr, n), str)
 }
 
-// 验证是否是标准正负小数(123. 不是小数)
+// IsFloat 验证是否是标准正负小数(123. 不是小数)
 func IsFloat(str string) bool { return isHave(runFuncName(), str) }
 
-//	验证是否含有带不超过len个小数的小数
+// IsFloat2Len 验证是否含有带不超过len个小数的小数
 func IsFloat2Len(str string, l int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
@@ -404,7 +403,7 @@ func IsFloat2Len(str string, l int) bool {
 	return isHaveStr(fmt.Sprintf(regStr, l), str)
 }
 
-//	验证是否是全汉字
+// IsChineseAll 验证是否是全汉字
 func IsChineseAll(str string) bool {
 	if str == "" {
 		return false
@@ -417,7 +416,7 @@ func IsChineseAll(str string) bool {
 	return true
 }
 
-//	验证是否含有汉字
+// IsChinese 验证是否含有汉字
 func IsChinese(str string) bool {
 	for _, v := range str {
 		if unicode.Is(unicode.Han, v) {
@@ -427,7 +426,7 @@ func IsChinese(str string) bool {
 	return false
 }
 
-//	验证是否含有number个汉字
+// IsChineseN 验证是否含有number个汉字
 func IsChineseN(str string, number int) bool {
 	count := 0
 	for _, v := range str {
@@ -441,7 +440,7 @@ func IsChineseN(str string, number int) bool {
 	return false
 }
 
-//	验证是否全是汉字数字
+// IsChineseNumber 验证是否全是汉字数字
 func IsChineseNumber(str string) bool {
 	if str == "" {
 		return false
@@ -454,7 +453,7 @@ func IsChineseNumber(str string) bool {
 	return true
 }
 
-//	验证是否是中文钱大写
+// IsChineseMoney 验证是否是中文钱大写
 func IsChineseMoney(str string) bool {
 	if str == "" {
 		return false
@@ -470,10 +469,10 @@ func IsChineseMoney(str string) bool {
 	return true
 }
 
-//	验证是否是全英文
+// IsEngAll 验证是否是全英文
 func IsEngAll(str string) bool { return isHave(runFuncName(), str) }
 
-//	验证是否含不超过len个英文字符
+// IsEngLen 验证是否含不超过len个英文字符
 func IsEngLen(str string, l int) bool {
 	regStr, ok := regMap[runFuncName()]
 	if !ok{
@@ -483,10 +482,10 @@ func IsEngLen(str string, l int) bool {
 	return isHaveStr(fmt.Sprintf(regStr, l), str)
 }
 
-//	验证是否是英文和数字
+// IsEngNumber 验证是否是英文和数字
 func IsEngNumber(str string) bool { return isHave(runFuncName(), str) }
 
-//	验证是否全大写
+// IsAllCapital 验证是否全大写
 func IsAllCapital(str string) bool {
 	for _, value := range str {
 		if value > 91 || value < 64 {
@@ -496,7 +495,7 @@ func IsAllCapital(str string) bool {
 	return true
 }
 
-//	验证是否有大写
+// IsHaveCapital 验证是否有大写
 func IsHaveCapital(str string) bool {
 	for _, value := range str {
 		if value < 91 && value > 64 {
@@ -506,7 +505,7 @@ func IsHaveCapital(str string) bool {
 	return false
 }
 
-//	验证是否全小写
+// IsAllLower 验证是否全小写
 func IsAllLower(str string) bool {
 	for _, value := range str {
 		if value > 123 || value < 96 {
@@ -516,7 +515,7 @@ func IsAllLower(str string) bool {
 	return true
 }
 
-//	验证是否有小写
+// IsHaveLower 验证是否有小写
 func IsHaveLower(str string) bool {
 	for _, value := range str {
 		if value < 123 && value > 96 {
@@ -526,33 +525,32 @@ func IsHaveLower(str string) bool {
 	return false
 }
 
-//	验证不低于n个数字
+// IsLeastNumber 验证不低于n个数字
 func IsLeastNumber(str string, n int) bool { return isHave(runFuncName(), str) }
 
-//	验证不低于n个大写字母
+// IsLeastCapital 验证不低于n个大写字母
 func IsLeastCapital(str string, n int) bool { return isHave(runFuncName(), str) }
 
-//	验证不低于n个小写字母
+// IsLeastLower 验证不低于n个小写字母
 func IsLeastLower(str string, n int) bool { return isHave(runFuncName(), str) }
 
-//	验证不低于n特殊字符
+// IsLeastSpecial 验证不低于n特殊字符
 func IsLeastSpecial(str string, n int) bool { return isHave(runFuncName(), str) }
 
-//	验证域名
+// IsDomain 验证域名
 func IsDomain(str string) bool { return isHave(runFuncName(), str) }
 
-//	验证URL
+// IsURL 验证URL
 func IsURL(str string) bool { return isHave(runFuncName(), str) }
 
-//	验证手机号码
+// IsPhone 验证手机号码
 func IsPhone(str string) bool { return isHave(runFuncName(), str) }
 
-//	验证电话号码("XXX-XXXXXXX"、"XXXX-XXXXXXXX"、"XXX-XXXXXXX"、"XXX-XXXXXXXX"、"XXXXXXX"和"XXXXXXXX)：
+// IsLandline 验证电话号码("XXX-XXXXXXX"、"XXXX-XXXXXXXX"、"XXX-XXXXXXX"、"XXX-XXXXXXXX"、"XXXXXXX"和"XXXXXXXX)：
 func IsLandline(str string) bool { return isHave(runFuncName(), str) }
 
-//	IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))
+// IsIP IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))
 func IsIP(str string) bool { return isHave(runFuncName(), str) }
-
 
 func isArrayStr(s string, slist []string) bool {
 	for _, value := range slist {

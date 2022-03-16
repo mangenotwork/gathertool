@@ -8,11 +8,10 @@
 package gathertool
 
 import (
-	"reflect"
 	"sync"
 )
 
-// 固定顺序 Map 接口
+// GDMapApi 固定顺序 Map 接口
 type GDMapApi interface {
 	Add(key string, value interface{}) *gDMap
 	Get(key string) interface{}
@@ -46,7 +45,6 @@ func NewGDMap() *gDMap {
 func (m *gDMap) Add(key string, value interface{}) *gDMap {
 	m.mux.Lock()
 	defer m.mux.Unlock()
-	// 存在key 就更新值
 	if _,ok := m.data[key]; ok {
 		m.data[key] = value
 		return m
@@ -124,81 +122,5 @@ func (m *gDMap) Reverse() {
 		m.keyList[i], m.keyList[j] = m.keyList[j], m.keyList[i]
 	}
 }
-
-
-func MapCopy(data map[string]interface{}) (copy map[string]interface{}) {
-	copy = make(map[string]interface{}, len(data))
-	for k, v := range data {
-		copy[k] = v
-	}
-	return
-}
-
-// MapMergeCopy
-func MapMergeCopy(src ...map[string]interface{}) (copy map[string]interface{}) {
-	copy = make(map[string]interface{})
-	for _, m := range src {
-		for k, v := range m {
-			copy[k] = v
-		}
-	}
-	return
-}
-
-// Map2Slice Eg: {"K1": "v1", "K2": "v2"} => ["K1", "v1", "K2", "v2"]
-func Map2Slice(data interface{}) []interface{} {
-	var (
-		reflectValue = reflect.ValueOf(data)
-		reflectKind  = reflectValue.Kind()
-	)
-	for reflectKind == reflect.Ptr {
-		reflectValue = reflectValue.Elem()
-		reflectKind = reflectValue.Kind()
-	}
-	switch reflectKind {
-	case reflect.Map:
-		array := make([]interface{}, 0)
-		for _, key := range reflectValue.MapKeys() {
-			array = append(array, key.Interface())
-			array = append(array, reflectValue.MapIndex(key).Interface())
-		}
-		return array
-	}
-	return nil
-}
-
-func SliceCopy(data []interface{}) []interface{} {
-	newData := make([]interface{}, len(data))
-	copy(newData, data)
-	return newData
-}
-
-// Slice2Map ["K1", "v1", "K2", "v2"] => {"K1": "v1", "K2": "v2"}
-// ["K1", "v1", "K2"]       => nil
-func Slice2Map(slice interface{}) map[string]interface{} {
-	var (
-		reflectValue = reflect.ValueOf(slice)
-		reflectKind  = reflectValue.Kind()
-	)
-	for reflectKind == reflect.Ptr {
-		reflectValue = reflectValue.Elem()
-		reflectKind = reflectValue.Kind()
-	}
-	switch reflectKind {
-	case reflect.Slice, reflect.Array:
-		length := reflectValue.Len()
-		if length%2 != 0 {
-			return nil
-		}
-		data := make(map[string]interface{})
-		for i := 0; i < reflectValue.Len(); i += 2 {
-			data[Any2String(reflectValue.Index(i).Interface())] = reflectValue.Index(i + 1).Interface()
-		}
-		return data
-	}
-	return nil
-}
-
-
 
 

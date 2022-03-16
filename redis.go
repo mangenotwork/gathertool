@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
-	"log"
 	"net"
 	"sync"
 	"time"
@@ -60,7 +59,6 @@ func NewSSHInfo( addr, user, password string) *SSHConnInfo {
 
 func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds) {
 	var sshConnInfo SSHConnInfo
-
 	for _,v := range vs{
 		switch vv := v.(type) {
 		case *SSHConnInfo:
@@ -69,7 +67,6 @@ func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds) {
 			sshConnInfo = vv
 		}
 	}
-
 	return &Rds{
 		SSHUser: sshConnInfo.SSHUser,
 		SSHPassword : sshConnInfo.SSHPassword,
@@ -176,7 +173,6 @@ func (r *Rds) RedisPool() error {
 				}
 
 				c = redis.NewConn(conn, 60, 60)
-
 				//if  sshClient != nil {
 				//	var conn net.Conn
 				//	conn, err = sshClient.Dial("tcp", host)
@@ -185,7 +181,6 @@ func (r *Rds) RedisPool() error {
 				//if err != nil{
 				//	return nil, err
 				//}
-
 			}else{
 				c, err = redis.Dial("tcp", host)
 				if err != nil {
@@ -245,14 +240,13 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 	CPUMax()
 	rds.RedisMaxActive = rds.RedisMaxActive+jobNumber*2
 	rds.RedisMaxIdle = rds.RedisMaxIdle+jobNumber*2
-	//log.Println(rds.Pool.MaxActive, rds.Pool.MaxIdle)
 
 	_= rds.RedisPool()
 	conn := rds.Pool.Get()
 	queue := NewQueue()
 	res, err := redis.Strings(conn.Do("keys", keys))
 	if err != nil {
-		log.Println("GET error", err.Error())
+		Error(err)
 	}
 	conn.Close()
 
@@ -260,7 +254,6 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 		queue.Add(&Task{Url: v})
 	}
 	allNumber := queue.Size()
-	//log.Println("allNumber = ", allNumber)
 
 	var wg sync.WaitGroup
 	for job:=0;job<jobNumber;job++{
@@ -284,16 +277,12 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 					Info("删除成功 ！！！")
 				}
 				c.Close()
-
 				Info(fmt.Sprintf("[进度] %d/%d  %f %%", allNumber - queue.Size(),
 					allNumber, (float64(allNumber - queue.Size())/float64(allNumber))*100))
 			}
-
 			Info("第",i ,"个任务结束！！")
 		}(job)
 	}
 	wg.Wait()
 	Info("执行完成！！！")
-
 }
-

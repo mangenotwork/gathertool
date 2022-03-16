@@ -201,7 +201,6 @@ func (ecb *ecbObj) Encrypt(str, key []byte) ([]byte, error) {
 	encryptData := make([]byte, len(str))
 	//存储每次加密的数据
 	tmpData := make([]byte, blockSize)
-
 	//分组分块加密
 	for index := 0; index < len(str); index += blockSize {
 		block.Encrypt(tmpData, str[index:index+blockSize])
@@ -401,8 +400,7 @@ func (ctr *ctrObj) crypto(str, key []byte) ([]byte, error) {
 }
 
 // 输出反馈模式（Output FeedBack (OFB)）
-type ofbObj struct {
-}
+type ofbObj struct {}
 
 func hmacFunc(h func() hash.Hash, str, key []byte) string {
 	mac := hmac.New(h, key)
@@ -515,4 +513,43 @@ func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err er
 
 // TODO RIPEMD-160
 
+/*
+0: “sha1”
+1: “sha224”
+2: “sha256”
+3: “sha384”
+4: “sha512”
+5: “md5”
+6: “rmd160”
+7: “sha224WithRSAEncryption”
+8: “RSA-SHA224”
+9: “sha256WithRSAEncryption”
+10: “RSA-SHA256”
+11: “sha384WithRSAEncryption”
+12: “RSA-SHA384”
+13: “sha512WithRSAEncryption”
+14: “RSA-SHA512”
+15: “RSA-SHA1”
+16: “ecdsa-with-SHA1”
+17: “sha256”
+18: “sha224”
+19: “sha384”
+20: “sha512”
+21: “DSA-SHA”
+22: “DSA-SHA1”
+23: “DSA”
+24: “DSA-WITH-SHA224”
+25: “DSA-SHA224”
+26: “DSA-WITH-SHA256”
+27: “DSA-SHA256”
+28: “DSA-WITH-SHA384”
+29: “DSA-SHA384”
+30: “DSA-WITH-SHA512”
+31: “DSA-SHA512”
+32: “DSA-RIPEMD160”
+33: “ripemd160WithRSA”
+34: “RSA-RIPEMD160”
+35: “md5WithRSAEncryption”
+36: “RSA-MD5”
+ */
 

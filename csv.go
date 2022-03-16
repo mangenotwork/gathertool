@@ -18,7 +18,7 @@ type Csv struct {
 	R *csv.Reader
 }
 
-// 新创建一个csv对象
+// NewCSV 新创建一个csv对象
 func NewCSV(fileName string) (*Csv,error) {
 	f, err := os.Create(fileName)
 	defer f.Close()
@@ -33,7 +33,7 @@ func NewCSV(fileName string) (*Csv,error) {
 	return csvObj,nil
 }
 
-// 写入csv
+// Add 写入csv
 func (c *Csv) Add(data []string) error{
 	err := c.W.Write(data)
 	if err != nil {
@@ -44,12 +44,12 @@ func (c *Csv) Add(data []string) error{
 }
 
 
-// 读取所有
+// ReadAll 读取所有
 func (c *Csv) ReadAll() ([][]string, error){
 	return c.R.ReadAll()
 }
 
-// csv file -> [][]string 行列
+// ReadCsvFile csv file -> [][]string 行列
 func ReadCsvFile(filename string) [][]string {
 	file, err := os.Open(filename)
 	if err != nil {

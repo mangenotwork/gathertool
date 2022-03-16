@@ -1,8 +1,8 @@
 /*
 	Description : 请求上下文
 	Author : ManGe
-	Version : v0.5
-	Date : 2021-12-18
+	Version : v0.6
+	Date : 2022-03-16
 */
 
 package gathertool
@@ -28,42 +28,42 @@ import (
 	"time"
 )
 
-// 重试次数
-type  RetryTimes int
+// RetryTimes 重试次数
+type RetryTimes int
 
-// 请求开始前的方法类型
+// StartFunc 请求开始前的方法类型
 type StartFunc func(c *Context)
 
-// 成功后的方法类型
+// SucceedFunc 请求成功后的方法类型
 type SucceedFunc func(c *Context)
 
-// 失败后的方法类型
+// FailedFunc 请求失败的方法类型
 type FailedFunc func(c *Context)
 
-// 重试前的方法类型
+// RetryFunc 指定重试状态码重试前的方法类型
 type RetryFunc func(c *Context)
 
-// 请求结束后的方法类型
+// EndFunc 请求流程结束后的方法类型
 type EndFunc func(c *Context)
 
-// 是否开启日志
+// IsLog 全局是否开启日志
 type IsLog bool
 
-// 代理地址
+// ProxyUrl 全局代理地址
 type ProxyUrl string
 
-// 请求上下文
+// Context 请求上下文
 type Context struct {
 	// Token
 	Token string
 
-	// client
+	// http client
 	Client *http.Client
 
-	// Request
+	// http Request
 	Req *http.Request
 
-	// Response
+	// http Response
 	Resp *http.Response
 
 	// Error
@@ -122,14 +122,17 @@ type Context struct {
 
 	// 输出字符串
 	Text string
+
 	// 输出Json
 	Json string
+
 	// 输出xml
 	Xml string
+
 	// 输出HTML
 	Html string
 
-	// 上下文参数
+	// 请求上下文参数
 	Param map[string]interface{}
 }
 
@@ -139,7 +142,7 @@ func (c *Context) SetSucceedFunc(successFunc func(c *Context)) *Context {
 	return c
 }
 
-// SetFailed 设置错误后的方法
+// SetFailedFunc 设置错误后的方法
 func (c *Context) SetFailedFunc(failedFunc func(c *Context)) *Context {
 	c.FailedFunc = failedFunc
 	return c
@@ -158,13 +161,10 @@ func (c *Context) SetRetryTimes(times int) *Context {
 }
 
 // Do 执行请求
-func (c *Context) Do() func(){
-
+func (c *Context) Do() func() {
 	var bodyBytes []byte
 
-	//空验证
 	if c == nil{
-		log.Println("空对象")
 		return nil
 	}
 
@@ -181,13 +181,11 @@ func (c *Context) Do() func(){
 	//重试验证
 	c.times++
 	if c.times > c.MaxTimes{
-		Error( "【日志】 请求失败操过", c.MaxTimes, "次了,结束重试操作；")
-
+		Error( "【日志】 请求失败操过", c.MaxTimes, " 次了,结束重试操作！")
 		// 超过了重试次数，就算失败，则执行失败方法
 		if c.FailedFunc != nil{
 			c.FailedFunc(c)
 		}
-
 		return nil
 	}
 
@@ -211,25 +209,23 @@ func (c *Context) Do() func(){
 	if c.Err != nil && (
 		strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") ||
 		strings.Contains(c.Err.Error(), ("Too Many Requests")) ||
-			strings.Contains(c.Err.Error(), ("To Many Requests")) ||
-			strings.Contains(c.Err.Error(), ("EOF")) ||
-			strings.Contains(c.Err.Error(), ("connection timed out")) ){
-		Error("【日志】 请求 超时 = ", c.Err)
+		strings.Contains(c.Err.Error(), ("To Many Requests")) ||
+		strings.Contains(c.Err.Error(), ("EOF")) ||
+		strings.Contains(c.Err.Error(), ("connection timed out")) ){
 
+		Error("【日志】 请求 超时 = ", c.Err)
 		if c.RetryFunc != nil && !c.isRetry {
 			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
-
 		return nil
 	}
 
 	// 其他错误
 	if c.Err != nil {
 		Error("【日志】 请求 err = ", c.Err)
-
 		// 指定的失败都执行 retry
 		if c.err2retry && c.RetryFunc != nil && !c.isRetry {
 			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
@@ -241,12 +237,7 @@ func (c *Context) Do() func(){
 		if c.FailedFunc != nil{
 			c.FailedFunc(c)
 		}
-
 		return nil
-	}
-
-	if c.Resp.Header.Get("Content-Encoding") == "gzip" {
-		c.Resp.Body, _ = gzip.NewReader(c.Resp.Body)
 	}
 
 	defer func(c *Context){
@@ -255,20 +246,31 @@ func (c *Context) Do() func(){
 		}
 	}(c)
 
+	if c.Resp.Header.Get("Content-Encoding") == "gzip" {
+		c.Resp.Body, _ = gzip.NewReader(c.Resp.Body)
+	}
 	InfoTimes( 4,"【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	v,ok := StatusCodeMap[c.Resp.StatusCode]
+	if !ok {
+		body, err := ioutil.ReadAll(c.Resp.Body)
+		if err != nil{
+			Error(err)
+			return nil
+		}
+		c.RespBody = body
+	}
+
 	switch v {
 	case "success":
 		InfoTimes(4, "【日志】 执行 success 事件")
 		// 请求后的结果
 		body, err := ioutil.ReadAll(c.Resp.Body)
 		if err != nil{
-			log.Println(err)
+			Error(err)
 			return nil
 		}
-
 		c.RespBody = body
 		// 执行成功方法
 		if c.SucceedFunc != nil {
@@ -306,24 +308,14 @@ func (c *Context) Do() func(){
 		ok = false
 	}
 
-	if !ok{
-		body, err := ioutil.ReadAll(c.Resp.Body)
-		if err != nil{
-			log.Println(err)
-			return nil
-		}
-		c.RespBody = body
-	}
-
 	c.Text = c.RespBodyString()
 	c.Json = c.RespBodyString()
 	c.Xml = c.RespBodyString()
 	c.Html = c.RespBodyHtml()
-
 	return nil
 }
 
-// Resp Body -> String
+// RespBodyString Body -> String
 func (c *Context) RespBodyString() string {
 	if c.RespBody != nil {
 		return string(c.RespBody)
@@ -331,7 +323,7 @@ func (c *Context) RespBodyString() string {
 	return ""
 }
 
-// Resp Body -> html string
+// RespBodyHtml Body -> html string
 func (c *Context) RespBodyHtml() string {
 	html := c.RespBodyString()
 	return strings.NewReplacer(
@@ -343,7 +335,7 @@ func (c *Context) RespBodyHtml() string {
 	).Replace(html)
 }
 
-// Resp Body -> Map
+// RespBodyMap Body -> Map
 func (c *Context) RespBodyMap() map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal(c.RespBody, &tempMap)
@@ -354,7 +346,7 @@ func (c *Context) RespBodyMap() map[string]interface{} {
 	return tempMap
 }
 
-// Resp Body -> Arr
+// RespBodyArr Body -> Arr
 func (c *Context) RespBodyArr() []interface{} {
 	var tempArr []interface{}
 	err := json.Unmarshal(c.RespBody, &tempArr)
@@ -406,27 +398,27 @@ func (c *Context) CheckMd5() string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// add header
+// AddHeader add header
 func (c *Context) AddHeader(k,v string) *Context {
 	c.Req.Header.Add(k,v)
 	return c
 }
 
-// add Cookie
+// AddCookie add Cookie
 func (c *Context) AddCookie(k, v string) *Context {
 	cookie := &http.Cookie{Name: k, Value: v, HttpOnly: true}
 	c.Req.AddCookie(cookie)
 	return c
 }
 
-// set proxy
+// SetProxy set proxy
 func (c *Context) SetProxy(proxyUrl string) *Context {
 	proxy, _ := url.Parse(proxyUrl)
 	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
 	return c
 }
 
-// set proxy func
+// SetProxyFunc set proxy func
 func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
 	c.Client.Transport = f()
 	return c
@@ -436,14 +428,13 @@ func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
 func (c *Context) Upload(filePath string) func(){
 	//空验证
 	if c == nil{
-		log.Println("空对象")
 		return nil
 	}
 
 	//重试验证
 	c.times++
 	if c.times > c.MaxTimes{
-		log.Println("请求失败操过", c.MaxTimes, "次了")
+		Infof("请求失败操过", c.MaxTimes, "次了")
 		return nil
 	}
 
@@ -471,12 +462,13 @@ func (c *Context) Upload(filePath string) func(){
 
 	// 其他错误
 	if c.Err != nil {
-		log.Println("err = ", c.Err)
+		Error(c.Err)
 		if c.FailedFunc != nil{
 			c.FailedFunc(c)
 		}
 		return nil
 	}
+
 	defer func(cxt *Context){
 		if cxt.Resp != nil {
 			_=cxt.Resp.Body.Close()
@@ -488,7 +480,10 @@ func (c *Context) Upload(filePath string) func(){
 		c.Err = err
 		return nil
 	}
-	defer f.Close()
+
+	defer func(){
+		f.Close()
+	}()
 
 	contentLength := Str2Float64(c.Resp.Header.Get("Content-Length"))
 	var sum int64 = 0
@@ -531,17 +526,17 @@ func (c *Context) CookieNext() error {
 	return nil
 }
 
-// close log
+// CloseLog close log
 func (c *Context) CloseLog() {
 	c.IsLog = false
 }
 
-// 开启请求失败都执行retry
+// OpenErr2Retry 开启请求失败都执行retry
 func (c *Context) OpenErr2Retry() {
 	c.err2retry = true
 }
 
-// 关闭重试
+// CloseRetry 关闭重试
 func (c *Context) CloseRetry() {
 	c.isRetry = true
 }
@@ -561,7 +556,7 @@ func (c *Context) DelParam(key string) {
 	delete(c.Param, key)
 }
 
-// CookiePool   cookie池
+// CookiePool  cookie池
 type cookiePool struct {
 	cookie []*http.Cookie
 	mux sync.Mutex

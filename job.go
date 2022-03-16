@@ -27,7 +27,6 @@ func StartJob(jobNumber int, queue TodoQueue,f func(task *Task)){
 				}
 				task := queue.Poll()
 				Info("第", i, "个任务取的值： ", task)
-
 				f(task)
 			}
 			Info("第",i ,"个任务结束！！")
@@ -41,12 +40,8 @@ func StartJob(jobNumber int, queue TodoQueue,f func(task *Task)){
 type Err2Retry bool
 
 // StartJobGet 并发执行Get,直到队列任务为空
-// @jobNumber 并发数，
-// @queue 全局队列，
-// @client 单个并发任务的client，
-// @SucceedFunc 成功方法，
-// @ RetryFunc重试方法，
-// @FailedFunc 失败方法
+// jobNumber 并发数，
+// queue 全局队列，
 func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 
 	var (
@@ -114,7 +109,6 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 				default:
 					ctx.Do()
 				}
-
 			}
 			Info("第",i ,"个任务结束！！")
 		}(job)
@@ -202,3 +196,4 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 func CPUMax(){
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
+
