@@ -73,6 +73,10 @@ func InfoTimes(times int, args ...interface{}) {
 	std.Log(1, fmt.Sprint(args...), times)
 }
 
+func InfofTimes(format string, times int, args ...interface{}) {
+	std.Log(1, fmt.Sprintf(format, args...), times)
+}
+
 func Debug(args ...interface{}) {
 	std.Log(2, fmt.Sprint(args...), 2)
 }

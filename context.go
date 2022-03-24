@@ -25,6 +25,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -249,7 +250,7 @@ func (c *Context) Do() func() {
 	if c.Resp.Header.Get("Content-Encoding") == "gzip" {
 		c.Resp.Body, _ = gzip.NewReader(c.Resp.Body)
 	}
-	InfoTimes( 4,"【日志】 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
+	InfoTimes( 3,"[日志] 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	v,ok := StatusCodeMap[c.Resp.StatusCode]
@@ -264,7 +265,6 @@ func (c *Context) Do() func() {
 
 	switch v {
 	case "success":
-		InfoTimes(4, "【日志】 执行 success 事件")
 		// 请求后的结果
 		body, err := ioutil.ReadAll(c.Resp.Body)
 		if err != nil{
@@ -274,13 +274,14 @@ func (c *Context) Do() func() {
 		c.RespBody = body
 		// 执行成功方法
 		if c.SucceedFunc != nil {
+			InfoTimes(3, "[日志] 执行 success 事件")
 			c.SucceedFunc(c)
 		}
 
 	case "retry":
 		c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 		if c.RetryFunc != nil && !c.isRetry {
-			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			InfoTimes(4, "[日志] 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
@@ -288,19 +289,19 @@ func (c *Context) Do() func() {
 
 	case "fail":
 		if c.FailedFunc != nil{
-			InfoTimes(4, "【日志】 执行 failed 事件")
+			InfoTimes(4, "[日志] 执行 failed 事件")
 			c.FailedFunc(c)
 		}
 
 	case "start":
 		if c.StartFunc != nil {
-			InfoTimes(4, "【日志】 执行 请求前的方法")
+			InfoTimes(4, "[日志] 执行 请求前的方法")
 			c.StartFunc(c)
 		}
 
 	case "end":
 		if c.EndFunc != nil {
-			InfoTimes(4, "【日志】 执行 请求结束后的方法")
+			InfoTimes(4, "[日志] 执行 请求结束后的方法")
 			c.EndFunc(c)
 		}
 
@@ -423,6 +424,85 @@ func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
 	c.Client.Transport = f()
 	return c
 }
+
+// SetProxy set proxy
+func (c *Context) SetProxyPool(pool *ProxyPool) *Context {
+	ip, _ := pool.Get()
+	InfofTimes("[日志] 使用代理: %s",3, ip)
+	proxy, _ := url.Parse(ip)
+	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
+	return c
+}
+
+// 代理ip
+type ProxyIP struct {
+	IP string
+	Post int
+	User string
+	Pass string
+	IsTLS bool
+}
+
+func NewProxyIP(ip string, port int, user, pass string, isTls bool) *ProxyIP {
+	return &ProxyIP{
+		IP : ip,
+		Post : port,
+		User : user,
+		Pass : pass,
+		IsTLS : isTls,
+	}
+}
+
+func (p *ProxyIP) String() string {
+	h := "http://"
+	if p.IsTLS {
+		h = "https://"
+	}
+	return fmt.Sprintf("%s%s:%s@%s:%d", h, p.User, p.Pass, p.IP, p.Post)
+}
+
+// 代理池
+type ProxyPool struct {
+	ip []string
+	num int32
+	len int32
+	lock sync.Mutex
+}
+
+func NewProxyPool() *ProxyPool {
+	return &ProxyPool{
+		ip : make([]string, 0),
+		num: 0,
+		len: 0,
+		lock: sync.Mutex{},
+	}
+}
+
+func (p *ProxyPool) Add(proxyIP *ProxyIP) {
+	p.ip = append(p.ip, proxyIP.String())
+	p.len++
+}
+
+func (p *ProxyPool) Del(n int) {
+	if int32(n+1) > p.len {
+		return
+	}
+	p.ip = append(p.ip[:n], p.ip[n+1:]...)
+	p.len--
+}
+
+func (p *ProxyPool) Get() (string, int) {
+	p.lock.Lock()
+	if p.num >= p.len {
+		p.num = 0
+	}
+	data := p.ip[p.num]
+	p.lock.Unlock()
+	n := p.num
+	atomic.AddInt32(&p.num, int32(1))
+	return data, int(n)
+}
+
 
 // Upload 下载
 func (c *Context) Upload(filePath string) func(){
