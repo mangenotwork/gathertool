@@ -161,6 +161,11 @@ func (c *Context) SetRetryTimes(times int) *Context {
 	return c
 }
 
+// GetRetryTimes 获取当前重试次数
+func (c *Context) GetRetryTimes() int {
+	return int(c.times)
+}
+
 // Do 执行请求
 func (c *Context) Do() func() {
 	var bodyBytes []byte
@@ -590,6 +595,8 @@ func (c *Context) Upload(filePath string) func(){
 	return nil
 }
 
+
+// TODO 高并发下载
 
 // CookieNext
 func (c *Context) CookieNext() error {

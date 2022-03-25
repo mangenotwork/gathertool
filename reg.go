@@ -1,8 +1,6 @@
 /*
 	Description : 正则
 	Author : ManGe
-	Version : v0.5
-	Date : 2021-12-17
 */
 
 package gathertool
@@ -111,44 +109,47 @@ var regMap = map[string]string{
 	"IsIPv4":          `([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))`,
 	"IsWindowsPath":   `^[a-zA-Z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*$`,
 	"IsUnixPath":      `^(/[^/\x00]*)+/?$`,
+
+	//常用正则
+	"RegTime" : `(?i)\d{1,2}:\d{2} ?(?:[ap]\.?m\.?)?|\d[ap]\.?m\.?`,
+	"RegLink" : `(?:(?:https?:\/\/)?(?:[a-z0-9.\-]+|www|[a-z0-9.\-])[.](?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s!()\[\]{};:\'".,<>?]))`,
+	"RegEmail" : `(?i)([A-Za-z0-9!#$%&'*+\/=?^_{|.}~-]+@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)`,
+	"RegIPv4" : `(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)`,
+	"RegIPv6" : `(?:(?:(?:[0-9A-Fa-f]{1,4}:){7}(?:[0-9A-Fa-f]{1,4}|:))|(?:(?:[0-9A-Fa-f]{1,4}:){6}(?::[0-9A-Fa-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){5}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,2})|:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){4}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,3})|(?:(?::[0-9A-Fa-f]{1,4})?:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){3}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,4})|(?:(?::[0-9A-Fa-f]{1,4}){0,2}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){2}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,5})|(?:(?::[0-9A-Fa-f]{1,4}){0,3}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){1}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,6})|(?:(?::[0-9A-Fa-f]{1,4}){0,4}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?::(?:(?:(?::[0-9A-Fa-f]{1,4}){1,7})|(?:(?::[0-9A-Fa-f]{1,4}){0,5}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(?:%.+)?\s*`,
+	"RegIP" : `(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(?:(?:(?:[0-9A-Fa-f]{1,4}:){7}(?:[0-9A-Fa-f]{1,4}|:))|(?:(?:[0-9A-Fa-f]{1,4}:){6}(?::[0-9A-Fa-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){5}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,2})|:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){4}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,3})|(?:(?::[0-9A-Fa-f]{1,4})?:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){3}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,4})|(?:(?::[0-9A-Fa-f]{1,4}){0,2}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){2}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,5})|(?:(?::[0-9A-Fa-f]{1,4}){0,3}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){1}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,6})|(?:(?::[0-9A-Fa-f]{1,4}){0,4}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?::(?:(?:(?::[0-9A-Fa-f]{1,4}){1,7})|(?:(?::[0-9A-Fa-f]{1,4}){0,5}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(?:%.+)?\s*`,
+	"RegMD5Hex" : `[0-9a-fA-F]{32}`,
+	"RegSHA1Hex" : `[0-9a-fA-F]{40}`,
+	"RegSHA256Hex" : `[0-9a-fA-F]{64}`,
+	"RegGUID" : `[0-9a-fA-F]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}`,
+	"RegMACAddress" : `(([a-fA-F0-9]{2}[:-]){5}([a-fA-F0-9]{2}))`,
+	"RegEmail2" : "^(((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$",
+	"RegUUID3" : "^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$",
+	"RegUUID4" : "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+	"RegUUID5" : "^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+	"RegUUID" : "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+	"RegInt" :  "^(?:[-+]?(?:0|[1-9][0-9]*))$",
+	"RegFloat" : "^(?:[-+]?(?:[0-9]+))?(?:\\.[0-9]*)?(?:[eE][\\+\\-]?(?:[0-9]+))?$",
+	"RegRGBColor" : "^rgb\\(\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*\\)$",
+	"RegFullWidth" : "[^\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]",
+	"RegHalfWidth" : "[\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]",
+	"RegBase64" : "^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{4})$",
+	"RegLatitude" : "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$",
+	"RegLongitude" : "^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$",
+	"RegDNSName" :  `^([a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62}){1}(\.[a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62})*[\._]?$`,
+	"RegFullURL" : `^(?:ftp|tcp|udp|wss?|https?):\/\/[\w\.\/#=?&]+$`,
+	"RegURLSchema" : `((ftp|tcp|udp|wss?|https?):\/\/)`,
+	"RegURLUsername" : `(\S+(:\S*)?@)`,
+	"RegURLPath" : `((\/|\?|#)[^\s]*)`,
+	"RegURLPort" :  `(:(\d{1,5}))`,
+	"RegURLIP" :  `([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))`,
+	"RegURLSubdomain" : `((www\.)|([a-zA-Z0-9]+([-_\.]?[a-zA-Z0-9])*[a-zA-Z0-9]\.[a-zA-Z0-9]+))`,
+	"RegWinPath" : `^[a-zA-Z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*$`,
+	"RegUnixPath" : `^(/[^/\x00]*)+/?$`,
 }
 
 // 常用正则
 const (
-	RegTime = `(?i)\d{1,2}:\d{2} ?(?:[ap]\.?m\.?)?|\d[ap]\.?m\.?`
-	RegLink = `(?:(?:https?:\/\/)?(?:[a-z0-9.\-]+|www|[a-z0-9.\-])[.](?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s!()\[\]{};:\'".,<>?]))`
-	RegEmail = `(?i)([A-Za-z0-9!#$%&'*+\/=?^_{|.}~-]+@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)`
-	RegIPv4 = `(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)`
-	RegIPv6 = `(?:(?:(?:[0-9A-Fa-f]{1,4}:){7}(?:[0-9A-Fa-f]{1,4}|:))|(?:(?:[0-9A-Fa-f]{1,4}:){6}(?::[0-9A-Fa-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){5}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,2})|:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){4}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,3})|(?:(?::[0-9A-Fa-f]{1,4})?:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){3}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,4})|(?:(?::[0-9A-Fa-f]{1,4}){0,2}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){2}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,5})|(?:(?::[0-9A-Fa-f]{1,4}){0,3}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){1}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,6})|(?:(?::[0-9A-Fa-f]{1,4}){0,4}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?::(?:(?:(?::[0-9A-Fa-f]{1,4}){1,7})|(?:(?::[0-9A-Fa-f]{1,4}){0,5}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(?:%.+)?\s*`
-	RegIP = RegIPv4 + `|` + RegIPv6
-	RegMD5Hex = `[0-9a-fA-F]{32}`
-	RegSHA1Hex = `[0-9a-fA-F]{40}`
-	RegSHA256Hex = `[0-9a-fA-F]{64}`
-	RegGUID = `[0-9a-fA-F]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}`
-	RegMACAddress = `(([a-fA-F0-9]{2}[:-]){5}([a-fA-F0-9]{2}))`
-	Email        = "^(((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$"
-	UUID3        = "^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
-	UUID4        = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-	UUID5        = "^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-	UUID         = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-	Int          = "^(?:[-+]?(?:0|[1-9][0-9]*))$"
-	Float        = "^(?:[-+]?(?:[0-9]+))?(?:\\.[0-9]*)?(?:[eE][\\+\\-]?(?:[0-9]+))?$"
-	RGBColor     = "^rgb\\(\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*\\)$"
-	FullWidth    = "[^\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]"
-	HalfWidth    = "[\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]"
-	Base64       = "^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{4})$"
-	Latitude     = "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$"
-	Longitude    = "^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$"
-	DNSName      = `^([a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62}){1}(\.[a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62})*[\._]?$`
-	FullURL      = `^(?:ftp|tcp|udp|wss?|https?):\/\/[\w\.\/#=?&]+$`
-	URLSchema    = `((ftp|tcp|udp|wss?|https?):\/\/)`
-	URLUsername  = `(\S+(:\S*)?@)`
-	URLPath      = `((\/|\?|#)[^\s]*)`
-	URLPort      = `(:(\d{1,5}))`
-	URLIP        = `([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))`
-	URLSubdomain = `((www\.)|([a-zA-Z0-9]+([-_\.]?[a-zA-Z0-9])*[a-zA-Z0-9]\.[a-zA-Z0-9]+))`
-	WinPath      = `^[a-zA-Z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*$`
-	UnixPath     = `^(/[^/\x00]*)+/?$`
+
 )
 
 var (
@@ -552,6 +553,51 @@ func IsLandline(str string) bool { return isHave(runFuncName(), str) }
 // IsIP IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))
 func IsIP(str string) bool { return isHave(runFuncName(), str) }
 
+// AccountRational 帐号合理性
+func AccountRational(str string) bool { return isHave(runFuncName(), str) }
+
+// IsXMLFile 是否三xml文件
+func IsXMLFile(str string) bool { return isHave(runFuncName(), str) }
+
+// IsUUID3 是否是uuid
+func IsUUID3(str string) bool { return isHave(runFuncName(), str) }
+
+// IsUUID4 是否是uuid
+func IsUUID4(str string) bool { return isHave(runFuncName(), str) }
+
+// IsUUID5 是否是uuid
+func IsUUID5(str string) bool { return isHave(runFuncName(), str) }
+
+// IsRGB 是否是 rgb
+func IsRGB(str string) bool { return isHave(runFuncName(), str) }
+
+// IsFullWidth 是否是全角字符
+func IsFullWidth(str string) bool { return isHave(runFuncName(), str) }
+
+// IsHalfWidth 是否是半角字符
+func IsHalfWidth(str string) bool { return isHave(runFuncName(), str) }
+
+// IsBase64 是否是base64
+func IsBase64(str string) bool { return isHave(runFuncName(), str) }
+
+// IsLatitude 是否是纬度
+func IsLatitude(str string) bool { return isHave(runFuncName(), str) }
+
+// IsLongitude 是否是经度
+func IsLongitude(str string) bool { return isHave(runFuncName(), str) }
+
+// IsDNSName 是否是dns 名称
+func IsDNSName(str string) bool { return isHave(runFuncName(), str) }
+
+// IsIPv4 是否是ipv4
+func IsIPv4(str string) bool { return isHave(runFuncName(), str) }
+
+// IsWindowsPath 是否是windos路径
+func IsWindowsPath(str string) bool { return isHave(runFuncName(), str) }
+
+// IsUnixPath 是否是unix路径
+func IsUnixPath(str string) bool { return isHave(runFuncName(), str) }
+
 func isArrayStr(s string, slist []string) bool {
 	for _, value := range slist {
 		if s == value {
@@ -560,3 +606,107 @@ func isArrayStr(s string, slist []string) bool {
 	}
 	return false
 }
+
+// RegTime 提取时间
+func RegTime(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegLink 提取链接
+func RegLink(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegEmail 提取邮件
+func RegEmail(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegIPv4 提取ipv4
+func RegIPv4(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegIPv6 提取ipv6
+func RegIPv6(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegIP 提取ip
+func RegIP(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegMD5Hex 提取md5
+func RegMD5Hex(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegSHA1Hex 提取sha1
+func RegSHA1Hex(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegSHA256Hex 提取sha256
+func RegSHA256Hex(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegGUID 提取guid
+func RegGUID(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegMACAddress 提取MACAddress
+func RegMACAddress(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegEmail2 提取邮件
+func RegEmail2(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegUUID3 提取uuid
+func RegUUID3(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegUUID4 提取uuid
+func RegUUID4(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegUUID5 提取uuid
+func RegUUID5(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegUUID 提取uuid
+func RegUUID(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegInt 提取整形
+func RegInt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegFloat 提取浮点型
+func RegFloat(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegRGBColor 提取RGB值
+func RegRGBColor(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegFullWidth 提取全角字符
+func RegFullWidth(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegHalfWidth 提取半角字符
+func RegHalfWidth(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegBase64 提取base64字符串
+func RegBase64(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegLatitude 提取纬度
+func RegLatitude(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegLongitude 提取经度
+func RegLongitude(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegDNSName 提取dns
+func RegDNSName(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegFullURL 提取url
+func RegFullURL(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegURLSchema  提取url schema
+func RegURLSchema(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegURLUsername  提取url username
+func RegURLUsername(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegURLPath  提取url path
+func RegURLPath(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegURLPort  提取url port
+func RegURLPort(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegURLIP  提取 url ip
+func RegURLIP(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegURLSubdomain  提取 url sub domain
+func RegURLSubdomain(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegWinPath  提取 windows路径
+func RegWinPath(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+// RegUnixPath  提取 unix路径
+func RegUnixPath(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+
