@@ -1,8 +1,6 @@
 /*
 	Description : mongoDB
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-05-13
 */
 
 package gathertool

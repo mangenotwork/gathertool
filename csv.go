@@ -1,8 +1,6 @@
 /*
 	Description : csv的相关方法
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-04-27
 */
 
 package gathertool

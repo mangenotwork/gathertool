@@ -1,8 +1,6 @@
 /*
 	Description : 固定顺序map
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-10-11
 */
 
 package gathertool

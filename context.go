@@ -1,8 +1,6 @@
 /*
 	Description : 请求上下文
 	Author : ManGe
-	Version : v0.6
-	Date : 2022-03-16
 */
 
 package gathertool

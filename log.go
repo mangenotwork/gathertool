@@ -1,8 +1,6 @@
 /*
 	Description : 内部日志打印
 	Author : ManGe
-	Version : v0.2
-	Date : 2021-12-27
 */
 
 package gathertool

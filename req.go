@@ -1,8 +1,6 @@
 /*
 	Description : 对外提供的方法
 	Author : ManGe
-	Version : v0.3
-	Date : 2021-12-18
 */
 
 package gathertool

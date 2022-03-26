@@ -1,8 +1,6 @@
 /*
 	Description : 切片工具接口
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-09-29
 */
 
 package gathertool

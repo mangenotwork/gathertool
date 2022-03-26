@@ -1,3 +1,8 @@
+/*
+	Description : Udp的连接 (Udp客户端); 应用场景是模拟Udp客户端;
+	Author : ManGe
+ */
+
 package gathertool
 
 import (

@@ -8,8 +8,6 @@
 
 	Description : gathertool 轻量级爬虫，接口测试，压力测试框架, 提高开发对应场景的golang程序的效率。
 	Author : ManGe
-	Version : v0.2.8
-	Date : 2022-03-16
 
 */
 

@@ -1,8 +1,6 @@
 /*
 	Description : 数据类型相关的操作
 	Author : ManGe
-	Version : v0.3
-	Date : 2021-12-22
 */
 
 package gathertool

@@ -1,8 +1,6 @@
 /*
 	Description : mysql 相关方法
 	Author : ManGe
-	Version : v0.4
-	Date : 2021-12-20
 */
 
 

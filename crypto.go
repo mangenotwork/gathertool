@@ -1,8 +1,6 @@
 /*
 	Description : 加密解码相关封装方法
 	Author : ManGe
-	Version : v0.2
-	Date : 2021-12-21
 */
 
 package gathertool

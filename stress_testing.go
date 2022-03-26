@@ -1,3 +1,8 @@
+/*
+	Description : 接口测试， 压力测试 方法
+	Author : ManGe
+*/
+
 package gathertool
 
 import (

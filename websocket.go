@@ -1,8 +1,6 @@
 /*
-	Description : websocket的连接
+	Description : websocket的连接, 模拟websocket客户端
 	Author : ManGe
-	Version : v0.1
-	Date : 2021-04-24
 */
 
 package gathertool

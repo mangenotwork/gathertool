@@ -1,8 +1,6 @@
 /*
 	Description : 并发工作任务
 	Author : ManGe
-	Version : v0.2
-	Date : 2021-08-12
 */
 
 package gathertool

@@ -1,10 +1,8 @@
 /*
 	Description : Tcp的连接 (Tcp客户端); 应用场景是模拟Tcp客户端;
 	Author : ManGe
-	Version : v0.1
-	Date : 2022-01-26
 
-// ===== USE
+// ===== Use
 func main(){
 	client := gt.NewTcpClient()
 	client.Run("192.168.0.9:29123", f)
