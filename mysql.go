@@ -9,18 +9,21 @@ package gathertool
 import (
 	"bytes"
 	"database/sql"
-	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	"os"
 	"reflect"
 	"strings"
 	"sync"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/xuri/excelize/v2"
 )
 
-const (
+var (
 	SHOW_TABLES = "SHOW TABLES"
-	TABLE_NAME_NULL = "table name is null."
+	TABLE_NAME_NULL = fmt.Errorf("table name is null.")
+	TABLE_IS_NULL = fmt.Errorf("table is null.")
 )
 
 var MysqlDB = &Mysql{}
@@ -145,11 +148,11 @@ func (m *Mysql) allTableName() (err error) {
 }
 
 // IsHaveTable 表是否存在
-func (m *Mysql) IsHaveTable(name string) bool {
+func (m *Mysql) IsHaveTable(table string) bool {
 	if m.allTN == nil {
 		_=m.allTableName()
 	}
-	return m.allTN.isHave(name)
+	return m.allTN.isHave(table)
 }
 
 // 表信息
@@ -215,7 +218,7 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error){
 	}
 
 	if table == ""{
-		return &tableDescribe{}, errors.New(TABLE_NAME_NULL)
+		return &tableDescribe{}, TABLE_NAME_NULL
 	}
 
 	rows,err := m.DB.Query("DESCRIBE " + table)
@@ -327,11 +330,11 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	)
 
 	if table == ""{
-		return errors.New("table is null")
+		return TABLE_IS_NULL
 	}
 
 	if line < 1{
-		return errors.New("fiedls len is 0")
+		return fmt.Errorf("fiedls len is 0")
 	}
 
 	if m.DB == nil{
@@ -373,11 +376,11 @@ func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
 	)
 
 	if table == ""{
-		return errors.New("table is null")
+		return TABLE_IS_NULL
 	}
 
 	if line < 1{
-		return errors.New("fiedls len is 0")
+		return fmt.Errorf("fiedls len is 0")
 	}
 
 	if m.DB == nil{
@@ -464,11 +467,11 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	var line = len(fieldData)
 
 	if table == ""{
-		return errors.New("table is null")
+		return TABLE_IS_NULL
 	}
 
 	if line < 1{
-		return errors.New("fiedls len is 0")
+		return fmt.Errorf("fiedls len is 0")
 	}
 
 	if m.DB == nil{
@@ -483,11 +486,11 @@ func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error{
 	var line = len(fieldData)
 
 	if table == ""{
-		return errors.New("table is null")
+		return TABLE_IS_NULL
 	}
 
 	if line < 1{
-		return errors.New("fiedls len is 0")
+		return fmt.Errorf("fiedls len is 0")
 	}
 
 	if m.DB == nil{
@@ -520,11 +523,11 @@ func (m *Mysql) InsertAtGd(table string, fieldData *gDMap) error{
 	)
 
 	if table == ""{
-		return errors.New("table is null")
+		return TABLE_IS_NULL
 	}
 
 	if line < 1{
-		return errors.New("fiedls len is 0")
+		return fmt.Errorf("fiedls len is 0")
 	}
 
 	if m.DB == nil{
@@ -547,6 +550,12 @@ func (m *Mysql) InsertAtGd(table string, fieldData *gDMap) error{
 	})
 
 	return m.insert(table, fieldDataMap)
+}
+
+// InsertAtJson json字符串存入数据库
+func (m *Mysql) InsertAtJson(table, jsonStr string) error {
+	data := Any2Map(jsonStr)
+	return m.InsertAt(table, data)
 }
 
 // Update
@@ -691,3 +700,80 @@ func (m *Mysql) HasTable(tableName string) bool {
 	return m.allTN.isHave(tableName)
 }
 
+// GetFieldList 获取表字段
+func (m *Mysql) GetFieldList(table string) (fieldList []string) {
+	fieldList = make([]string,0)
+
+	if table == ""{
+		return
+	}
+
+	rows,err := m.DB.Query("DESCRIBE " + table)
+	if err != nil{
+		return
+	}
+
+	for rows.Next() {
+		result := &TableInfo{}
+		err = rows.Scan(&result.Field, &result.Type, &result.Null, &result.Key, &result.Default, &result.Extra)
+		fieldList = append(fieldList, result.Field)
+	}
+	_=rows.Close()
+
+	return
+}
+
+// 数据库查询输出到excel
+func (m *Mysql) ToXls(sql, outPath string) {
+	data, err := m.Select(sql)
+	if err != nil {
+		Error(err)
+		return
+	}
+	if len(data) < 1 {
+		Error("查询数据为空")
+		return
+	}
+	f := excelize.NewFile()
+	count := len(data)
+	var bar Bar
+	bar.NewOption(0, int64(count-1))
+
+	fields := make([]string,0)
+	n := 1
+	for k,_ := range data[0] {
+		fields = append(fields, k)
+		_=f.SetCellValue("Sheet1", toNumberSystem26(n)+"1", k)
+		n++
+	}
+	// 写入数据
+	for i:=0; i<count; i++ {
+		n := 1
+		for _, v := range fields {
+			_=f.SetCellValue("Sheet1", fmt.Sprintf("%s%d", toNumberSystem26(n), i+2 ), data[i][v])
+			n++
+		}
+		bar.Play(int64(i))
+	}
+	bar.Finish()
+
+	if err := f.SaveAs(outPath); err != nil {
+		Error("[err] 导出失败: ", err)
+		return
+	}
+	workPath, _ := os.Getwd()
+	Info("[导出成功] 文件位置: ", workPath+"/"+outPath)
+}
+
+func toNumberSystem26(n int) string {
+	s := ""
+	for ;n>0; {
+		m := n%26
+		if m == 0 {
+			m = 26
+		}
+		s = s + string(rune(m+64))
+		n = (n - m )/26
+	}
+	return s
+}
