@@ -1,0 +1,444 @@
+/*
+	Description : 启动一个HTTP代理并拦截HTTP的数据包
+	Author : ManGe
+
+ */
+package gathertool
+
+import (
+	"bytes"
+	"compress/gzip"
+	"encoding/base64"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"net"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+type Intercept struct {
+	Ip string
+	Func func(pack *HttpPackage)
+}
+
+func (ipt *Intercept) RunHttpIntercept() {
+	log.Println("启动抓包 <ManGe抓包> ......... ")
+	log.Println("目前只支持HTTP, HTTPS还在开发中 ......... ")
+	log.Println("请在系统设置代理 HTTP代理  ", ipt.Ip)
+
+	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request){
+		log.Println("\n\n___________________________________________________________________________")
+		log.Println("代理请求信息： ", req.RemoteAddr, req.Method, req.URL.String())
+		transport :=  http.DefaultTransport
+		outReq := new(http.Request)
+		*outReq = *req
+		if clientIP, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
+			if prior, ok := outReq.Header["X-Forwarded-For"]; ok {
+				clientIP = strings.Join(prior, ", ") + ", " + clientIP
+			}
+			outReq.Header.Set("X-Forwarded-For", clientIP)
+		}
+		res, err := transport.RoundTrip(outReq)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadGateway)
+			return
+		}
+		for key, value := range res.Header {
+			for _, v := range value {
+				rw.Header().Add(key, v)
+			}
+		}
+
+		var bodyBytes []byte
+		bodyBytes, _ = ioutil.ReadAll(res.Body)
+		res.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		rw.WriteHeader(res.StatusCode)
+		httpPackage := &HttpPackage{
+			Url: req.URL,
+			ContentType: res.Header.Get("Content-Type"),
+			Body: bodyBytes,
+			Header: res.Header,
+		}
+
+		ipt.Func(httpPackage)
+
+		io.Copy(rw, res.Body)
+		res.Body.Close()
+	})
+
+	err := http.ListenAndServe(ipt.Ip, nil)
+	if err != nil {
+		panic(err)
+	}
+
+}
+
+
+type HttpPackage struct {
+	Url *url.URL
+	Body []byte
+	ContentType string
+	Header map[string][]string
+}
+
+// 如果数据类型是image 就转换成base64的图片输出
+func (pack *HttpPackage) Img2Base64() string {
+	if strings.Index(pack.ContentType, "image") != -1 {
+		return base64.StdEncoding.EncodeToString(pack.Body)
+	}
+	return ""
+}
+
+func (pack *HttpPackage) Html() string {
+	if strings.Index(pack.ContentType, "html") != -1 {
+		rdata := strings.NewReader(string(pack.Body))
+		r, err := gzip.NewReader(rdata)
+		if err == nil {
+			s, _ := ioutil.ReadAll(r)
+			return string(s)
+		}
+	}
+	return ""
+}
+
+func (pack *HttpPackage) SaveImage(path string) error {
+	if strings.Index(pack.ContentType, "image") != -1 {
+		idx := strings.LastIndex(pack.Url.String(), "/")
+		if idx < 0 {
+			path += pack.Url.String()
+		} else {
+			path += pack.Url.String()[idx+1:]
+		}
+		return ioutil.WriteFile(path, pack.Body, 0666)
+	}
+	return fmt.Errorf("ContentType not image.")
+}
+
+func (pack *HttpPackage) Json() string {
+	if strings.Index(pack.ContentType, "json") != -1 {
+		return string(pack.Body)
+	}
+	return ""
+}
+
+var ContentType map[string]string = map[string]string{
+	"application/octet-stream": ".*",
+	"application/x-001": ".001",
+	"application/x-301": ".301",
+	"text/h323": ".323",
+	"application/x-906": ".906",
+	"drawing/907": ".907",
+	"application/x-a11": ".a11",
+	"audio/x-mei-aac": ".acp",
+	"application/postscript": ".ai",
+	"audio/aiff": ".aif",
+	"application/x-anv": ".anv",
+	"text/asa": ".asa",
+	"video/x-ms-asf": ".asf",
+	"text/asp": ".asp",
+	"audio/basic": ".au",
+	"video/avi": ".avi",
+	"application/vnd.adobe.workflow": ".awf",
+	"text/xml": ".biz",
+	"application/x-bmp": ".bmp",
+	"application/x-bot": ".bot",
+	"application/x-c4t": ".c4t",
+	"application/x-c90": ".c90",
+	"application/x-cals": ".cal",
+	"application/vnd.ms-pki.seccat": ".cat",
+	"application/x-netcdf": ".cdf",
+	"application/x-cdr": ".cdr",
+	"application/x-cel": ".cel",
+	"application/x-x509-ca-cert": ".cer",
+	"application/x-g4": ".cg4",
+	"application/x-cgm": ".cgm",
+	"application/x-cit": ".cit",
+	"java/*": ".class",
+	"application/x-cmp": ".cmp",
+	"application/x-cmx": ".cmx",
+	"application/x-cot": ".cot",
+	"application/pkix-crl": ".crl",
+	"application/x-csi": ".csi",
+	"text/css": ".css",
+	"application/x-cut": ".cut",
+	"application/x-dbf": ".dbf",
+	"application/x-dbm": ".dbm",
+	"application/x-dbx": ".dbx",
+	"application/x-dcx": ".dcx",
+	"application/x-dgn": ".dgn",
+	"application/x-dib": ".dib",
+	"application/x-msdownload": ".exe",
+	"application/msword": ".doc",
+	"application/x-drw": ".drw",
+	"Model/vnd.dwf": ".dwf",
+	"application/x-dwf": ".dwf",
+	"application/x-dwg": ".dwg",
+	"application/x-dxb": ".dxb",
+	"application/x-dxf": ".dxf",
+	"application/vnd.adobe.edn": ".edn",
+	"application/x-emf": ".emf",
+	"message/rfc822": ".eml",
+	"application/x-epi": ".epi",
+	"application/x-ps": ".eps",
+	"application/x-ebx": ".etd",
+	"image/fax": ".fax",
+	"application/vnd.fdf": ".fdf",
+	"application/fractals": ".fif",
+	"application/x-frm": ".frm",
+	"application/x-gbr": ".gbr",
+	"application/x-gcd": ".gcd",
+	"image/gif": ".gif",
+	"application/x-gl2": ".gl2",
+	"application/x-gp4": ".gp4",
+	"application/x-hgl": ".hgl",
+	"application/x-hmr": ".hmr",
+	"application/x-hpgl": ".hpg",
+	"application/x-hpl": ".hpl",
+	"application/mac-binhex40": ".hqx",
+	"application/x-hrf": ".hrf",
+	"application/hta": ".hta",
+	"text/x-component": ".htc",
+	"text/html": ".html",
+	"text/webviewhtml": ".htt",
+	"application/x-icb": ".icb",
+	"image/x-icon": ".ico",
+	"application/x-ico": ".ico",
+	"application/x-iff": ".iff",
+	"application/x-igs": ".igs",
+	"application/x-iphone": ".iii",
+	"application/x-img": ".img",
+	"application/x-internet-signup": ".ins",
+	"video/x-ivf": ".IVF",
+	"image/jpeg": ".jpg",
+	"application/x-jpe": ".jpe",
+	"application/x-jpg": ".jpg",
+	"application/x-javascript": ".js",
+	"audio/x-liquid-file": ".la1",
+	"application/x-laplayer-reg": ".lar",
+	"application/x-latex": ".latex",
+	"audio/x-liquid-secure": ".lavs",
+	"application/x-lbm": ".lbm",
+	"audio/x-la-lms": ".lmsff",
+	"application/x-ltr": ".ltr",
+	"video/x-mpeg": ".m1v",
+	"audio/mpegurl": ".m3u",
+	"video/mpeg4": 	".m4e",
+	"application/x-mac": ".mac",
+	"application/x-troff-man": ".man",
+	"application/msaccess": ".mdb",
+	"application/x-mdb": ".mdb",
+	"application/x-shockwave-flash": ".mfp",
+	"application/x-mi": ".mi",
+	"audio/mid": ".mid",
+	"application/x-mil": ".mil",
+	"audio/x-musicnet-download": ".mnd",
+	"audio/x-musicnet-stream": ".mns",
+	"video/x-sgi-movie": ".movie",
+	"audio/mp1": ".mp1",
+	"audio/mp2": ".mp2",
+	"video/mpeg": ".mp2v",
+	"audio/mp3": ".mp3",
+	"video/x-mpg": ".mpa",
+	"application/vnd.ms-project": ".mpd",
+	"video/mpg": ".mpeg",
+	"audio/rn-mpeg": ".mpga",
+	"application/x-mmxp": ".mxp",
+	"image/pnetvue": ".net",
+	"application/x-nrf": ".nrf",
+	"text/x-ms-odc": ".odc",
+	"application/x-out": ".out",
+	"application/pkcs10": ".p10",
+	"application/x-pkcs12": ".p12",
+	"application/x-pkcs7-certificates": ".p7b",
+	"application/pkcs7-mime": ".p7c",
+	"application/x-pkcs7-certreqresp": ".p7r",
+	"application/pkcs7-signature": ".p7s",
+	"application/x-pc5": ".pc5",
+	"application/x-pci": ".pci",
+	"application/x-pcl": ".pcl",
+	"application/x-pcx": ".pcx",
+	"application/pdf": ".pdf",
+	"application/vnd.adobe.pdx": ".pdx",
+	"application/x-pgl": ".pgl",
+	"application/x-pic": ".pic",
+	"application/vnd.ms-pki.pko": ".pko",
+	"application/x-perl": ".pl",
+	"audio/scpls": ".pls",
+	"application/x-plt": ".plt",
+	"image/png": ".png",
+	"application/x-png": ".png",
+	"application/vnd.ms-powerpoint": ".ppt",
+	"application/x-ppm": ".ppm",
+	"application/x-ppt": ".ppt",
+	"application/x-pr": ".pr",
+	"application/pics-rules": ".prf",
+	"application/x-prn": ".prn",
+	"application/x-prt": ".prt",
+	"application/x-ptn": ".ptn",
+	"text/vnd.rn-realtext3d": ".r3t",
+	"audio/vnd.rn-realaudio": ".ra",
+	"audio/x-pn-realaudio": ".ram",
+	"application/x-ras": ".ras",
+	"application/rat-file": ".rat",
+	"application/vnd.rn-recording": ".rec",
+	"application/x-red": ".red",
+	"application/x-rgb": ".rgb",
+	"application/vnd.rn-realsystem-rjs": ".rjs",
+	"application/vnd.rn-realsystem-rjt": ".rjt",
+	"application/x-rlc": ".rlc",
+	"application/x-rle": ".rle",
+	"application/vnd.rn-realmedia": ".rm",
+	"application/vnd.adobe.rmf": ".rmf",
+	"application/vnd.rn-realsystem-rmj": ".rmj",
+	"application/vnd.rn-rn_music_package": ".rmp",
+	"application/vnd.rn-realmedia-secure": ".rms",
+	"application/vnd.rn-realmedia-vbr": ".rmvb",
+	"application/vnd.rn-realsystem-rmx": ".rmx",
+	"application/vnd.rn-realplayer": ".rnx",
+	"image/vnd.rn-realpix": ".rp",
+	"audio/x-pn-realaudio-plugin": ".rpm",
+	"application/vnd.rn-rsml": ".rsml",
+	"text/vnd.rn-realtext": ".rt",
+	"application/x-rtf": ".rtf",
+	"video/vnd.rn-realvideo": ".rv",
+	"application/x-sam": ".sam",
+	"application/x-sat": ".sat",
+	"application/sdp": ".sdp",
+	"application/x-sdw": ".sdw",
+	"application/x-stuffit": ".sit",
+	"application/x-slb": ".slb",
+	"application/x-sld": ".sld",
+	"drawing/x-slk": ".slk",
+	"application/smil": ".smi",
+	"application/x-smk": ".smk",
+	"text/plain": ".sol",
+	"application/futuresplash": ".spl",
+	"application/streamingmedia": ".ssm",
+	"application/vnd.ms-pki.certstore": ".sst",
+	"application/vnd.ms-pki.stl": ".stl",
+	"application/x-sty": ".sty",
+	"application/x-tdf": ".tdf",
+	"application/x-tg4": ".tg4",
+	"application/x-tga": ".tga",
+	"image/tiff": ".tif",
+	"application/x-tif": ".tif",
+	"drawing/x-top": ".top",
+	"application/x-bittorrent": ".torrent",
+	"application/x-icq": ".uin",
+	"text/iuls": ".uls",
+	"text/x-vcard": ".vcf",
+	"application/x-vda": ".vda",
+	"application/vnd.visio": ".vdx",
+	"application/x-vpeg005": ".vpg",
+	"application/x-vsd": ".vsd",
+	"application/x-vst": ".vst",
+	"audio/wav": ".wav",
+	"audio/x-ms-wax": ".wax",
+	"application/x-wb1": ".wb1",
+	"application/x-wb2": ".wb2",
+	"application/x-wb3": ".wb3",
+	"image/vnd.wap.wbmp": ".wbmp",
+	"application/x-wk3": ".wk3",
+	"application/x-wk4": ".wk4",
+	"application/x-wkq": ".wkq",
+	"application/x-wks": ".wks",
+	"video/x-ms-wm": ".wm",
+	"audio/x-ms-wma": ".wma",
+	"application/x-ms-wmd": ".wmd",
+	"application/x-wmf": ".wmf",
+	"text/vnd.wap.wml": ".wml",
+	"video/x-ms-wmv": ".wmv",
+	"video/x-ms-wmx": ".wmx",
+	"application/x-ms-wmz": ".wmz",
+	"application/x-wp6": ".wp6",
+	"application/x-wpd": ".wpd",
+	"application/x-wpg": ".wpg",
+	"application/vnd.ms-wpl": ".wpl",
+	"application/x-wq1": ".wq1",
+	"application/x-wr1": ".wr1",
+	"application/x-wri": ".wri",
+	"application/x-wrk": ".wrk",
+	"application/x-ws": ".ws",
+	"text/scriptlet": ".wsc",
+	"video/x-ms-wvx": ".wvx",
+	"application/vnd.adobe.xdp": ".xdp",
+	"application/vnd.adobe.xfd": ".xfd",
+	"application/vnd.adobe.xfdf": ".xfdf",
+	"application/vnd.ms-excel": ".xls",
+	"application/x-xls": ".xls",
+	"application/x-xlw": ".xlw",
+	"application/x-xwd": ".xwd",
+	"application/x-x_b": ".x_b",
+	"application/x-x_t": ".x_t",
+	"application/json": ".json",
+	"text/x-json": ".json",
+	"application/andrew-inset": ".ez",
+	"application/mac-compactpro": ".cpt",
+	"application/oda": ".oda",
+	"application/vnd.mif": ".mif",
+	"application/vnd.wap.wbxml": ".wbxml",
+	"application/vnd.wap.wmlc": ".wmlc",
+	"application/vnd.wap.wmlscriptc": ".wmlsc",
+	"application/x-bcpio": ".bcpio",
+	"application/x-cdlink": ".vcd",
+	"application/x-chess-pgn": ".pgn",
+	"application/x-cpio": ".cpio",
+	"application/x-csh": ".csh",
+	"application/x-director": ".dcr",
+	"application/x-dvi": ".dvi",
+	"application/x-futuresplash": ".spl",
+	"application/x-gtar": ".gtar",
+	"application/x-hdf": ".hdf",
+	"application/x-koan": ".skp",
+	"application/x-sh": ".sh",
+	"application/x-shar": ".shar",
+	"application/x-sv4cpio": ".sv4cpio",
+	"application/x-sv4crc": ".sv4crc",
+	"application/x-tar": ".tar",
+	"application/x-tcl": ".tcl",
+	"application/x-tex": ".tex",
+	"application/x-texinfo": ".texinfo",
+	"application/x-troff": ".t",
+	"application/x-troff-me": ".me",
+	"application/x-troff-ms": ".ms",
+	"application/x-ustar": ".ustar",
+	"application/x-wais-source": ".src",
+	"application/zip": ".zip",
+	"audio/midi": ".mid",
+	"audio/mpeg": ".mpga",
+	"audio/x-aiff": ".aif",
+	"audio/x-mpegurl": ".m3u",
+	"audio/x-realaudio": ".ra",
+	"audio/x-wav": ".wav",
+	"chemical/x-pdb": ".pdb",
+	"chemical/x-xyz": ".xyz",
+	"image/bmp": ".bmp",
+	"image/ief": ".ief",
+	"image/vnd.djvu": ".djvu",
+	"image/x-cmu-raster": ".ras",
+	"image/x-portable-anymap": ".pnm",
+	"image/x-portable-bitmap": ".pbm",
+	"image/x-portable-graymap": ".pgm",
+	"image/x-portable-pixmap": ".ppm",
+	"image/x-rgb": ".rgb",
+	"image/x-xbitmap": ".xbm",
+	"image/x-xpixmap": ".xpm",
+	"image/x-xwindowdump": ".xwd",
+	"model/iges": ".igs",
+	"model/mesh": ".msh",
+	"model/vrml": ".wrl",
+	"text/richtext": ".rtx",
+	"text/rtf": ".rtf",
+	"text/sgml": ".sgml",
+	"text/tab-separated-values": ".tsv",
+	"text/vnd.wap.wmlscript": ".wmls",
+	"text/x-setext": ".etx",
+	"video/quicktime": ".qt",
+	"video/vnd.mpegurl": ".mxu",
+	"video/x-msvideo": ".avi",
+	"x-conference/x-cooltalk": ".ice",
+}

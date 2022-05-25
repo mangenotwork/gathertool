@@ -153,4 +153,17 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 - 分布式
 - tcp测试
 - udp测试
+- 设置延迟时间， 随机延迟时间  [v0.3.2]
+```
+// SetSleep 设置延迟时间
+func (c *Context) SetSleep(i int) *Context 
+
+// SetSleepRand 设置延迟随机时间
+func (c *Context) SetSleepRand(min, max int) *Context 
+```
+- 开发文档: 版本说明，更新说明
+- HTTP代理抓包
+- HTTPs代理抓包
+
+
 

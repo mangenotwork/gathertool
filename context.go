@@ -164,6 +164,19 @@ func (c *Context) GetRetryTimes() int {
 	return int(c.times)
 }
 
+// SetSleep 设置延迟时间
+func (c *Context) SetSleep(i int) *Context {
+	c.sleep = Sleep(time.Duration(i)*time.Second)
+	return c
+}
+
+// SetSleepRand 设置延迟随机时间
+func (c *Context) SetSleepRand(min, max int) *Context {
+	r := randEr.Intn(max) + min
+	c.sleep = Sleep(time.Duration(r)*time.Second)
+	return c
+}
+
 // Do 执行请求
 func (c *Context) Do() func() {
 	var bodyBytes []byte

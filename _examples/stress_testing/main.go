@@ -10,8 +10,9 @@ func main() {
 	gt.CPUMax()
 
 	// 普通 GET api压测
-	url := "http://rpc.dev.cn:30080/"
-	test := gt.NewTestUrl(url,"Get",2000,200)
+	url := "http://192.168.0.9:8002/v1/health"
+	// 请求10000次 并发数 1000
+	test := gt.NewTestUrl(url,"Get",10000,1000)
 	test.Run()
 	test.Run(gt.SucceedFunc(func(ctx *gt.Context){
 		log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
