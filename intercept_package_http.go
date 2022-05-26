@@ -8,34 +8,117 @@ package gathertool
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/base64"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"math/big"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type Intercept struct {
 	Ip string
-	Func func(pack *HttpPackage)
+	HttpPackageFunc func(pack *HttpPackage)
 }
+
+func (ipt *Intercept) RunServer() {
+	log.Println("启动代理&抓包 <ManGe代理&抓包> ......... ")
+	log.Println(" - HTTPS代理 : 只支持代理转发  -> ", ipt.Ip)
+	log.Println(" - HTTP代理: 支持数据包处理与代理转发  -> ", ipt.Ip)
+
+	cert, err := genCertificate()
+	if err != nil {
+		panic(err)
+	}
+	server := &http.Server{
+		Addr: "0.0.0.0:8111",
+		TLSConfig: 	&tls.Config{Certificates: []tls.Certificate{cert},},
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodConnect {
+				log.Println("HTTPS 请求, 不支持数据包处理，只能进行代理转发!! | ", r.URL.String())
+				destConn, err := net.DialTimeout("tcp", r.Host, 60*time.Second)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusServiceUnavailable)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+				hijacker, ok := w.(http.Hijacker)
+				if !ok {
+					http.Error(w, "Hijacking not supported", http.StatusInternalServerError)
+					return
+				}
+
+				clientConn, _, err := hijacker.Hijack()
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				}
+				go io.Copy(clientConn, destConn)
+				go io.Copy(destConn, clientConn)
+			} else {
+				log.Println("HTTP 请求")
+				res, err := http.DefaultTransport.RoundTrip(r)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusServiceUnavailable)
+					return
+				}
+				defer res.Body.Close()
+
+				for k, vv := range res.Header {
+					for _, v := range vv {
+						w.Header().Add(k, v)
+					}
+				}
+				var bodyBytes []byte
+				bodyBytes, _ = ioutil.ReadAll(res.Body)
+				res.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+				w.WriteHeader(res.StatusCode)
+				httpPackage := &HttpPackage{
+					Url: r.URL,
+					ContentType: res.Header.Get("Content-Type"),
+					Body: bodyBytes,
+					Header: res.Header,
+				}
+
+				ipt.HttpPackageFunc(httpPackage)
+
+				io.Copy(w, res.Body)
+				res.Body.Close()
+
+			}
+		}),
+	}
+
+	err = server.ListenAndServe()
+	if err != nil {
+		panic(err)
+	}
+}
+
 
 func (ipt *Intercept) RunHttpIntercept() {
 	log.Println("启动抓包 <ManGe抓包> ......... ")
 	log.Println("目前只支持HTTP, HTTPS还在开发中 ......... ")
 	log.Println("请在系统设置代理 HTTP代理  ", ipt.Ip)
 
-	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request){
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request){
 		log.Println("\n\n___________________________________________________________________________")
-		log.Println("代理请求信息： ", req.RemoteAddr, req.Method, req.URL.String())
+		log.Println("代理请求信息： ", r.RemoteAddr, r.Method, r.URL.String())
 		transport :=  http.DefaultTransport
 		outReq := new(http.Request)
-		*outReq = *req
-		if clientIP, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
+		*outReq = *r
+		if clientIP, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
 			if prior, ok := outReq.Header["X-Forwarded-For"]; ok {
 				clientIP = strings.Join(prior, ", ") + ", " + clientIP
 			}
@@ -43,12 +126,12 @@ func (ipt *Intercept) RunHttpIntercept() {
 		}
 		res, err := transport.RoundTrip(outReq)
 		if err != nil {
-			rw.WriteHeader(http.StatusBadGateway)
+			w.WriteHeader(http.StatusBadGateway)
 			return
 		}
 		for key, value := range res.Header {
 			for _, v := range value {
-				rw.Header().Add(key, v)
+				w.Header().Add(key, v)
 			}
 		}
 
@@ -56,17 +139,17 @@ func (ipt *Intercept) RunHttpIntercept() {
 		bodyBytes, _ = ioutil.ReadAll(res.Body)
 		res.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
-		rw.WriteHeader(res.StatusCode)
+		w.WriteHeader(res.StatusCode)
 		httpPackage := &HttpPackage{
-			Url: req.URL,
+			Url: r.URL,
 			ContentType: res.Header.Get("Content-Type"),
 			Body: bodyBytes,
 			Header: res.Header,
 		}
 
-		ipt.Func(httpPackage)
+		ipt.HttpPackageFunc(httpPackage)
 
-		io.Copy(rw, res.Body)
+		io.Copy(w, res.Body)
 		res.Body.Close()
 	})
 
@@ -75,6 +158,51 @@ func (ipt *Intercept) RunHttpIntercept() {
 		panic(err)
 	}
 
+}
+
+func genCertificate() (cert tls.Certificate, err error){
+	rawCert, rawKey, err := generateKeyPair()
+	if err != nil {
+		return
+	}
+	return tls.X509KeyPair(rawCert, rawKey)
+
+}
+
+func generateKeyPair() (rawCert, rawKey []byte, err error) {
+	// Create private key and self-signed certificate
+	// Adapted from https://golang.org/src/crypto/tls/generate_cert.go
+
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return
+	}
+	validFor := time.Hour * 24 * 365 * 10 // ten years
+	notBefore := time.Now()
+	notAfter := notBefore.Add(validFor)
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	template := x509.Certificate{
+		SerialNumber: serialNumber,
+		Subject: pkix.Name{
+			Organization: []string{"Zarten"},
+		},
+		NotBefore: notBefore,
+		NotAfter:  notAfter,
+
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		BasicConstraintsValid: true,
+	}
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	if err != nil {
+		return
+	}
+
+	rawCert = pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
+	rawKey = pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
+
+	return
 }
 
 
