@@ -253,6 +253,24 @@ func (pack *HttpPackage) Json() string {
 	return ""
 }
 
+func (pack *HttpPackage) Txt() string {
+	if strings.Index(pack.ContentType, "txt") != -1 {
+		rdata := strings.NewReader(string(pack.Body))
+		r, err := gzip.NewReader(rdata)
+		if err == nil {
+			s, _ := ioutil.ReadAll(r)
+			return string(s)
+		}
+	}
+	return ""
+}
+
+func (pack *HttpPackage) ToFile(path string) error {
+	ext := ContentType[pack.ContentType]
+	path = path + Any2String(time.Now().UnixNano()) + ext
+	return ioutil.WriteFile(path, pack.Body, 0666)
+}
+
 var ContentType map[string]string = map[string]string{
 	"application/octet-stream": ".*",
 	"application/x-001": ".001",
