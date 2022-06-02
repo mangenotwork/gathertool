@@ -139,6 +139,8 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 -  [文件下载](https://github.com/mangenotwork/gathertool/tree/main/_examples/upload_file)
 -  [无登录微博抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/weibo)
 -  [百度题库抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baidu_tk)
+-  [搭建http/s代理与抓包](https://github.com/mangenotwork/gathertool/tree/main/_examples/intercept)
+-  [搭建socket5代理](https://github.com/mangenotwork/gathertool/tree/main/_examples/socket5)
 
 ###  常见的反爬虫策略
 - User-Agent反爬

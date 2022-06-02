@@ -65,7 +65,6 @@ func handleClientRequest2(client net.Conn) {
 		port = strconv.Itoa(int(b[n-2])<<8 | int(b[n-1]))
 
 		server, err := net.Dial("tcp", net.JoinHostPort(host, port))
-		//server, err := net.Dial("tcp", addr)
 		if err != nil {
 			log.Println(err)
 			return
