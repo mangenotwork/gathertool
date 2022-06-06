@@ -7,15 +7,13 @@ package gathertool
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
-	"golang.org/x/text/encoding"
-	"golang.org/x/text/encoding/ianaindex"
-	"golang.org/x/text/transform"
 	"io"
 	"io/ioutil"
 	"log"
@@ -29,6 +27,9 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/ianaindex"
+	"golang.org/x/text/transform"
 )
 
 // 全局json
@@ -1249,3 +1250,44 @@ func Slice2Map(slice interface{}) map[string]interface{} {
 	return nil
 }
 
+func GzipCompress(src []byte) []byte {
+	var in bytes.Buffer
+	w := gzip.NewWriter(&in)
+	w.Write(src)
+	w.Close()
+	return in.Bytes()
+}
+
+func GzipDecompress(src []byte) []byte {
+	dst := make([]byte, 0)
+	br := bytes.NewReader(src)
+	gr, err := gzip.NewReader(br)
+	if err != nil {
+		return dst
+	}
+	defer gr.Close()
+	tmp, err := ioutil.ReadAll(gr)
+	if err != nil {
+		return dst
+	}
+	dst = tmp
+	return dst
+}
+
+// 将utf-8编码的字符串转换为GBK编码
+func ConvertStr2GBK(str string) string {
+	ret, err := simplifiedchinese.GBK.NewEncoder().String(str)
+	if err != nil {
+		ret = str
+	}
+	return ret
+}
+
+// 将GBK编码的字符串转换为utf-8编码
+func ConvertGBK2Str(gbkStr string) string {
+	ret, err := simplifiedchinese.GBK.NewDecoder().String(gbkStr)
+	if err != nil {
+		ret = gbkStr
+	}
+	return ret
+}
