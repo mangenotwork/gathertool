@@ -1,5 +1,6 @@
 # gathertool
 轻量级爬虫，接口测试，压力测试框架, 提高开发对应场景的golang程序的效率。
+请使用最新版本!!!
 
 ## 文档： [点击开始](http://mange.work/doc?id=1)
 

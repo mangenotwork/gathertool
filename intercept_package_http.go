@@ -1,5 +1,5 @@
 /*
-	Description : 启动一个HTTP代理并拦截HTTP的数据包
+	Description : 启动一个HTTP&HTTPs代理并拦截HTTP的数据包
 	Author : ManGe
 
  */

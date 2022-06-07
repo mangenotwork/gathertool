@@ -48,6 +48,8 @@ var regMap = map[string]string{
 	"RegHtmlTable": `(?is:<table.*?</table>)`,
 	"RegHtmlButton": `(?is:<button.*?</button>)`,
 
+	"RegHtmlTableOlny": `(?is:<table>.*?</table>)`,
+
 	// 取标签内容
 	"RegHtmlATxt" : `(?is:<a.*?>(.*?)</a>)`,
 	"RegHtmlTitleTxt" : `(?is:<title.*?>(.*?)</title>)`,
@@ -222,6 +224,8 @@ func RegHtmlMeta(str string, property ...string) []string { return regFind(runFu
 func RegHtmlSelect(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
 func RegHtmlTable(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
+
+func RegHtmlTableOlny(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 
 func RegHtmlButton(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
 

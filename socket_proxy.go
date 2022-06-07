@@ -1,3 +1,8 @@
+/*
+	Description : 启动一个socket5代理
+	Author : ManGe
+
+*/
 package gathertool
 
 import (
@@ -7,7 +12,6 @@ import (
 	"strconv"
 )
 
-// addr = :8111
 func SockerProxy(addr string) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {

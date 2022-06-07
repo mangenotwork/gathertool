@@ -19,10 +19,12 @@ import (
 	"log"
 	"math"
 	"os"
+	"path"
 	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 	"unsafe"
 
 	jsoniter "github.com/json-iterator/go"
@@ -613,6 +615,17 @@ func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error) 
 	}
 
 	return mp, nil
+}
+
+// Struct2Map2 struct -> map
+func Struct2Map2(obj interface{}) map[string]interface{} {
+	obj1 := reflect.TypeOf(obj)
+	obj2 := reflect.ValueOf(obj)
+	var data = make(map[string]interface{})
+	for i := 0; i < obj1.NumField(); i++ {
+		data[obj1.Field(i).Name] = obj2.Field(i).Interface()
+	}
+	return data
 }
 
 // PanicToError panic -> error
@@ -1250,6 +1263,7 @@ func Slice2Map(slice interface{}) map[string]interface{} {
 	return nil
 }
 
+// GzipCompress
 func GzipCompress(src []byte) []byte {
 	var in bytes.Buffer
 	w := gzip.NewWriter(&in)
@@ -1258,6 +1272,7 @@ func GzipCompress(src []byte) []byte {
 	return in.Bytes()
 }
 
+// GzipDecompress
 func GzipDecompress(src []byte) []byte {
 	dst := make([]byte, 0)
 	br := bytes.NewReader(src)
@@ -1274,7 +1289,7 @@ func GzipDecompress(src []byte) []byte {
 	return dst
 }
 
-// 将utf-8编码的字符串转换为GBK编码
+// ConvertStr2GBK 将utf-8编码的字符串转换为GBK编码
 func ConvertStr2GBK(str string) string {
 	ret, err := simplifiedchinese.GBK.NewEncoder().String(str)
 	if err != nil {
@@ -1283,7 +1298,7 @@ func ConvertStr2GBK(str string) string {
 	return ret
 }
 
-// 将GBK编码的字符串转换为utf-8编码
+// ConvertGBK2Str 将GBK编码的字符串转换为utf-8编码
 func ConvertGBK2Str(gbkStr string) string {
 	ret, err := simplifiedchinese.GBK.NewDecoder().String(gbkStr)
 	if err != nil {
@@ -1291,3 +1306,77 @@ func ConvertGBK2Str(gbkStr string) string {
 	}
 	return ret
 }
+
+// AbPathByCaller 获取当前执行文件绝对路径（go run）
+func AbPathByCaller() string {
+	var abPath string
+	_, filename, _, ok := runtime.Caller(0)
+	if ok {
+		abPath = path.Dir(filename)
+	}
+	return path.Join(abPath, "../../../")
+}
+
+// GetWD 获取当前工作目录
+func GetWD() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	return wd
+}
+
+// ByteToGBK   byte -> gbk byte
+func ByteToGBK(strBuf []byte) []byte {
+	if IsUtf8(strBuf) {
+		if GBKBuf, err := simplifiedchinese.GBK.NewEncoder().Bytes(strBuf); err == nil {
+			if IsUtf8(GBKBuf) {
+				return GBKBuf
+			}
+		}
+		if GB18030Buf, err := simplifiedchinese.GB18030.NewEncoder().Bytes(strBuf); err == nil {
+			if IsUtf8(GB18030Buf) {
+				return GB18030Buf
+			}
+		}
+		//if HZGB2312Buf, err := simplifiedchinese.HZGB2312.NewEncoder().Bytes(strBuf); err == nil {
+		//	if IsUtf8(HZGB2312Buf) {
+		//		return HZGB2312Buf
+		//	}
+		//}
+		return strBuf
+	} else {
+		return strBuf
+	}
+}
+
+// ByteToUTF8    byte -> utf8 byte
+func ByteToUTF8(strBuf []byte) []byte {
+	if IsUtf8(strBuf) {
+		return strBuf
+	} else {
+		if GBKBuf, err := simplifiedchinese.GBK.NewDecoder().Bytes(strBuf); err == nil {
+			if IsUtf8(GBKBuf) {
+				return GBKBuf
+			}
+		}
+		if GB18030Buf, err := simplifiedchinese.GB18030.NewDecoder().Bytes(strBuf); err == nil {
+			if IsUtf8(GB18030Buf) {
+				return GB18030Buf
+			}
+		}
+		//if HZGB2312Buf, err := simplifiedchinese.HZGB2312.NewDecoder().Bytes(strBuf); err == nil {
+		//	fmt.Println("3")
+		//	if IsUtf8(HZGB2312Buf) {
+		//		return HZGB2312Buf
+		//	}
+		//}
+		return strBuf
+	}
+}
+
+// IsUtf8
+func IsUtf8(buf []byte) bool {
+	return utf8.Valid(buf)
+}
+

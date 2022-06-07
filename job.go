@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"runtime"
 	"sync"
+	"time"
 )
 
 // StartJob 开始运行并发
@@ -48,6 +49,7 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 		retry RetryFunc
 		failed FailedFunc
 		err2Retry Err2Retry
+		sleep Sleep
 	)
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -64,6 +66,9 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 			retry = vv
 		case Err2Retry:
 			err2Retry = vv
+		case Sleep:
+			sleep = vv
+			Info("设置 sleep = ", sleep)
 			}
 	}
 
@@ -95,7 +100,9 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}){
 				if err2Retry {
 					ctx.OpenErr2Retry()
 				}
-
+				if sleep != 0 {
+					time.Sleep(time.Duration(sleep)*time.Second)
+				}
 				switch task.Type {
 				case "","do":
 					ctx.Do()
@@ -124,6 +131,7 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 		retry RetryFunc
 		failed FailedFunc
 		err2Retry Err2Retry
+		sleep Sleep
 	)
 
 	for _,v := range vs{
@@ -138,6 +146,9 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 			retry = vv
 		case Err2Retry:
 			err2Retry = vv
+		case Sleep:
+			sleep = vv
+			Info("设置 sleep = ", sleep)
 		}
 	}
 
@@ -169,7 +180,9 @@ func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}){
 				if err2Retry {
 					ctx.OpenErr2Retry()
 				}
-
+				if sleep != 0 {
+					ctx.sleep = sleep
+				}
 				switch task.Type {
 				case "","do":
 					ctx.Do()
