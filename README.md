@@ -142,30 +142,11 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 -  [搭建http/s代理与抓包](https://github.com/mangenotwork/gathertool/tree/main/_examples/intercept)
 -  [搭建socket5代理](https://github.com/mangenotwork/gathertool/tree/main/_examples/socket5)
 
-###  常见的反爬虫策略
-- User-Agent反爬
-- IP访问频率限制
-- 强制登录
-- 漏桶、令牌桶之类的算法限制接口访问频率
-- 数据接口加上庞大的加密解密和混淆算法
-- JS代码执行后，会发送一个带参数key的请求，后台通过判断key的值来决定是响应真实的页面，还是响应伪造或错误的页面。因为key参数是动态生成的，每次都不一样，难以分析出其生成方法，使得无法构造对应的http请求
--
 
-### TODO
-- 分布式
-- tcp测试
-- udp测试
-- 设置延迟时间， 随机延迟时间  [v0.3.2]
-```
-// SetSleep 设置延迟时间
-func (c *Context) SetSleep(i int) *Context 
+## JetBrains 开源证书支持
 
-// SetSleepRand 设置延迟随机时间
-func (c *Context) SetSleepRand(min, max int) *Context 
-```
-- 开发文档: 版本说明，更新说明
-- HTTP代理抓包
-- HTTPs代理抓包
+`gathertool` 项目一直以来都是在 JetBrains 公司旗下的 `GoLand` 集成开发环境中进行开发，基于 **free JetBrains Open Source license(s)** 正版免费授权，在此表达我的谢意。
 
+<a href="https://www.jetbrains.com/?from=gathertool" target="_blank"><img src="https://raw.githubusercontent.com/moonD4rk/staticfiles/master/picture/jetbrains-variant-4.png" width="256" align="middle"/></a>
 
 

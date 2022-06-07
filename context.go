@@ -519,7 +519,6 @@ func (p *ProxyPool) Get() (string, int) {
 	return data, int(n)
 }
 
-
 // Upload 下载
 func (c *Context) Upload(filePath string) func(){
 	//空验证
