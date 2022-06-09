@@ -26,7 +26,7 @@ import (
 func Get(url string, vs ...interface{}) (*Context, error) {
 	ctx := NewGet(url, vs...)
 	ctx.Do()
-	return ctx,nil
+	return ctx, ctx.Err
 }
 
 func NewGet(url string, vs ...interface{}) *Context {
@@ -38,9 +38,9 @@ func NewGet(url string, vs ...interface{}) *Context {
 }
 
 func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
-	cxt := NewPost(url, data, contentType, vs...)
-	cxt.Do()
-	return cxt, nil
+	ctx := NewPost(url, data, contentType, vs...)
+	ctx.Do()
+	return ctx, ctx.Err
 }
 
 func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Context {
@@ -57,18 +57,18 @@ func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Co
 }
 
 func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
-	cxt := NewPost(url, []byte(jsonStr), "application/json; charset=UTF-8", vs...)
-	cxt.Do()
-	return cxt, nil
+	ctx := NewPost(url, []byte(jsonStr), "application/json; charset=UTF-8", vs...)
+	ctx.Do()
+	return ctx, ctx.Err
 }
 
 // FormData
 type FormData map[string]string
 
 func PostForm(url string, data map[string]string, vs ...interface{}) (*Context, error){
-	cxt := NewPostForm(url, data, vs...)
-	cxt.Do()
-	return cxt, nil
+	ctx := NewPostForm(url, data, vs...)
+	ctx.Do()
+	return ctx, ctx.Err
 }
 
 func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context{
@@ -127,9 +127,9 @@ func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 }
 
 func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context, error){
-	cxt :=	NewPut(url, data, contentType, vs...)
-	cxt.Do()
-	return cxt, nil
+	ctx :=	NewPut(url, data, contentType, vs...)
+	ctx.Do()
+	return ctx, ctx.Err
 }
 
 func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context{
@@ -142,9 +142,9 @@ func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Con
 }
 
 func Delete(url string, vs ...interface{}) (*Context, error) {
-	cxt :=	NewDelete(url, vs...)
-	cxt.Do()
-	return cxt, nil
+	ctx :=	NewDelete(url, vs...)
+	ctx.Do()
+	return ctx, ctx.Err
 }
 
 func NewDelete(url string, vs ...interface{}) *Context {
@@ -156,9 +156,9 @@ func NewDelete(url string, vs ...interface{}) *Context {
 }
 
 func Options(url string, vs ...interface{}) (*Context, error) {
-	cxt := NewOptions(url, vs...)
-	cxt.Do()
-	return cxt, nil
+	ctx := NewOptions(url, vs...)
+	ctx.Do()
+	return ctx, ctx.Err
 }
 
 func NewOptions(url string, vs ...interface{}) *Context {

@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	"crypto/tls"
 )
 
 const (
@@ -257,16 +258,17 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 
 	// Transport 设置
 	client.Transport = &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			ForceAttemptHTTP2:     true,
-			MaxIdleConns:          10,
-			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
-			DisableKeepAlives: true,//DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          10,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+		DisableKeepAlives: true,//DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	// CookieJar管理

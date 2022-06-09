@@ -14,7 +14,12 @@ import (
 	"time"
 )
 
+var LogClose bool = false
 var std = newStd()
+
+func CloseLog(){
+	LogClose = true
+}
 
 type logger struct {
 	outFile bool
@@ -41,6 +46,9 @@ var LevelMap = map[Level]string {
 }
 
 func (l *logger) Log(level Level, args string, times int) {
+	if LogClose {
+		return
+	}
 	var buffer bytes.Buffer
 	buffer.WriteString(time.Now().Format("2006-01-02 15:04:05 |"))
 	buffer.WriteString(LevelMap[level])
