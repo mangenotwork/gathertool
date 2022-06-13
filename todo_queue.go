@@ -41,7 +41,16 @@ type Task struct {
 	once *sync.Once
 }
 
-func (task Task) GetDataStr(key string) string {
+func NewTask() *Task{
+	return &Task{
+		Data: make(map[string]interface{}),
+		Urls: make([]*ReqUrl, 0),
+		once: &sync.Once{},
+		HeaderMap: &http.Header{},
+	}
+}
+
+func (task *Task) GetDataStr(key string) string {
 	v, ok := task.Data[key]
 	if ok {
 		if  vStr, yes := v.(string); yes {
@@ -51,11 +60,21 @@ func (task Task) GetDataStr(key string) string {
 	return ""
 }
 
-func (task Task) AddData(key string, value interface{}) Task {
+func (task *Task) AddData(key string, value interface{}) *Task {
 	task.once.Do(func() {
 		task.Data = make(map[string]interface{})
 	})
 	task.Data[key] = value
+	return task
+}
+
+func (task *Task) SetUrl(urlStr string) *Task {
+	task.Url = urlStr
+	return task
+}
+
+func (task *Task) SetJsonParam(jsonStr string) *Task {
+	task.JsonParam = jsonStr
 	return task
 }
 

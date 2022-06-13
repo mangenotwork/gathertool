@@ -478,6 +478,13 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 		_=m.Conn()
 	}
 
+	if m.allTN == nil {
+		_=m.allTableName()
+	}
+
+	if !m.allTN.isHave(table) {
+		return fmt.Errorf("[Insert Err] Table not fond.")
+	}
 	return m.insert(table, fieldData)
 }
 
@@ -638,7 +645,6 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	_ = rows.Close()
 	return list, nil
 }
-
 
 // Delete
 func (m *Mysql) Delete(sql string) error {

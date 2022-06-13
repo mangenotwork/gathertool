@@ -230,7 +230,9 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			}
 		}
 	}
-
+	if task == nil {
+		task = NewTask()
+	}
 	// 如果使用方未传入Client，  初始化 Client
 	if client == nil{
 		//log.Println("使用方未传入Client， 默认 client")
