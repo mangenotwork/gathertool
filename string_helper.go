@@ -180,42 +180,54 @@ func Any2String(data interface{}) string {
 
 // Any2Int interface{} -> int
 func Any2Int(data interface{}) int {
-	if v, ok := data.(float64); ok {
-		return int(v)
+	var t2 int
+	switch data.(type) {
+	case uint:
+		t2 = int(data.(uint))
+		break
+	case int8:
+		t2 = int(data.(int8))
+		break
+	case uint8:
+		t2 = int(data.(uint8))
+		break
+	case int16:
+		t2 = int(data.(int16))
+		break
+	case uint16:
+		t2 = int(data.(uint16))
+		break
+	case int32:
+		t2 = int(data.(int32))
+		break
+	case uint32:
+		t2 = int(data.(uint32))
+		break
+	case int64:
+		t2 = int(data.(int64))
+		break
+	case uint64:
+		t2 = int(data.(uint64))
+		break
+	case float32:
+		t2 = int(data.(float32))
+		break
+	case float64:
+		t2 = int(data.(float64))
+		break
+	case string:
+		t2, _ = strconv.Atoi(data.(string))
+		break
+	default:
+		t2 = data.(int)
+		break
 	}
-	if v, ok := data.(float32); ok {
-		return int(v)
-	}
-	if v, ok := data.(string); ok {
-		return Str2Int(v)
-	}
-	if v, ok := data.(int64); ok {
-		return int(v)
-	}
-	if v, ok := data.(int); ok {
-		return v
-	}
-	return 0
+	return t2
 }
 
 // Any2int64 interface{} -> int64
 func Any2int64(data interface{}) int64 {
-	if v, ok := data.(float64); ok {
-		return int64(v)
-	}
-	if v, ok := data.(float32); ok {
-		return int64(v)
-	}
-	if v, ok := data.(string); ok {
-		return Str2Int64(v)
-	}
-	if v, ok := data.(int32); ok {
-		return int64(v)
-	}
-	if v, ok := data.(int64); ok {
-		return v
-	}
-	return 0
+	return int64(Any2Int(data))
 }
 
 // Any2Arr interface{} -> []interface{}
@@ -522,6 +534,7 @@ func Bit2Byte(b []uint8) []byte {
 	}
 	return by
 }
+
 
 // bitsToUint bitsToUint
 func bitsToUint(bits []uint8) uint {

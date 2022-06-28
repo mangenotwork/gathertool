@@ -1,6 +1,26 @@
 # gathertool
-轻量级爬虫，接口测试，压力测试框架, 提高开发对应场景的golang程序的效率。
+轻量级爬虫框架，接口测试&压力测试框架，日常工作脚本化开发框架，提高对应场景golang程序开发的效率。
 请使用最新版本!!!
+
+## 使用场景
+1. 爬虫程序
+2. 接口测试&压力测试
+3. http/s代理服务器
+4. socket5代理服务器
+5. mysql相关操作
+6. redis相关操作
+7. mongo相关操作
+8. 数据提取&清洗相关操作
+9. Websocket客户端
+10. TCP客户端
+11. UDP客户端
+12. SSH客户端
+13. 加密解密
+14. ip扫描，端口扫描
+15. [TODO] 暴力登录，暴力破解等
+16. [TODO] 文件相关操作
+17. [TODO] ES相关操作
+18. 
 
 ## 文档： [点击开始](http://mange.work/doc?id=1)
 
@@ -142,6 +162,11 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 -  [百度题库抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baidu_tk)
 -  [搭建http/s代理与抓包](https://github.com/mangenotwork/gathertool/tree/main/_examples/intercept)
 -  [搭建socket5代理](https://github.com/mangenotwork/gathertool/tree/main/_examples/socket5)
+
+## TODO List
+- 文件相关处理
+- 三方队列（redis, mysql, nsq）
+- ES
 
 
 ## JetBrains 开源证书支持

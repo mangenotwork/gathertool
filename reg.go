@@ -20,6 +20,18 @@ func RegFindAll(regStr, rest string) [][]string {
 	return List
 }
 
+func RegFindAllTxt(regStr, rest string) (dataList []string) {
+	reg := regexp.MustCompile(regStr)
+	resList := reg.FindAllStringSubmatch(rest, -1)
+	for _,v := range resList{
+		if len(v) < 1 {
+			continue
+		}
+		dataList = append(dataList, v[1])
+	}
+	return
+}
+
 var regMap = map[string]string{
 	"RegHtmlA": `(?is:<a.*?</a>)`,
 	"RegHtmlTitle": `(?is:<title.*?</title>)`,
