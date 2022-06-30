@@ -6,9 +6,10 @@
  █ ▀█▀ ██  ▄█▀ ██   ██  ██     ▀█▄    ██  ██
 ▄█▄ █ ▄██▄ ▀█▄▄▀█▀ ▄██▄ ██▄     ▀▀█▄▄▄▀█   ▀█▄▄▄▀
 
-	Description : gathertool 轻量级爬虫，接口测试，压力测试框架, 提高开发对应场景的golang程序的效率。
+	Description : 轻量级爬虫框架，接口测试&压力测试框架，日常工作脚本化开发框架，提高对应场景golang程序开发的效率。
 	Author : ManGe
-
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -23,12 +24,14 @@ import (
 	"strings"
 )
 
+// Get 执行get请求，请求内容在上下文 *Context 里
 func Get(url string, vs ...interface{}) (*Context, error) {
 	ctx := NewGet(url, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
+// NewGet 定义一个get请求对象，请求需执行 XX.Do()
 func NewGet(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(GET, urlStr(url), nil)
 	if err != nil{
@@ -37,12 +40,14 @@ func NewGet(url string, vs ...interface{}) *Context {
 	return	Req(request, vs...)
 }
 
+// Post 执行post请求，请求内容在上下文 *Context 里
 func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
 	ctx := NewPost(url, data, contentType, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
+// NewPost 定义一个post请求对象，请求需执行 XX.Do()
 func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer(data))
 	if err != nil{
@@ -56,21 +61,24 @@ func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Co
 	return	Req(request, vs...)
 }
 
+// PostJson 执行post请求，请求参数为json，请求内容在上下文 *Context 里
 func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 	ctx := NewPost(url, []byte(jsonStr), "application/json; charset=UTF-8", vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
-// FormData
+// FormData form data
 type FormData map[string]string
 
+// PostForm 执行post请求，请求参数为fromdata，请求内容在上下文 *Context 里
 func PostForm(url string, data map[string]string, vs ...interface{}) (*Context, error){
 	ctx := NewPostForm(url, data, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
+// NewPostForm 定义一个post请求对象，请求参数为fromdata，请求需执行 XX.Do()
 func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context{
 	postData := url.Values{}
 	for k,v := range data {
@@ -84,6 +92,7 @@ func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context{
 	return Req(request, vs...)
 }
 
+// PostFile 定义一个post上传文件的请求对象，请求需执行 XX.Do()
 func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -126,12 +135,14 @@ func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 	return Req(request, vs...)
 }
 
+// Put 执行put请求，请求内容在上下文 *Context 里
 func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context, error){
 	ctx :=	NewPut(url, data, contentType, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
+// NewPut 定义一个put请求对象，请求需执行 XX.Do()
 func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context{
 	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer(data))
 	if err != nil{
@@ -141,12 +152,14 @@ func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Con
 	return Req(request, vs...)
 }
 
+// Delete 执行delete请求，请求内容在上下文 *Context 里
 func Delete(url string, vs ...interface{}) (*Context, error) {
 	ctx :=	NewDelete(url, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
+// NewDelete 定义一个delete请求对象，请求需执行 XX.Do()
 func NewDelete(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(DELETE, urlStr(url), nil)
 	if err != nil{
@@ -155,12 +168,14 @@ func NewDelete(url string, vs ...interface{}) *Context {
 	return	Req(request, vs...)
 }
 
+// Options 执行options请求，请求内容在上下文 *Context 里
 func Options(url string, vs ...interface{}) (*Context, error) {
 	ctx := NewOptions(url, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
+// NewOptions 定义一个options请求对象，请求需执行 XX.Do()
 func NewOptions(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(OPTIONS, urlStr(url), nil)
 	if err != nil{
@@ -169,6 +184,7 @@ func NewOptions(url string, vs ...interface{}) *Context {
 	return	Req(request, vs...)
 }
 
+// Upload 上传文件
 func Upload(url, savePath string, vs ...interface{}) (*Context, error) {
 	c := NewGet(urlStr(url), vs)
 	c.Upload(savePath)

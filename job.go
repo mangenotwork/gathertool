@@ -1,6 +1,8 @@
 /*
 	Description : 并发工作任务
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -208,3 +210,4 @@ func CPUMax(){
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
+// TODO: 优化并重构

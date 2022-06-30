@@ -1,3 +1,10 @@
+/*
+	Description : grpc相关方法的封装
+	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
+ */
+
 package gathertool
 
 import (
@@ -5,6 +12,7 @@ import (
 	"net"
 )
 
+// SimpleServer 启动一个简单的grpc服务
 func SimpleServer(addr string, g *grpc.Server){
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {

@@ -1,6 +1,8 @@
 /*
 	Description : 固定顺序map
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -23,7 +25,7 @@ type GDMapApi interface {
 	Reverse() //反序
 }
 
-// 固定顺序map
+// gDMap 固定顺序map
 type gDMap struct {
 	mux sync.Mutex
 	data map[string]interface{}
@@ -31,7 +33,7 @@ type gDMap struct {
 	size int
 }
 
-// ues  NewGDMap().Add(k,v)
+// NewGDMap ues: NewGDMap().Add(k,v)
 func NewGDMap() *gDMap {
 	return &gDMap{
 		data:make(map[string]interface{}),
@@ -40,6 +42,7 @@ func NewGDMap() *gDMap {
 	}
 }
 
+// Add  添加kv
 func (m *gDMap) Add(key string, value interface{}) *gDMap {
 	m.mux.Lock()
 	defer m.mux.Unlock()
@@ -53,12 +56,14 @@ func (m *gDMap) Add(key string, value interface{}) *gDMap {
 	return m
 }
 
+// Get 通过key获取值
 func (m *gDMap) Get(key string) interface{} {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	return m.data[key]
 }
 
+// Del 删除指定key的值
 func (m *gDMap) Del(key string) *gDMap {
 	m.mux.Lock()
 	defer m.mux.Unlock()
@@ -75,14 +80,17 @@ func (m *gDMap) Del(key string) *gDMap {
 	return m
 }
 
+// Len map的长度
 func (m *gDMap) Len() int {
 	return m.size
 }
 
+// KeyList 打印map所有的key
 func (m *gDMap) KeyList() []string {
 	return m.keyList
 }
 
+// AddMap 写入map
 func (m *gDMap) AddMap(data map[string]interface{}) *gDMap {
 	for k,v := range data {
 		m.Add(k,v)
@@ -90,6 +98,7 @@ func (m *gDMap) AddMap(data map[string]interface{}) *gDMap {
 	return m
 }
 
+// Range 遍历map
 func (m *gDMap) Range(f func(k string, v interface{})) *gDMap {
 	for i := 0; i < m.size; i++ {
 		f(m.keyList[i], m.data[m.keyList[i]])
@@ -97,6 +106,7 @@ func (m *gDMap) Range(f func(k string, v interface{})) *gDMap {
 	return m
 }
 
+// Range 遍历map含顺序id
 func (m *gDMap) RangeAt(f func(id int, k string, v interface{})) *gDMap {
 	for i := 0; i < m.size; i++ {
 		f(i, m.keyList[i], m.data[m.keyList[i]])
@@ -104,6 +114,7 @@ func (m *gDMap) RangeAt(f func(id int, k string, v interface{})) *gDMap {
 	return m
 }
 
+// CheckValue 查看map是否存在指定的值
 func (m *gDMap) CheckValue(value interface{}) bool {
 	m.mux.Lock()
 	defer m.mux.Unlock()
@@ -115,10 +126,10 @@ func (m *gDMap) CheckValue(value interface{}) bool {
 	return false
 }
 
+// Reverse map反序
 func (m *gDMap) Reverse() {
 	for i, j := 0, len(m.keyList)-1; i < j; i, j = i+1, j-1 {
 		m.keyList[i], m.keyList[j] = m.keyList[j], m.keyList[i]
 	}
 }
-
 

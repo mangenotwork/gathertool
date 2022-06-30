@@ -1,6 +1,8 @@
 /*
-	Description : 接口测试， 压力测试 方法
+	Description : 接口压力测试， 并输出结果
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -57,6 +59,7 @@ func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 	}
 }
 
+// SetJson 设置json
 func (s *StressUrl) SetJson(str string) {
 	s.JsonData = str
 }

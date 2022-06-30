@@ -1,6 +1,8 @@
 /*
 	Description : 请求头配置与获取
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
  */
 
 package gathertool

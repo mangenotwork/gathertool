@@ -1,6 +1,8 @@
 /*
 	Description : csv的相关方法
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -11,6 +13,7 @@ import (
 	"os"
 )
 
+// Csv Csv格式文件
 type Csv struct {
 	FileName string
 	W *csv.Writer

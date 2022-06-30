@@ -1,6 +1,8 @@
 /*
 	Description : ssh 连接等相关的方法
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool

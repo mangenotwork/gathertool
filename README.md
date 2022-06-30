@@ -167,6 +167,11 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 - 文件相关处理
 - 三方队列（redis, mysql, nsq）
 - ES
+- 高并发下载
+- Rabbit, RC4, RIPEMD-160 加密解密
+- excel 相关操作
+- pdf 相关操作
+
 
 
 ## JetBrains 开源证书支持

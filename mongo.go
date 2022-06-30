@@ -1,6 +1,8 @@
 /*
-	Description : mongoDB
+	Description : mongoDB相关的操作
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -17,6 +19,7 @@ import (
 	"time"
 )
 
+// Mongo
 type Mongo struct {
 	User string
 	Password string
@@ -29,6 +32,7 @@ type Mongo struct {
 	TimeOut time.Duration
 }
 
+// NewMongo 新建mongoDB客户端对象
 func NewMongo(user, password, host, port string) (*Mongo, error){
 	m := &Mongo{
 		User: user,
@@ -75,7 +79,7 @@ func (m *Mongo) GetConn() (err error){
 	return
 }
 
-// 连接mongodb 的db
+// GetDB 连接mongodb 的db
 // dbname:DB名
 func (m *Mongo) GetDB(dbname string){
 	if m.Conn == nil {
@@ -84,7 +88,7 @@ func (m *Mongo) GetDB(dbname string){
 	m.Database = m.Conn.Database(dbname)
 }
 
-// 连接mongodb 的db的集合
+// GetCollection 连接mongodb 的db的集合
 // dbname:DB名;  name:集合名
 func (m *Mongo) GetCollection(dbname, name string){
 	if m.Conn == nil {
@@ -93,8 +97,8 @@ func (m *Mongo) GetCollection(dbname, name string){
 	m.Collection = m.Conn.Database(dbname).Collection(name)
 }
 
-// 插入数据
-//document:可以是 Struct, 是 Slice
+// Insert 插入数据
+// document:可以是 Struct, 是 Slice
 func (m *Mongo) Insert(document interface{}) error{
 	if m.Collection == nil {
 		return fmt.Errorf("Collection is nil;")
@@ -120,7 +124,7 @@ func (m *Mongo) Insert(document interface{}) error{
 	return nil
 }
 
-
+// MongoConn mongoDB客户端连接
 func MongoConn(){
 	m, err := NewMongo("","","","")
 	if err != nil{
@@ -144,6 +148,7 @@ func MongoConn(){
 	m.Insert(trainers)
 }
 
+// MongoConn1 mongoDB客户端连接
 func MongoConn1(){
 	// Set client options
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")

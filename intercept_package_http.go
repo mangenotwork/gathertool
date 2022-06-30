@@ -1,8 +1,10 @@
 /*
 	Description : 启动一个HTTP&HTTPs代理并拦截HTTP的数据包
 	Author : ManGe
-
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
  */
+
 package gathertool
 
 import (
@@ -27,11 +29,13 @@ import (
 	"time"
 )
 
+// Intercept http/s 代理与抓包
 type Intercept struct {
 	Ip string
 	HttpPackageFunc func(pack *HttpPackage)
 }
 
+// RunServer 启动 http/s 代理与抓包服务
 func (ipt *Intercept) RunServer() {
 	log.Println("启动代理&抓包 <ManGe代理&抓包> ......... ")
 	log.Println(" - HTTPS代理 : 只支持代理转发  -> ", ipt.Ip)
@@ -106,7 +110,7 @@ func (ipt *Intercept) RunServer() {
 	}
 }
 
-
+// RunHttpIntercept 启动 http/s 代理与抓包服务
 func (ipt *Intercept) RunHttpIntercept() {
 	log.Println("启动抓包 <ManGe抓包> ......... ")
 	log.Println("目前只支持HTTP, HTTPS还在开发中 ......... ")
@@ -205,7 +209,7 @@ func generateKeyPair() (rawCert, rawKey []byte, err error) {
 	return
 }
 
-
+// HttpPackage 代理服务抓取到的HTTP的包
 type HttpPackage struct {
 	Url *url.URL
 	Body []byte
@@ -213,7 +217,7 @@ type HttpPackage struct {
 	Header map[string][]string
 }
 
-// 如果数据类型是image 就转换成base64的图片输出
+// Img2Base64 如果数据类型是image 就转换成base64的图片输出
 func (pack *HttpPackage) Img2Base64() string {
 	if strings.Index(pack.ContentType, "image") != -1 {
 		return base64.StdEncoding.EncodeToString(pack.Body)
@@ -221,6 +225,7 @@ func (pack *HttpPackage) Img2Base64() string {
 	return ""
 }
 
+// Html 数据类型是html
 func (pack *HttpPackage) Html() string {
 	if strings.Index(pack.ContentType, "html") != -1 {
 		rdata := strings.NewReader(string(pack.Body))
@@ -233,6 +238,7 @@ func (pack *HttpPackage) Html() string {
 	return ""
 }
 
+// SaveImage 如果数据类型是image 就保存图片
 func (pack *HttpPackage) SaveImage(path string) error {
 	if strings.Index(pack.ContentType, "image") != -1 {
 		idx := strings.LastIndex(pack.Url.String(), "/")
@@ -246,6 +252,7 @@ func (pack *HttpPackage) SaveImage(path string) error {
 	return fmt.Errorf("ContentType not image.")
 }
 
+// Json 数据类型是json
 func (pack *HttpPackage) Json() string {
 	if strings.Index(pack.ContentType, "json") != -1 {
 		return string(pack.Body)
@@ -253,6 +260,7 @@ func (pack *HttpPackage) Json() string {
 	return ""
 }
 
+// Txt 数据类型是txt
 func (pack *HttpPackage) Txt() string {
 	if strings.Index(pack.ContentType, "txt") != -1 {
 		rdata := strings.NewReader(string(pack.Body))
@@ -265,12 +273,14 @@ func (pack *HttpPackage) Txt() string {
 	return ""
 }
 
+// ToFile 抓取到的数据类型保存到文件
 func (pack *HttpPackage) ToFile(path string) error {
 	ext := ContentType[pack.ContentType]
 	path = path + Any2String(time.Now().UnixNano()) + ext
 	return ioutil.WriteFile(path, pack.Body, 0666)
 }
 
+// ContentType 数据类型
 var ContentType map[string]string = map[string]string{
 	"application/octet-stream": ".*",
 	"application/x-001": ".001",

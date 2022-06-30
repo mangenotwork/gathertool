@@ -1,6 +1,8 @@
 /*
-	Description : 切片工具接口
+	Description : 切片工具
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool

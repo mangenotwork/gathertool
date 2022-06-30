@@ -1,6 +1,8 @@
 /*
 	Description : Tcp的连接 (Tcp客户端); 应用场景是模拟Tcp客户端;
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 
 // ===== Use
 func main(){

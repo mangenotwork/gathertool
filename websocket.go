@@ -1,6 +1,8 @@
 /*
 	Description : websocket的连接, 模拟websocket客户端
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -9,12 +11,14 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// WSClient websocket 客户端
 type WSClient interface {
 	Send(body []byte) error
 	Read(data []byte) error
 	Close()
 }
 
+// WsClient websocket 客户端
 func WsClient(host, path string, isSSL bool) (WSClient, error) {
 	ws := &webSocketClient{
 		Host: host,

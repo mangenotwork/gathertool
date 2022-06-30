@@ -1,6 +1,8 @@
 /*
 	Description : 数据类型相关的操作
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -472,6 +474,82 @@ func Byte2Float64(b []byte) float64 {
 	return math.Float64frombits(binary.LittleEndian.Uint64(b))
 }
 
+// Struct2Map  struct -> map[string]interface{}
+func Struct2Map(obj interface{}) map[string]interface{} {
+	rt, rv := reflect.TypeOf(obj), reflect.ValueOf(obj)
+	if rt != nil && rt.Kind() != reflect.Struct {
+		return make(map[string]interface{}, 0)
+	}
+
+	out := make(map[string]interface{}, rt.NumField())
+	for i := 0; i < rt.NumField(); i++ {
+		field := rt.Field(i)
+
+		// Unexported fields, access not allowed
+		if field.PkgPath != "" {
+			continue
+		}
+
+		var fieldName string
+		if tagVal, ok := field.Tag.Lookup("json"); ok {
+			// Honor the special "-" in json attribute
+			if strings.HasPrefix(tagVal, "-") {
+				continue
+			}
+			fieldName = tagVal
+		} else {
+			fieldName = field.Name
+		}
+
+		val := valueToInterface(rv.Field(i))
+		if val != nil {
+			out[fieldName] = val
+		}
+	}
+
+	return out
+}
+
+func valueToInterface(value reflect.Value) interface{} {
+	if !value.IsValid() {
+		return nil
+	}
+
+	switch value.Type().Kind() {
+	case reflect.Struct:
+		return Struct2Map(value.Interface())
+
+	case reflect.Ptr:
+		if !value.IsNil() {
+			return valueToInterface(value.Elem())
+		}
+
+	case reflect.Array:
+	case reflect.Slice:
+		arr := make([]interface{}, 0, value.Len())
+		for i := 0; i < value.Len(); i++ {
+			val := valueToInterface(value.Index(i))
+			if val != nil {
+				arr = append(arr, val)
+			}
+		}
+		return arr
+
+	case reflect.Map:
+		m := make(map[string]interface{}, value.Len())
+		for _, k := range value.MapKeys() {
+			v := value.MapIndex(k)
+			m[k.String()] = valueToInterface(v)
+		}
+		return m
+
+	default:
+		return value.Interface()
+	}
+
+	return nil
+}
+
 // EncodeByte encode byte
 func EncodeByte(v interface{}) []byte {
 	switch value := v.(type) {
@@ -579,7 +657,7 @@ func DeepCopy(dst, src interface{}) error {
 // Struct2Map Struct  ->  map
 // hasValue=true表示字段值不管是否存在都转换成map
 // hasValue=false表示字段为空或者不为0则转换成map
-func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error) {
+func Struct2MapV2(obj interface{}, hasValue bool) (map[string]interface{}, error) {
 	mp := make(map[string]interface{})
 	value := reflect.ValueOf(obj).Elem()
 	typeOf := reflect.TypeOf(obj).Elem()
@@ -631,7 +709,7 @@ func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error) 
 }
 
 // Struct2Map2 struct -> map
-func Struct2Map2(obj interface{}) map[string]interface{} {
+func Struct2MapV3(obj interface{}) map[string]interface{} {
 	obj1 := reflect.TypeOf(obj)
 	obj2 := reflect.ValueOf(obj)
 	var data = make(map[string]interface{})

@@ -1,6 +1,8 @@
 /*
 	Description : 正则
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool

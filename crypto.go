@@ -1,6 +1,8 @@
 /*
 	Description : 加密解码相关封装方法
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -32,11 +34,13 @@ const (
 	CTR = "CTR"
 )
 
+// AES  AES interface
 type AES interface {
 	Encrypt(str, key []byte) ([]byte, error)
 	Decrypt(str, key []byte) ([]byte, error)
 }
 
+// DES DES interface
 type DES interface {
 	Encrypt(str, key []byte) ([]byte, error)
 	Decrypt(str, key []byte) ([]byte, error)
@@ -74,7 +78,7 @@ func NewAES(typeName string, arg ...[]byte) AES {
 	}
 }
 
-// NewAES
+// NewDES :  use NewDES(DES_CBC)
 func NewDES(typeName string, arg ...[]byte) DES {
 	iv := []byte{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6}
 	if len(arg) != 0 {

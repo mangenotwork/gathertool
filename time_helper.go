@@ -1,6 +1,8 @@
 /*
 	Description : 时间相关的操作
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -10,6 +12,7 @@ import (
 	"time"
 )
 
+// Timestamp 获取时间戳
 func Timestamp() string {
 	return strconv.FormatInt(time.Now().Unix(),10)
 }

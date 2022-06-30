@@ -1,6 +1,8 @@
 /*
 	Description : 请求上下文
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -281,14 +283,12 @@ func (c *Context) Do() func() {
 
 	switch v {
 	case "success":
-		// 请求后的结果
 		body, err := ioutil.ReadAll(c.Resp.Body)
 		if err != nil{
 			Error(err)
 			return nil
 		}
 		c.RespBody = body
-		// 执行成功方法
 		if c.SucceedFunc != nil {
 			InfoTimes(3, "[日志] 执行 success 事件")
 			c.SucceedFunc(c)
@@ -332,7 +332,7 @@ func (c *Context) Do() func() {
 	return nil
 }
 
-// RespBodyString Body -> String
+// RespBodyString 请求到的Body转换为string类型
 func (c *Context) RespBodyString() string {
 	if c.RespBody != nil {
 		return string(c.RespBody)
@@ -340,7 +340,7 @@ func (c *Context) RespBodyString() string {
 	return ""
 }
 
-// RespBodyHtml Body -> html string
+// RespBodyHtml 请求到的Body转换为string类型的html格式
 func (c *Context) RespBodyHtml() string {
 	html := c.RespBodyString()
 	return strings.NewReplacer(
@@ -352,7 +352,7 @@ func (c *Context) RespBodyHtml() string {
 	).Replace(html)
 }
 
-// RespBodyMap Body -> Map
+// RespBodyMap 请求到的Body转换为map[string]interface{}类型
 func (c *Context) RespBodyMap() map[string]interface{} {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal(c.RespBody, &tempMap)
@@ -363,7 +363,7 @@ func (c *Context) RespBodyMap() map[string]interface{} {
 	return tempMap
 }
 
-// RespBodyArr Body -> Arr
+// RespBodyArr 请求到的Body转换为[]interface{}类型
 func (c *Context) RespBodyArr() []interface{} {
 	var tempArr []interface{}
 	err := json.Unmarshal(c.RespBody, &tempArr)
@@ -374,18 +374,18 @@ func (c *Context) RespBodyArr() []interface{} {
 	return tempArr
 }
 
-// GetRespHeader
+// GetRespHeader 获取Response的Header
 func (c *Context) GetRespHeader() string {
 	header, _ := httputil.DumpResponse(c.Resp, false)
 	return string(header)
 }
 
-// RespContentLength
+// RespContentLength 获取Response ContentLength的值
 func (c *Context) RespContentLength() int64 {
 	return c.Resp.ContentLength
 }
 
-// CheckReqMd5 check req Md5
+// CheckReqMd5 本次请求的md5值
 func (c *Context) CheckReqMd5() string {
 	var buffer bytes.Buffer
 	urlStr := c.Req.URL.String()
@@ -399,7 +399,7 @@ func (c *Context) CheckReqMd5() string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// CheckMd5 check Md5
+// CheckMd5 本次请求上下文包含输出结果的md5值
 func (c *Context) CheckMd5() string {
 	var buffer bytes.Buffer
 	urlStr := c.Req.URL.String()
@@ -415,33 +415,33 @@ func (c *Context) CheckMd5() string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// AddHeader add header
+// AddHeader 给请求添加Header
 func (c *Context) AddHeader(k,v string) *Context {
 	c.Req.Header.Add(k,v)
 	return c
 }
 
-// AddCookie add Cookie
+// AddCookie 给请求添加Cookie
 func (c *Context) AddCookie(k, v string) *Context {
 	cookie := &http.Cookie{Name: k, Value: v, HttpOnly: true}
 	c.Req.AddCookie(cookie)
 	return c
 }
 
-// SetProxy set proxy
+// SetProxy 给请求设置代理
 func (c *Context) SetProxy(proxyUrl string) *Context {
 	proxy, _ := url.Parse(proxyUrl)
 	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
 	return c
 }
 
-// SetProxyFunc set proxy func
+// SetProxyFunc 给请求设置代理函数 f func() *http.Transport
 func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
 	c.Client.Transport = f()
 	return c
 }
 
-// SetProxy set proxy
+// SetProxyPool 给请求设置代理池
 func (c *Context) SetProxyPool(pool *ProxyPool) *Context {
 	ip, _ := pool.Get()
 	InfofTimes("[日志] 使用代理: %s",3, ip)
@@ -450,7 +450,7 @@ func (c *Context) SetProxyPool(pool *ProxyPool) *Context {
 	return c
 }
 
-// 代理ip
+// ProxyIP 代理IP
 type ProxyIP struct {
 	IP string
 	Post int
@@ -459,6 +459,7 @@ type ProxyIP struct {
 	IsTLS bool
 }
 
+// NewProxyIP 实例化代理IP
 func NewProxyIP(ip string, port int, user, pass string, isTls bool) *ProxyIP {
 	return &ProxyIP{
 		IP : ip,
@@ -469,6 +470,7 @@ func NewProxyIP(ip string, port int, user, pass string, isTls bool) *ProxyIP {
 	}
 }
 
+// String 代理IP输出
 func (p *ProxyIP) String() string {
 	h := "http://"
 	if p.IsTLS {
@@ -477,7 +479,7 @@ func (p *ProxyIP) String() string {
 	return fmt.Sprintf("%s%s:%s@%s:%d", h, p.User, p.Pass, p.IP, p.Post)
 }
 
-// 代理池
+// ProxyPool 代理池
 type ProxyPool struct {
 	ip []string
 	num int32
@@ -485,6 +487,7 @@ type ProxyPool struct {
 	lock sync.Mutex
 }
 
+// NewProxyPool 实例化代理池
 func NewProxyPool() *ProxyPool {
 	return &ProxyPool{
 		ip : make([]string, 0),
@@ -494,11 +497,13 @@ func NewProxyPool() *ProxyPool {
 	}
 }
 
+// Add 代理池添加代理
 func (p *ProxyPool) Add(proxyIP *ProxyIP) {
 	p.ip = append(p.ip, proxyIP.String())
 	p.len++
 }
 
+// Del 代理池删除代理
 func (p *ProxyPool) Del(n int) {
 	if int32(n+1) > p.len {
 		return
@@ -507,6 +512,7 @@ func (p *ProxyPool) Del(n int) {
 	p.len--
 }
 
+// Get 代理池按获取顺序获取一个代理
 func (p *ProxyPool) Get() (string, int) {
 	p.lock.Lock()
 	if p.num >= p.len {
@@ -606,9 +612,9 @@ func (c *Context) Upload(filePath string) func(){
 }
 
 
-// TODO 高并发下载
 
-// CookieNext
+
+// CookieNext 使用上下文cookies
 func (c *Context) CookieNext() error {
 	if c.Resp == nil{
 		return fmt.Errorf("response is nil.")
@@ -623,7 +629,7 @@ func (c *Context) CookieNext() error {
 	return nil
 }
 
-// CloseLog close log
+// CloseLog 关闭日志打印
 func (c *Context) CloseLog() {
 	c.IsLog = false
 }
@@ -662,6 +668,7 @@ type cookiePool struct {
 var CookiePool *cookiePool
 var _cookiePoolOnce sync.Once
 
+// NewCookiePool 实例化cookie池
 func NewCookiePool() *cookiePool {
 	_cookiePoolOnce.Do(func() {
 		CookiePool = &cookiePool{
@@ -671,12 +678,14 @@ func NewCookiePool() *cookiePool {
 	return CookiePool
 }
 
+// Add cookie池添加cookie
 func (c *cookiePool) Add(cookie *http.Cookie){
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.cookie = append(c.cookie, cookie)
 }
 
+// Get 在cookie池获取一个cookie
 func (c *cookiePool) Get() *http.Cookie {
 	c.mux.Lock()
 	defer c.mux.Unlock()
@@ -685,3 +694,4 @@ func (c *cookiePool) Get() *http.Cookie {
 }
 
 
+// TODO 高并发下载

@@ -1,6 +1,8 @@
 /*
 	Description : redis 相关方法
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -14,6 +16,7 @@ import (
 	"time"
 )
 
+// Rds Redis客户端
 type Rds struct {
 	SSHUser string
 	SSHPassword string
@@ -41,12 +44,14 @@ type Rds struct {
 	Pool *redis.Pool
 }
 
+// SSHConnInfo ssh连接通道
 type SSHConnInfo struct {
 	SSHUser string
 	SSHPassword string
 	SSHAddr string
 }
 
+// NewSSHInfo 新建ssh连接通道
 func NewSSHInfo( addr, user, password string) *SSHConnInfo {
 	return &SSHConnInfo{
 		SSHUser : user,
@@ -55,6 +60,7 @@ func NewSSHInfo( addr, user, password string) *SSHConnInfo {
 	}
 }
 
+// NewRedis 新建Redis客户端对象
 func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds) {
 	var sshConnInfo SSHConnInfo
 	for _,v := range vs{
@@ -76,6 +82,7 @@ func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds) {
 	}
 }
 
+// NewRedisPool 新建Redis连接池对象
 func NewRedisPool(host, port, password string, db, maxIdle, maxActive, idleTimeoutSec int, vs ...interface{}) (*Rds) {
 	var sshConnInfo SSHConnInfo
 
@@ -103,7 +110,7 @@ func NewRedisPool(host, port, password string, db, maxIdle, maxActive, idleTimeo
 }
 
 
-// 	redis连接
+// 	RedisConn redis连接
 func (r *Rds) RedisConn() (err error) {
 	host := fmt.Sprintf("%s:%s", r.RedisHost, r.RedisPost)
 
@@ -141,7 +148,7 @@ func (r *Rds) RedisConn() (err error) {
 }
 
 
-// RPool 连接池连接
+// RedisPool 连接池连接
 // 返回redis连接池  *redis.Pool.Get() 获取redis连接
 func (r *Rds) RedisPool() error {
 	host := fmt.Sprintf("%s:%s", r.RedisHost, r.RedisPost)
@@ -212,6 +219,7 @@ func (r *Rds) RedisPool() error {
 	return nil
 }
 
+// GetConn 获取redis连接
 func (r *Rds) GetConn() redis.Conn{
 	if r.Conn != nil{
 		return r.Conn
@@ -223,6 +231,7 @@ func (r *Rds) GetConn() redis.Conn{
 	return nil
 }
 
+// SelectDB 切换redis db
 func (r *Rds) SelectDB(dbNumber int) error {
 	rc := r.GetConn()
 	if rc == nil{
@@ -233,7 +242,8 @@ func (r *Rds) SelectDB(dbNumber int) error {
 }
 
 
-// Del key
+// RedisDELKeys Del key
+// 使用常见： 并发删除大量key
 func RedisDELKeys(rds *Rds, keys string, jobNumber int){
 	CPUMax()
 	rds.RedisMaxActive = rds.RedisMaxActive+jobNumber*2

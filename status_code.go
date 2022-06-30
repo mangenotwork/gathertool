@@ -1,6 +1,8 @@
 /*
 	Description : 请求状态码对应事件配置
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool

@@ -1,6 +1,8 @@
 /*
-	Description : 对外提供的方法
+	Description : 请求相关
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -86,11 +88,13 @@ func urlStr(url string) string {
 	return "http://" + url
 }
 
+// SetSleep 设置请求随机休眠时间， 单位秒
 func SetSleep(min, max int) Sleep {
 	r := randEr.Intn(max) + min
 	return Sleep(time.Duration(r)*time.Second)
 }
 
+// SetSleepMs 设置请求随机休眠时间， 单位毫秒
 func SetSleepMs(min, max int) Sleep {
 	r := randEr.Intn(max) + min
 	return Sleep(time.Duration(r)*time.Millisecond)
@@ -98,6 +102,7 @@ func SetSleepMs(min, max int) Sleep {
 
 type Header map[string]string
 
+// NewHeader 新建Header
 func NewHeader(data map[string]string) Header {
 	return data
 }
@@ -108,12 +113,14 @@ func (h Header) haveObj() {
 	}
 }
 
+// Set Header Set
 func (h Header) Set(key, value string) Header {
 	h.haveObj()
 	h[key] = value
 	return h
 }
 
+// Delete Header Delete
 func (h Header) Delete(key string) Header {
 	h.haveObj()
 	delete(h, key)
@@ -122,6 +129,7 @@ func (h Header) Delete(key string) Header {
 
 type Cookie map[string]string
 
+// NewCookie 新建Cookie
 func NewCookie(data map[string]string) Cookie {
 	return data
 }
@@ -132,12 +140,14 @@ func (c Cookie) haveObj() {
 	}
 }
 
+// Set Cookie Set
 func (c Cookie) Set(key, value string) Cookie {
 	c.haveObj()
 	c[key] = value
 	return c
 }
 
+// Delete Cookie Delete
 func (c Cookie) Delete(key string) Cookie {
 	c.haveObj()
 	delete(c, key)
@@ -235,9 +245,22 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 	}
 	// 如果使用方未传入Client，  初始化 Client
 	if client == nil{
-		//log.Println("使用方未传入Client， 默认 client")
 		client = &http.Client{
 			Timeout: 60*time.Second,
+		}
+		// Transport 设置
+		client.Transport = &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			ForceAttemptHTTP2:     true,
+			MaxIdleConns:          10,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+			DisableKeepAlives: true,//DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
 	}
 
@@ -256,21 +279,6 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		}else{
 			client.Transport =  &http.Transport{Proxy: http.ProxyURL(proxy)}
 		}
-	}
-
-	// Transport 设置
-	client.Transport = &http.Transport{
-		DialContext: (&net.Dialer{
-			Timeout:   30 * time.Second,
-			KeepAlive: 30 * time.Second,
-		}).DialContext,
-		ForceAttemptHTTP2:     true,
-		MaxIdleConns:          10,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-		DisableKeepAlives: true,//DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	// CookieJar管理
@@ -304,12 +312,13 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 	}
 }
 
+// SearchDomain 搜索host
 func SearchDomain(ip string){
 	addr, err := net.LookupTXT(ip)
 	log.Println(addr, err)
 }
 
-// 扫描ip的端口
+// SearchPort 扫描ip的端口
 func SearchPort(ipStr string, vs ...interface{}) {
 
 	timeOut := 4*time.Second
@@ -364,7 +373,7 @@ func SearchPort(ipStr string, vs ...interface{}) {
 	log.Println("执行完成！！！")
 }
 
-
+// Ping ping IP
 func Ping(ip string){
 
 	before := time.Now()

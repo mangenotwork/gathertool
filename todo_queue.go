@@ -1,6 +1,8 @@
 /*
 	Description : 任务队列
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -12,6 +14,7 @@ import (
 	"sync"
 )
 
+// TodoQueue 任务队列
 type TodoQueue interface {
 	Add(task *Task) error  //向队列中添加元素
 	Poll()   *Task  //移除队列中最前面的元素
@@ -21,13 +24,13 @@ type TodoQueue interface {
 	Print() // 打印
 }
 
-// 队列
+// Queue 队列
 type Queue struct {
 	mux *sync.Mutex
 	list []*Task
 }
 
-// 任务对象
+// Task 任务对象
 type Task struct {
 	Url string
 	JsonParam string
@@ -41,6 +44,7 @@ type Task struct {
 	once *sync.Once
 }
 
+// NewTask 新建任务
 func NewTask() *Task{
 	return &Task{
 		Data: make(map[string]interface{}),

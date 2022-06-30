@@ -1,8 +1,9 @@
 /*
 	Description : mysql 相关方法
 	Author : ManGe
+			2912882908@qq.com
+			https://github.com/mangenotwork/gathertool
 */
-
 
 package gathertool
 
@@ -28,6 +29,7 @@ var (
 
 var MysqlDB = &Mysql{}
 
+// Mysql 客户端对象
 type Mysql struct {
 	host string
 	port int
@@ -155,7 +157,7 @@ func (m *Mysql) IsHaveTable(table string) bool {
 	return m.allTN.isHave(table)
 }
 
-// 表信息
+// TableInfo 表信息
 type TableInfo struct {
 	Field    string
 	Type     string
@@ -565,7 +567,7 @@ func (m *Mysql) InsertAtJson(table, jsonStr string) error {
 	return m.InsertAt(table, data)
 }
 
-// Update
+// Update 更新sql
 func (m *Mysql) Update(sql string) error {
 	if m.DB == nil{
 		_=m.Conn()
@@ -581,7 +583,7 @@ func (m *Mysql) Update(sql string) error {
 	return err
 }
 
-// Exec
+// Exec 执行sql
 func (m *Mysql) Exec(sql string) error {
 	if m.DB == nil{
 		_=m.Conn()
@@ -597,7 +599,7 @@ func (m *Mysql) Exec(sql string) error {
 	return err
 }
 
-// Query
+// Query 执行selete sql
 func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	if m.DB == nil{
 		_=m.Conn()
@@ -646,7 +648,7 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	return list, nil
 }
 
-// Delete
+// Delete 执行delete sql
 func (m *Mysql) Delete(sql string) error {
 	if strings.Index(sql, "DELETE") != -1 || strings.Index(sql, "delete") != -1 {
 		return m.Exec(sql)
@@ -729,7 +731,7 @@ func (m *Mysql) GetFieldList(table string) (fieldList []string) {
 	return
 }
 
-// 数据库查询输出到excel
+// ToXls 数据库查询输出到excel
 func (m *Mysql) ToXls(sql, outPath string) {
 	data, err := m.Select(sql)
 	if err != nil {
