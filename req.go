@@ -253,9 +253,13 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			DialContext: (&net.Dialer{
 				Timeout:   30 * time.Second,
 				KeepAlive: 30 * time.Second,
+				FallbackDelay: -1 * time.Nanosecond,
 			}).DialContext,
 			ForceAttemptHTTP2:     true,
+			// gathertool默认每个请求实例都创建一个独立的client，
+			// 不复用client，这样设计是在高并发中，每个请求都是独立的
 			MaxIdleConns:          10,
+			MaxIdleConnsPerHost:   5, // 默认是 2
 			IdleConnTimeout:       90 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,

@@ -345,7 +345,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 
 	createSql.WriteString("CREATE TABLE ")
 	createSql.WriteString(table)
-	createSql.WriteString(" ( id int(11) NOT NULL AUTO_INCREMENT, ")
+	createSql.WriteString(" ( temp_id int(11) NOT NULL AUTO_INCREMENT, ")
 	for k,v := range fields{
 		createSql.WriteString(k)
 		createSql.WriteString(" ")
@@ -353,7 +353,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 		createSql.WriteString(", ")
 	}
 
-	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
+	createSql.WriteString("PRIMARY KEY (temp_id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_,err :=  m.DB.Exec(createSql.String())
 	if m.log{
 		Info("[Sql] Exec : " + createSql.String())
@@ -391,7 +391,7 @@ func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
 
 	createSql.WriteString("CREATE TABLE ")
 	createSql.WriteString(table)
-	createSql.WriteString(" ( id int(11) NOT NULL AUTO_INCREMENT, ")
+	createSql.WriteString(" ( temp_id int(11) NOT NULL AUTO_INCREMENT, ")
 	fields.Range(func(k string, v interface{}){
 		createSql.WriteString(k)
 		createSql.WriteString(" ")
@@ -399,7 +399,7 @@ func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
 		createSql.WriteString(", ")
 	})
 
-	createSql.WriteString("PRIMARY KEY (id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
+	createSql.WriteString("PRIMARY KEY (temp_id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_,err :=  m.DB.Exec(createSql.String())
 	if m.log{
 		Info("[Sql] Exec : " + createSql.String())
@@ -422,37 +422,26 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	_,_=m.Describe(table)
 	describe := m.tableTemp[table]
 	isDescribe := describe.Base != nil
-	insertSql.WriteString("insert ")
+	insertSql.WriteString("insert into ")
 	insertSql.WriteString(table)
-	fieldStr := " ("
-	valueStr := " ("
-
+	insertSql.WriteString(" set ")
+	l := len(fieldData)
+	i := 0
 	for k,v := range fieldData {
-		vType,ok := describe.Base[k];
+		i++
+		_,ok := describe.Base[k]
 		if isDescribe && !ok {
 			continue
 		}
-		fieldStr += k+", "
 		vStr := StringValueMysql(v)
-		_,isStr := v.(string)
-		if vType == "string" && !isStr {
-			vStr = "'"+vStr+"'"
+		insertSql.WriteString(k)
+		insertSql.WriteString("=")
+		insertSql.WriteString(vStr)
+		if i<l {
+			insertSql.WriteString(", ")
 		}
-		valueStr += vStr + ", "
 	}
-
-	if fieldStr[len(fieldStr)-2:] == ", " {
-		fieldStr = fieldStr[:len(fieldStr)-2]
-	}
-
-	if valueStr[len(valueStr)-2:] == ", " {
-		valueStr = valueStr[:len(valueStr)-2]
-	}
-
-	insertSql.WriteString(fieldStr)
-	insertSql.WriteString(") VALUES ")
-	insertSql.WriteString(valueStr)
-	insertSql.WriteString(");")
+	insertSql.WriteString(";")
 	_, err := m.DB.Exec(insertSql.String())
 	if m.log{
 		Info("[Sql] Exec : " + insertSql.String())
@@ -460,7 +449,6 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 			Error("[Sql] Error : " + err.Error())
 		}
 	}
-
 	return err
 }
 

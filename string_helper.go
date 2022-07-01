@@ -58,7 +58,9 @@ func StringValueMysql(i interface{}) string {
 		return ""
 	}
 	if reflect.ValueOf(i).Kind() == reflect.String{
-		return "'"+i.(string)+"'"
+		str := i.(string)
+		str = strings.Replace(str, `"`, `\"`, -1)
+		return `"`+str+`"`
 	}
 	var buf bytes.Buffer
 	stringValue(reflect.ValueOf(i), 0, &buf)
