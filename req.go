@@ -298,6 +298,14 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		request.ContentLength = Str2Int64(l)
 	}
 
+	if retry == nil {
+		retry = defaultRetry
+	}
+
+	if succeed == nil {
+		succeed = defaultSucceed
+	}
+
 	// 创建对象
 	return &Context{
 		Client: client,
@@ -458,3 +466,12 @@ func checkSum(msg []byte) uint16 {
 	return answer
 }
 
+func defaultRetry(ctx *Context) {
+	Info("2s后准备重试......")
+	time.Sleep(2*time.Second)
+}
+
+func defaultSucceed(ctx *Context) {
+	Info("请求body")
+	Info(ctx.RespBodyString())
+}

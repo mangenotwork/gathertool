@@ -433,7 +433,10 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 		if isDescribe && !ok {
 			continue
 		}
-		vStr := StringValueMysql(v)
+		vStr := `""`
+		if v != nil {
+			vStr = StringValueMysql(v)
+		}
 		insertSql.WriteString(k)
 		insertSql.WriteString("=")
 		insertSql.WriteString(vStr)
