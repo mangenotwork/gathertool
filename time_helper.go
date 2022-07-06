@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const TimeTemplate = "2006-01-02 15:04:05"
+
 // Timestamp 获取时间戳
 func Timestamp() string {
 	return strconv.FormatInt(time.Now().Unix(),10)
@@ -65,4 +67,9 @@ func TickerRun(t time.Duration, runFirst bool, f func()){
 	for range tick.C {
 		f()
 	}
+}
+
+func Timestamp2Date(timestamp int64) string {
+	tm := time.Unix(timestamp,0)
+	return tm.Format(TimeTemplate)
 }
