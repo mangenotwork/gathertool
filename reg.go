@@ -61,8 +61,8 @@ var regMap = map[string]string{
 	"RegHtmlSelect": `(?is:<select.*?</select>)`,
 	"RegHtmlTable": `(?is:<table.*?</table>)`,
 	"RegHtmlButton": `(?is:<button.*?</button>)`,
-
 	"RegHtmlTableOlny": `(?is:<table>.*?</table>)`,
+	"RegHtmlDiv": `(?is:<div.*?</div>)`,
 
 	// 取标签内容
 	"RegHtmlATxt" : `(?is:<a.*?>(.*?)</a>)`,
@@ -85,6 +85,7 @@ var regMap = map[string]string{
 	"RegHtmlSelectTxt": `(?is:<select.*?>(.*?)</select>)`,
 	"RegHtmlTableTxt": `(?is:<table.*?>(.*?)</table>)`,
 	"RegHtmlButtonTxt": `(?is:<button.*?>(.*?)</button>)`,
+	"RegHtmlDivTxt": `(?is:<div.*?>(.*?)</div>)`,
 
 	// 删除
 	"RegDelHtml": `\<[\S\s]+?\>`,
@@ -250,6 +251,8 @@ func RegHtmlH(str, typeH string, property ...string) []string {
 
 func RegHtmlTbody(str string, property ...string) []string { return regFind(runFuncName(), str, property...) }
 
+func RegHtmlDiv(str string, property ...string) []string { return regFind(runFuncName(), str, property...)}
+
 // regFindTxt 执行正则提取 只取内容
 func regFindTxt(funcName, txt string, property ...string) (dataList []string) {
 	regStr, ok := regMap[funcName]
@@ -298,6 +301,8 @@ func RegHtmlSelectTxt(str string, property ...string) []string { return regFindT
 func RegHtmlTableTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
 func RegHtmlButtonTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
+
+func RegHtmlDivTxt(str string, property ...string) []string { return regFindTxt(runFuncName(), str, property...) }
 
 func RegHtmlHTxt(str, typeH string, property ...string) []string {
 	funcName := runFuncName()
