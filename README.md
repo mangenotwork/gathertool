@@ -3,27 +3,25 @@ gathertool是golang脚本化开发库，目的是提高对应场景程序开发�
 轻量级爬虫库，接口测试&压力测试库，DB操作库。
 请使用最新版本!!!
 
-## 使用场景re
-1. 爬虫程序
-2. 接口测试&压力测试
-3. http/s代理服务器
-4. socket5代理服务器
-5. mysql相关操作
-6. redis相关操作
-7. mongo相关操作
-8. 数据提取&清洗相关操作
-9. Websocket客户端
-10. TCP客户端
-11. UDP客户端
-12. SSH客户端
-13. 加密解密
-14. ip扫描，端口扫描
-15. [TODO] 暴力登录，暴力破解等
-16. [TODO] 文件相关操作
-17. [TODO] ES相关操作
-18. 
+## 使用场景
+1. 爬虫脚本开发
+2. 接口测试&压力测试脚本开发
+3. http/s代理服务器, socket5代理服务器
+4. mysql相关操作方法
+5. redis相关操作方法
+6. mongo相关操作方法
+7. 数据提取&清洗相关操作
+8. Websocket相关操作方法
+9. TCP客户端
+10. UDP客户端
+11. SSH客户端
+12. 加密解密脚本开发
+13. ip扫描，端口扫描脚本开发
 
-## 文档： [点击开始](http://mange.work/doc?id=1)
+
+## 文档： 
+[https://pkg.go.dev 点击开始](https://pkg.go.dev/github.com/mangenotwork/gathertool)
+[http://mange.work/doc?id=1 点击开始](http://mange.work/doc?id=1)
 
 ## 开始使用
 > go get github.com/mangenotwork/gathertool
@@ -151,6 +149,56 @@ tableName := "data"
 db.Spider2022DB.InsertAt(tableName, inputdata)
 ```
 
+HTML数据提取
+```
+func main(){
+	date := "2022-07-05"
+	caseUrl := "***"
+	ctx, _ := gt.Get(fmt.Sprintf(caseUrl, date))
+    datas, _ := gt.GetPointHTML(ctx.Html, "div", "id", "domestic")
+	Data(datas, date, "内期表", "备注：内期表=国内期货主力合约表")
+	datas, _ = gt.GetPointHTML(ctx.Html, "div", "id", "overseas")
+	Data(datas, date, "外期表", "备注：外期表=国外期货主力合约表")
+}
+
+func Data(datas []string, date, typeName, note string) {
+	for _, data := range datas {
+		table, _ := gt.GetPointHTML(data, "table", "id", "fdata")
+		if len(table) > 0 {
+			trList := gt.RegHtmlTr(table[0])
+			jys := ""
+			for _, tr := range trList {
+				td := gt.RegHtmlTd(tr)
+				log.Println("td = ", td, len(td))
+				if len(td) == 1 {
+					jys = gt.RegHtmlTdTxt(td[0])[0]
+					continue
+				}
+				name := gt.RegHtmlTdTxt(td[0])[0]
+				if strings.Index(name, "商品名称") != -1 {
+					continue
+				}
+				zlhy := gt.RegHtmlTdTxt(td[1])[0]
+				jsj := gt.RegHtmlTdTxt(td[2])[0]
+				zd := gt.RegDelHtml(gt.RegHtmlTdTxt(td[3])[0])
+				cjj := gt.RegHtmlTdTxt(td[4])[0]
+				ccl := gt.RegHtmlTdTxt(td[5])[0]
+				dw := gt.RegHtmlTdTxt(td[6])[0]
+				log.Println("日期 = ", date)
+				log.Println("机构 = ", jys)
+				log.Println("商品名称 = ", name)
+				log.Println("主力合约 = ", zlhy)
+				log.Println("结算价 = ", jsj)
+				log.Println("涨跌 = ", zd)
+				log.Println("成交量 = ", cjj)
+				log.Println("持仓量 = ", ccl)
+				log.Println("单位 = ", dw)
+			}
+		}
+	}
+}
+```
+
 更多方法见 [文档](https://github.com/mangenotwork/gathertool/tree/main/_doc/doc_1.md)
 
 ## 实例
@@ -163,6 +211,8 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 -  [百度题库抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baidu_tk)
 -  [搭建http/s代理与抓包](https://github.com/mangenotwork/gathertool/tree/main/_examples/intercept)
 -  [搭建socket5代理](https://github.com/mangenotwork/gathertool/tree/main/_examples/socket5)
+-  [商品报价信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baojia)
+-  [期货信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/qihuo)
 
 ## TODO List
 - 文件相关处理
@@ -172,6 +222,9 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 - Rabbit, RC4, RIPEMD-160 加密解密
 - excel 相关操作
 - pdf 相关操作
+- 暴力登录，暴力破解等
+- 文件相关操作
+- ES相关操作
 
 
 
