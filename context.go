@@ -32,25 +32,25 @@ import (
 // RetryTimes 重试次数
 type RetryTimes int
 
-// StartFunc 请求开始前的方法类型
+// StartFunc 请求开始前执行的方法类型
 type StartFunc func(c *Context)
 
-// SucceedFunc 请求成功后的方法类型
+// SucceedFunc 请求成功后执行的方法类型
 type SucceedFunc func(c *Context)
 
-// FailedFunc 请求失败的方法类型
+// FailedFunc 请求失败执行的方法类型
 type FailedFunc func(c *Context)
 
-// RetryFunc 指定重试状态码重试前的方法类型
+// RetryFunc 重试请求前执行的方法类型，是否重试来自上次请求的状态码来确定，见StatusCodeMap;
 type RetryFunc func(c *Context)
 
-// EndFunc 请求流程结束后的方法类型
+// EndFunc 请求流程结束后执行的方法类型
 type EndFunc func(c *Context)
 
-// IsLog 全局是否开启日志
+// IsLog 是否开启全局日志
 type IsLog bool
 
-// ProxyUrl 全局代理地址
+// ProxyUrl 全局代理地址，一个代理，多个代理请使用代理池ProxyPool
 type ProxyUrl string
 
 // Context 请求上下文
@@ -82,16 +82,16 @@ type Context struct {
 	// 请求成功了需要处理的事件
 	SucceedFunc SucceedFunc
 
-	// 请求失败了需要做的事
+	// 请求失败了需要处理的事件
 	FailedFunc FailedFunc
 
-	// 请求状态码设置了重试，在重试前的事件
+	// 重试请求处理的事件，可以是更换代理，设置等待时间
 	RetryFunc RetryFunc
 
-	// 请求开始前的方法
+	// 请求开始前处理的事件
 	StartFunc StartFunc
 
-	// 请求完成后的方法
+	// 请求完成后处理的事件
 	EndFunc EndFunc
 
 	// 本次请求的任务
@@ -137,42 +137,42 @@ type Context struct {
 	Param map[string]interface{}
 }
 
-// SetSucceedFunc 设置成功后的方法
+// SetSucceedFunc 设置成功后执行的方法
 func (c *Context) SetSucceedFunc(successFunc func(c *Context)) *Context {
 	c.SucceedFunc = successFunc
 	return c
 }
 
-// SetFailedFunc 设置错误后的方法
+// SetFailedFunc 设置错误后执行的方法
 func (c *Context) SetFailedFunc(failedFunc func(c *Context)) *Context {
 	c.FailedFunc = failedFunc
 	return c
 }
 
-// SetRetryFunc 设置重试，在重试前的方法
+// SetRetryFunc 重试请求前执行的方法
 func (c *Context) SetRetryFunc(retryFunc func(c *Context)) *Context {
 	c.RetryFunc = retryFunc
 	return c
 }
 
-// SetRetryTimes 设置重试次数
+// SetRetryTimes 设置重试最大次数，如果超过这个次数还没有请求成功，请求结束，返回一个错误；
 func (c *Context) SetRetryTimes(times int) *Context {
 	c.MaxTimes = RetryTimes(times)
 	return c
 }
 
-// GetRetryTimes 获取当前重试次数
+// GetRetryTimes 获取当前重试最大次数
 func (c *Context) GetRetryTimes() int {
 	return int(c.times)
 }
 
-// SetSleep 设置延迟时间
+// SetSleep 设置请求延迟时间，单位秒
 func (c *Context) SetSleep(i int) *Context {
 	c.sleep = Sleep(time.Duration(i)*time.Second)
 	return c
 }
 
-// SetSleepRand 设置延迟随机时间
+// SetSleepRand 设置延迟随机时间，单位秒
 func (c *Context) SetSleepRand(min, max int) *Context {
 	r := randEr.Intn(max) + min
 	c.sleep = Sleep(time.Duration(r)*time.Second)
@@ -385,7 +385,7 @@ func (c *Context) RespContentLength() int64 {
 	return c.Resp.ContentLength
 }
 
-// CheckReqMd5 本次请求的md5值
+// CheckReqMd5 本次请求的md5值， url+reqBodyBytes+method
 func (c *Context) CheckReqMd5() string {
 	var buffer bytes.Buffer
 	urlStr := c.Req.URL.String()
@@ -455,8 +455,8 @@ type ProxyIP struct {
 	IP string
 	Post int
 	User string
-	Pass string
-	IsTLS bool
+	Pass string // 密码
+	IsTLS bool // 是否是 https
 }
 
 // NewProxyIP 实例化代理IP
@@ -611,9 +611,6 @@ func (c *Context) Upload(filePath string) func(){
 	return nil
 }
 
-
-
-
 // CookieNext 使用上下文cookies
 func (c *Context) CookieNext() error {
 	if c.Resp == nil{
@@ -665,6 +662,7 @@ type cookiePool struct {
 	mux sync.Mutex
 }
 
+// CookiePool  Cookie池
 var CookiePool *cookiePool
 var _cookiePoolOnce sync.Once
 
@@ -692,6 +690,5 @@ func (c *cookiePool) Get() *http.Cookie {
 	n := rand.Int63n(int64(len(c.cookie)))
 	return c.cookie[n]
 }
-
 
 // TODO 高并发下载
