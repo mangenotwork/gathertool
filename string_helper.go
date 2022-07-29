@@ -60,6 +60,9 @@ func StringValueMysql(i interface{}) string {
 	if reflect.ValueOf(i).Kind() == reflect.String{
 		str := i.(string)
 		str = strings.Replace(str, `"`, `\"`, -1)
+		if string(str[len(str) -1]) == `\` {
+			str += `\`
+		}
 		return `"`+str+`"`
 	}
 	var buf bytes.Buffer
@@ -150,18 +153,17 @@ func MD5(str string) string  {
 }
 
 // Json2Map json -> map
-func Json2Map(str string) map[string]interface{} {
+func Json2Map(str string) (map[string]interface{}, error) {
 	var tempMap map[string]interface{}
 	err := json.Unmarshal([]byte(str), &tempMap)
 	if err != nil {
-		Error(err)
-		return nil
+		return nil, err
 	}
-	return tempMap
+	return tempMap, nil
 }
 
 // Map2Json map -> json
-func Map2Json(m map[string]interface{}) (string, error) {
+func Map2Json(m interface{}) (string, error) {
 	jsonStr,err :=json.Marshal(m)
 	return string(jsonStr), err
 }
@@ -172,7 +174,10 @@ func Any2Map(data interface{}) map[string]interface{}{
 		return v
 	}
 	if reflect.ValueOf(data).Kind() == reflect.String{
-		return Json2Map(data.(string))
+		dataMap, err := Json2Map(data.(string))
+		if err == nil {
+			return dataMap
+		}
 	}
 	return nil
 }
@@ -1473,3 +1478,99 @@ func IsUtf8(buf []byte) bool {
 	return utf8.Valid(buf)
 }
 
+// ====================================  json find
+// JsonFind 按路径寻找指定json值
+// 用法参考  ./_examples/json/main.go
+// @find : 寻找路径，与目录的url类似， 下面是一个例子：
+// json:  {a:[{b:1},{b:2}]}
+// find=/a/[0]  =>   {b:1}
+// find=a/[0]/b  =>   1
+func JsonFind(jsonStr, find string) (interface{}, error) {
+	if !IsJson(jsonStr) {
+		return nil, fmt.Errorf("不是标准的Json格式")
+	}
+	jxList := strings.Split(find, "/")
+	jxLen := len(jxList)
+	var (
+		data = Any2Map(jsonStr)
+		value interface{}
+		err error
+	)
+	for i:= 0; i< jxLen; i++ {
+		l := len(jxList[i])
+		if l > 2 && string(jxList[i][0]) == "[" && string(jxList[i][l-1]) == "]" {
+			numStr := jxList[i][1:l-1]
+			dataList := Any2Arr(value)
+			value = dataList[Any2Int(numStr)]
+			data, err = interface2Map(value)
+			if err != nil {
+				continue
+			}
+		}else{
+			if IsHaveKey(data, jxList[i]) {
+				value = data[jxList[i]]
+				data, err = interface2Map(value)
+				if err != nil {
+					continue
+				}
+			}else{
+				value = nil
+			}
+		}
+	}
+	return value, nil
+}
+
+// JsonFind2Json 寻找json,输出 json格式字符串
+func JsonFind2Json(jsonStr, find string) (string, error) {
+	value, err := JsonFind(jsonStr, find)
+	if err != nil {
+		return "", err
+	}
+	return Map2Json(value)
+}
+
+// JsonFind2Map 寻找json,输出 map[string]interface{}
+func JsonFind2Map(jsonStr, find string) (map[string]interface{}, error) {
+	value, err := JsonFind(jsonStr, find)
+	if err != nil {
+		return nil, err
+	}
+	return Any2Map(value), nil
+}
+
+// JsonFind2Arr 寻找json,输出 []interface{}
+func JsonFind2Arr(jsonStr, find string) ([]interface{}, error) {
+	value, err := JsonFind(jsonStr, find)
+	if err != nil {
+		return nil, err
+	}
+	return Any2Arr(value), nil
+}
+
+// IsJson 是否是json格式
+func IsJson(str string) bool {
+	var tempMap map[string]interface{}
+	err := json.Unmarshal([]byte(str), &tempMap)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// IsHaveKey map[string]interface{} 是否存在 输入的key
+func IsHaveKey(data map[string]interface{}, key string) bool {
+	_, ok := data[key]
+	return ok
+}
+
+// Any2Map interface{} -> map[string]interface{}
+func interface2Map(data interface{}) (map[string]interface{}, error){
+	if v, ok := data.(map[string]interface{}); ok {
+		return v, nil
+	}
+	if reflect.ValueOf(data).Kind() == reflect.String{
+		return Json2Map(data.(string))
+	}
+	return nil, fmt.Errorf("not map type")
+}
