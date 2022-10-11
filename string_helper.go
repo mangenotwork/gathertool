@@ -60,7 +60,7 @@ func StringValueMysql(i interface{}) string {
 	if reflect.ValueOf(i).Kind() == reflect.String{
 		str := i.(string)
 		str = strings.Replace(str, `"`, `\"`, -1)
-		if string(str[len(str) -1]) == `\` {
+		if len(str) > 1 && string(str[len(str) -1]) == `\` {
 			str += `\`
 		}
 		return `"`+str+`"`

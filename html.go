@@ -25,12 +25,12 @@ func GetPointHTML(htmlStr, label, attr, val string) ([]string, error) {
 		if n.Type == html.ElementNode {
 			//log.Println("attr = ", n.Attr, n.Namespace, n.Data)
 			if n.Data == label {
-				for _, a := range n.Attr {
-					if a.Key == attr && a.Val == val {
-						var buf bytes.Buffer
-						err = html.Render(&buf, n)
-						if err == nil {
-							rse = append(rse, buf.String())
+				if attr == "" && val == "" {
+					rse = add(rse, n)
+				}else {
+					for _, a := range n.Attr {
+						if a.Key == attr && a.Val == val {
+							rse = add(rse, n)
 						}
 					}
 				}
@@ -42,6 +42,15 @@ func GetPointHTML(htmlStr, label, attr, val string) ([]string, error) {
 	}
 	f(doc)
 	return rse, nil
+}
+
+func add(rse []string, n *html.Node) []string {
+	var buf bytes.Buffer
+	err := html.Render(&buf, n)
+	if err == nil {
+		rse = append(rse, buf.String())
+	}
+	return rse
 }
 
 // GetPointIDHTML 获取指定标签id属性的html

@@ -9,8 +9,8 @@ package gathertool
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
-	"fmt"
 	"golang.org/x/net/publicsuffix"
 	"log"
 	"math/rand"
@@ -21,7 +21,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	"crypto/tls"
 )
 
 const (
@@ -100,6 +99,7 @@ func SetSleepMs(min, max int) Sleep {
 	return Sleep(time.Duration(r)*time.Millisecond)
 }
 
+// Header
 type Header map[string]string
 
 // NewHeader 新建Header
@@ -127,6 +127,7 @@ func (h Header) Delete(key string) Header {
 	return h
 }
 
+// Cookie
 type Cookie map[string]string
 
 // NewCookie 新建Cookie
@@ -306,7 +307,6 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		succeed = defaultSucceed
 	}
 
-	// 创建对象
 	return &Context{
 		Client: client,
 		Req : request,
@@ -327,14 +327,12 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 // SearchDomain 搜索host
 func SearchDomain(ip string){
 	addr, err := net.LookupTXT(ip)
-	log.Println(addr, err)
+	Info(addr, err)
 }
 
 // SearchPort 扫描ip的端口
 func SearchPort(ipStr string, vs ...interface{}) {
-
 	timeOut := 4*time.Second
-
 	for _, v := range vs {
 		switch vv := v.(type) {
 		case time.Duration:
@@ -343,7 +341,6 @@ func SearchPort(ipStr string, vs ...interface{}) {
 	}
 
 	queue := NewQueue()
-
 	for i:=0;i<65536;i++{
 		buf := &bytes.Buffer{}
 		buf.WriteString(ipStr)
@@ -360,48 +357,39 @@ func SearchPort(ipStr string, vs ...interface{}) {
 		go func(i int){
 			defer wg.Done()
 			for {
-
 				if queue.IsEmpty(){
 					break
 				}
-
 				task := queue.Poll()
-				//log.Println(task.Url)
 				if task == nil {
 					continue
 				}
-
 				conn, err := net.DialTimeout("tcp", task.Url, timeOut)
 				if err == nil {
-					log.Println(task.Url, "开放")
+					Error(task.Url, "开放")
 					conn.Close()
 				}
 			}
 		}(job)
 	}
-
 	wg.Wait()
-
-	log.Println("执行完成！！！")
+	Info("执行完成！！！")
 }
 
 // Ping ping IP
 func Ping(ip string){
-
 	before := time.Now()
 	defer func(tStart time.Time){
 		dur := time.Now().Sub(before)
-		log.Println("来自 ",ip," 的回复: 时间 = ", dur)
+		Info("来自 ",ip," 的回复: 时间 = ", dur)
 	}(before)
-
 	c, err := net.Dial("ip4:icmp", ip)
 	if err != nil {
 		return
 	}
-	log.Println(c)
+	Info(c)
 	c.SetDeadline(time.Now().Add(1 * time.Second))
 	defer c.Close()
-
 	var msg [512]byte
 	msg[0] = 8
 	msg[1] = 0
@@ -412,54 +400,46 @@ func Ping(ip string){
 	msg[6] = 0
 	msg[7] = 37
 	msg[8] = 99
-	len := 9
-	check := checkSum(msg[0:len])
+	l := 9
+	check := checkSum(msg[0:l])
 	msg[2] = byte(check >> 8)
 	msg[3] = byte(check & 0xff)
-	fmt.Println(msg[0:len])
-
-	_, err = c.Write(msg[0:len])
+	Info(msg[0:l])
+	_, err = c.Write(msg[0:l])
 	if err!= nil{
 		log.Println(ip," -> ping err : ", err)
 		return
 	}
-
-	c.Write(msg[0:len])
-
-
+	c.Write(msg[0:l])
 	_, err = c.Read(msg[0:])
 	if err!= nil{
 		log.Println(ip," -> ping err : ", err)
 		return
 	}
-
 	if msg[20+5] != 13 {
-		log.Println(ip," -> ping err : Identifier not matches")
+		Error(ip," -> ping err : Identifier not matches")
 		return
 	}
 	if msg[20+7] != 37 {
-		log.Println(ip," -> ping err : Sequence not matches")
+		Error(ip," -> ping err : Sequence not matches")
 		return
 	}
 	if msg[20+8] != 99 {
-		log.Println(ip," -> ping err : Custom data not matches")
+		Error(ip," -> ping err : Custom data not matches")
 		return
 	}
-
-	log.Println("ping ok : ", ip)
+	Info("ping ok : ", ip)
 }
 
 func checkSum(msg []byte) uint16 {
 	sum := 0
-
-	len := len(msg)
-	for i := 0; i < len-1; i += 2 {
+	l := len(msg)
+	for i := 0; i < l-1; i += 2 {
 		sum += int(msg[i])*256 + int(msg[i+1])
 	}
-	if len%2 == 1 {
-		sum += int(msg[len-1]) * 256 // notice here, why *256?
+	if l%2 == 1 {
+		sum += int(msg[l-1]) * 256 // notice here, why *256?
 	}
-
 	sum = (sum >> 16) + (sum & 0xffff)
 	sum += (sum >> 16)
 	var answer uint16 = uint16(^sum)
@@ -472,6 +452,6 @@ func defaultRetry(ctx *Context) {
 }
 
 func defaultSucceed(ctx *Context) {
-	Info("请求body")
-	Info(ctx.RespBodyString())
+	Info("请求成功")
+	//Info(ctx.RespBodyString())
 }
