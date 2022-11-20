@@ -19,31 +19,30 @@ import (
 	"time"
 )
 
-// Mongo
 type Mongo struct {
-	User string
-	Password string
-	Host string
-	Port string
-	Conn *mongo.Client
-	Database *mongo.Database
-	Collection *mongo.Collection
+	User        string
+	Password    string
+	Host        string
+	Port        string
+	Conn        *mongo.Client
+	Database    *mongo.Database
+	Collection  *mongo.Collection
 	MaxPoolSize int
-	TimeOut time.Duration
+	TimeOut     time.Duration
 }
 
 // NewMongo 新建mongoDB客户端对象
-func NewMongo(user, password, host, port string) (*Mongo, error){
+func NewMongo(user, password, host, port string) (*Mongo, error) {
 	m := &Mongo{
-		User: user,
-		Password : password,
-		Host : host,
-		Port : port,
+		User:     user,
+		Password: password,
+		Host:     host,
+		Port:     port,
 	}
 	if m.Host == "" {
 		m.Host = "127.0.0.1"
 	}
-	if m.Port == ""{
+	if m.Port == "" {
 		m.Port = "27017"
 	}
 	err := m.GetConn()
@@ -51,37 +50,37 @@ func NewMongo(user, password, host, port string) (*Mongo, error){
 }
 
 // GetConn 建立mongodb 连接
-func (m *Mongo) GetConn() (err error){
+func (m *Mongo) GetConn() (err error) {
 	uri := fmt.Sprintf("mongodb://")
-	if m.User != "" && m.Password != ""{
+	if m.User != "" && m.Password != "" {
 		uri = uri + fmt.Sprintf("%s:%s@", m.User, m.Password)
 	}
 	uri = uri + fmt.Sprintf("%s:%s", m.Host, m.Port)
 
-	if m.TimeOut < 10*time.Second{
-		m.TimeOut = 10*time.Second
+	if m.TimeOut < 10*time.Second {
+		m.TimeOut = 10 * time.Second
 	}
 
-	ctx , cancel :=context.WithTimeout(context.Background(), m.TimeOut)
+	ctx, cancel := context.WithTimeout(context.Background(), m.TimeOut)
 	defer cancel()
 
 	o := options.Client().ApplyURI(uri)
-	if m.MaxPoolSize > 0{
+	if m.MaxPoolSize > 0 {
 		o.SetMaxPoolSize(uint64(m.MaxPoolSize))
 	}
 
 	m.Conn, err = mongo.Connect(ctx, o)
-	if err != nil{
+	if err != nil {
 		return
 	}
 
-	err = m.Conn.Ping(context.Background(),  readpref.Primary())
+	err = m.Conn.Ping(context.Background(), readpref.Primary())
 	return
 }
 
 // GetDB 连接mongodb 的db
 // dbname:DB名
-func (m *Mongo) GetDB(dbname string){
+func (m *Mongo) GetDB(dbname string) {
 	if m.Conn == nil {
 		m.GetConn()
 	}
@@ -90,7 +89,7 @@ func (m *Mongo) GetDB(dbname string){
 
 // GetCollection 连接mongodb 的db的集合
 // dbname:DB名;  name:集合名
-func (m *Mongo) GetCollection(dbname, name string){
+func (m *Mongo) GetCollection(dbname, name string) {
 	if m.Conn == nil {
 		m.GetConn()
 	}
@@ -99,7 +98,7 @@ func (m *Mongo) GetCollection(dbname, name string){
 
 // Insert 插入数据
 // document:可以是 Struct, 是 Slice
-func (m *Mongo) Insert(document interface{}) error{
+func (m *Mongo) Insert(document interface{}) error {
 	if m.Collection == nil {
 		return fmt.Errorf("Collection is nil;")
 	}
@@ -125,9 +124,9 @@ func (m *Mongo) Insert(document interface{}) error{
 }
 
 // MongoConn mongoDB客户端连接
-func MongoConn(){
-	m, err := NewMongo("","","","")
-	if err != nil{
+func MongoConn() {
+	m, err := NewMongo("", "", "", "")
+	if err != nil {
 		log.Println(err)
 		return
 	}
@@ -149,7 +148,7 @@ func MongoConn(){
 }
 
 // MongoConn1 mongoDB客户端连接
-func MongoConn1(){
+func MongoConn1() {
 	// Set client options
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
@@ -185,7 +184,6 @@ func MongoConn1(){
 	//	log.Fatal(err)
 	//}
 	//log.Println("Inserted a single document: ", insertResult.InsertedID)
-
 
 	// ===== 插入多个文档 collection.InsertMany() 函数会采用一个slice对象
 	//misty := Trainer{"Misty", 10, "Cerulean City"}
@@ -275,4 +273,3 @@ func MongoConn1(){
 // TODO  查看所有Database
 
 // TODO  查看所有Collection
-

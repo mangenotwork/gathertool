@@ -16,7 +16,7 @@ const TimeTemplate = "2006-01-02 15:04:05"
 
 // Timestamp 获取时间戳
 func Timestamp() string {
-	return strconv.FormatInt(time.Now().Unix(),10)
+	return strconv.FormatInt(time.Now().Unix(), 10)
 }
 
 // BeginDayUnix 获取当天 0点
@@ -48,8 +48,8 @@ func DayAgo(i int) int64 {
 	return time.Now().Unix() - int64(i*3600*24)
 }
 
-// Daydiff 两个时间字符串的日期差
-func Daydiff(beginDay string, endDay string) int {
+// DayDiff 两个时间字符串的日期差
+func DayDiff(beginDay string, endDay string) int {
 	begin, _ := time.Parse("2006-01-02 15:04:05", beginDay+" 00:00:00")
 	end, _ := time.Parse("2006-01-02 15:04:05", endDay+" 00:00:00")
 
@@ -59,7 +59,7 @@ func Daydiff(beginDay string, endDay string) int {
 
 // TickerRun 间隔运行
 // t: 间隔时间， runFirst: 间隔前或者后执行  f: 运行的方法
-func TickerRun(t time.Duration, runFirst bool, f func()){
+func TickerRun(t time.Duration, runFirst bool, f func()) {
 	if runFirst {
 		f()
 	}
@@ -70,6 +70,6 @@ func TickerRun(t time.Duration, runFirst bool, f func()){
 }
 
 func Timestamp2Date(timestamp int64) string {
-	tm := time.Unix(timestamp,0)
+	tm := time.Unix(timestamp, 0)
 	return tm.Format(TimeTemplate)
 }

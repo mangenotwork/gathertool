@@ -16,7 +16,6 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-// yaml
 type Conf struct {
 	Path string
 	Data map[string]interface{}
@@ -24,7 +23,7 @@ type Conf struct {
 
 func NewConf(appConfigPath string) (*Conf, error) {
 	conf := &Conf{
-		Path : appConfigPath,
+		Path: appConfigPath,
 		Data: make(map[string]interface{}),
 	}
 	err := conf.Init()

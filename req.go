@@ -35,7 +35,7 @@ const (
 )
 
 var (
-	UrlBad = errors.New("url is bad.") // 错误的url
+	UrlBad = errors.New("url is bad.")  // 错误的url
 	UrlNil = errors.New("url is null.") // 空的url
 	randEr = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
@@ -47,12 +47,12 @@ type Sleep time.Duration
 // Request 请求
 func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
 	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
-	if err != nil{
+	if err != nil {
 		Error("err->", err)
 		return nil, err
 	}
 	request.Header.Set("Content-Type", contentType)
-	cxt :=	Req(request, vs...)
+	cxt := Req(request, vs...)
 	cxt.Do()
 	return cxt, nil
 }
@@ -60,17 +60,17 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 // NewRequest 请求
 func NewRequest(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
-	if err != nil{
+	if err != nil {
 		Error("err->", err)
 		return nil
 	}
 	request.Header.Set("Content-Type", contentType)
-	return	Req(request, vs...)
+	return Req(request, vs...)
 }
 
 // isUrl 验证是否是有效的 url
 func isUrl(url string) bool {
-	if url == ""{
+	if url == "" {
 		return false
 	}
 	return true
@@ -90,16 +90,15 @@ func urlStr(url string) string {
 // SetSleep 设置请求随机休眠时间， 单位秒
 func SetSleep(min, max int) Sleep {
 	r := randEr.Intn(max) + min
-	return Sleep(time.Duration(r)*time.Second)
+	return Sleep(time.Duration(r) * time.Second)
 }
 
 // SetSleepMs 设置请求随机休眠时间， 单位毫秒
 func SetSleepMs(min, max int) Sleep {
 	r := randEr.Intn(max) + min
-	return Sleep(time.Duration(r)*time.Millisecond)
+	return Sleep(time.Duration(r) * time.Millisecond)
 }
 
-// Header
 type Header map[string]string
 
 // NewHeader 新建Header
@@ -127,7 +126,6 @@ func (h Header) Delete(key string) Header {
 	return h
 }
 
-// Cookie
 type Cookie map[string]string
 
 // NewCookie 新建Cookie
@@ -158,23 +156,23 @@ func (c Cookie) Delete(key string) Cookie {
 // Req 初始化请求
 func Req(request *http.Request, vs ...interface{}) *Context {
 	var (
-		client *http.Client
-		maxTimes RetryTimes = 10
-		task *Task
-		start StartFunc
-		succeed SucceedFunc
-		failed FailedFunc
-		retry RetryFunc
-		end EndFunc
-		reqTimeOut ReqTimeOut
+		client       *http.Client
+		maxTimes     RetryTimes = 10
+		task         *Task
+		start        StartFunc
+		succeed      SucceedFunc
+		failed       FailedFunc
+		retry        RetryFunc
+		end          EndFunc
+		reqTimeOut   ReqTimeOut
 		reqTimeOutMs ReqTimeOutMs
-		islog IsLog
-		proxyUrl string
-		sleep Sleep
+		islog        IsLog
+		proxyUrl     string
+		sleep        Sleep
 	)
 
 	//添加默认的Header
-	request.Header.Set("Connection","close")
+	request.Header.Set("Connection", "close")
 	request.Header.Set("User-Agent", GetAgent(PCAgent))
 
 	//解析可变参
@@ -235,7 +233,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 
 	// task Header
 	if task != nil && task.HeaderMap != nil {
-		for k,v := range *task.HeaderMap {
+		for k, v := range *task.HeaderMap {
 			for _, value := range v {
 				request.Header.Add(k, value)
 			}
@@ -245,18 +243,18 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		task = NewTask()
 	}
 	// 如果使用方未传入Client，  初始化 Client
-	if client == nil{
+	if client == nil {
 		client = &http.Client{
-			Timeout: 60*time.Second,
+			Timeout: 60 * time.Second,
 		}
 		// Transport 设置
 		client.Transport = &http.Transport{
 			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
+				Timeout:       30 * time.Second,
+				KeepAlive:     30 * time.Second,
 				FallbackDelay: -1 * time.Nanosecond,
 			}).DialContext,
-			ForceAttemptHTTP2:     true,
+			ForceAttemptHTTP2: true,
 			// gathertool默认每个请求实例都创建一个独立的client，
 			// 不复用client，这样设计是在高并发中，每个请求都是独立的
 			MaxIdleConns:          10,
@@ -264,25 +262,25 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			IdleConnTimeout:       90 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
-			DisableKeepAlives: true,//DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			DisableKeepAlives:     true, //DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
+			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		}
 	}
 
 	if reqTimeOut > 0 {
-		client.Timeout =  time.Duration(reqTimeOut) * time.Second
+		client.Timeout = time.Duration(reqTimeOut) * time.Second
 	}
 
 	if reqTimeOutMs > 0 {
-		client.Timeout =  time.Duration(reqTimeOutMs) * time.Millisecond
+		client.Timeout = time.Duration(reqTimeOutMs) * time.Millisecond
 	}
 
 	if proxyUrl != "" {
 		proxy, err := url.Parse(proxyUrl)
 		if err != nil {
 			Error("设置代理失败:", err)
-		}else{
-			client.Transport =  &http.Transport{Proxy: http.ProxyURL(proxy)}
+		} else {
+			client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
 		}
 	}
 
@@ -308,31 +306,31 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 	}
 
 	return &Context{
-		Client: client,
-		Req : request,
-		times : 0,
-		MaxTimes : maxTimes,
-		Task: task,
-		StartFunc: start,
+		Client:      client,
+		Req:         request,
+		times:       0,
+		MaxTimes:    maxTimes,
+		Task:        task,
+		StartFunc:   start,
 		SucceedFunc: succeed,
-		FailedFunc: failed,
-		RetryFunc: retry,
-		EndFunc: end,
-		IsLog: islog,
-		sleep: sleep,
-		Param: make(map[string]interface{}),
+		FailedFunc:  failed,
+		RetryFunc:   retry,
+		EndFunc:     end,
+		IsLog:       islog,
+		sleep:       sleep,
+		Param:       make(map[string]interface{}),
 	}
 }
 
 // SearchDomain 搜索host
-func SearchDomain(ip string){
+func SearchDomain(ip string) {
 	addr, err := net.LookupTXT(ip)
 	Info(addr, err)
 }
 
 // SearchPort 扫描ip的端口
 func SearchPort(ipStr string, vs ...interface{}) {
-	timeOut := 4*time.Second
+	timeOut := 4 * time.Second
 	for _, v := range vs {
 		switch vv := v.(type) {
 		case time.Duration:
@@ -341,7 +339,7 @@ func SearchPort(ipStr string, vs ...interface{}) {
 	}
 
 	queue := NewQueue()
-	for i:=0;i<65536;i++{
+	for i := 0; i < 65536; i++ {
 		buf := &bytes.Buffer{}
 		buf.WriteString(ipStr)
 		buf.WriteString(":")
@@ -352,12 +350,12 @@ func SearchPort(ipStr string, vs ...interface{}) {
 	}
 
 	var wg sync.WaitGroup
-	for job:=0;job<65536;job++{
+	for job := 0; job < 65536; job++ {
 		wg.Add(1)
-		go func(i int){
+		go func(i int) {
 			defer wg.Done()
 			for {
-				if queue.IsEmpty(){
+				if queue.IsEmpty() {
 					break
 				}
 				task := queue.Poll()
@@ -377,11 +375,11 @@ func SearchPort(ipStr string, vs ...interface{}) {
 }
 
 // Ping ping IP
-func Ping(ip string){
+func Ping(ip string) {
 	before := time.Now()
-	defer func(tStart time.Time){
+	defer func(tStart time.Time) {
 		dur := time.Now().Sub(before)
-		Info("来自 ",ip," 的回复: 时间 = ", dur)
+		Info("来自 ", ip, " 的回复: 时间 = ", dur)
 	}(before)
 	c, err := net.Dial("ip4:icmp", ip)
 	if err != nil {
@@ -406,26 +404,26 @@ func Ping(ip string){
 	msg[3] = byte(check & 0xff)
 	Info(msg[0:l])
 	_, err = c.Write(msg[0:l])
-	if err!= nil{
-		log.Println(ip," -> ping err : ", err)
+	if err != nil {
+		log.Println(ip, " -> ping err : ", err)
 		return
 	}
 	c.Write(msg[0:l])
 	_, err = c.Read(msg[0:])
-	if err!= nil{
-		log.Println(ip," -> ping err : ", err)
+	if err != nil {
+		log.Println(ip, " -> ping err : ", err)
 		return
 	}
 	if msg[20+5] != 13 {
-		Error(ip," -> ping err : Identifier not matches")
+		Error(ip, " -> ping err : Identifier not matches")
 		return
 	}
 	if msg[20+7] != 37 {
-		Error(ip," -> ping err : Sequence not matches")
+		Error(ip, " -> ping err : Sequence not matches")
 		return
 	}
 	if msg[20+8] != 99 {
-		Error(ip," -> ping err : Custom data not matches")
+		Error(ip, " -> ping err : Custom data not matches")
 		return
 	}
 	Info("ping ok : ", ip)
@@ -448,10 +446,9 @@ func checkSum(msg []byte) uint16 {
 
 func defaultRetry(ctx *Context) {
 	Info("2s后准备重试......")
-	time.Sleep(2*time.Second)
+	time.Sleep(2 * time.Second)
 }
 
 func defaultSucceed(ctx *Context) {
 	Info("请求成功")
-	//Info(ctx.RespBodyString())
 }

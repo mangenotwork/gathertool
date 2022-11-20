@@ -1,7 +1,7 @@
 /*
-	url: http://futures.100ppi.com/qhb/day-2022-07-05.html
-	抓取期货数据
- */
+url: http://futures.100ppi.com/qhb/day-2022-07-05.html
+抓取期货数据
+*/
 package main
 
 import (
@@ -17,18 +17,18 @@ var (
 	port     = 3306
 	user     = "root"
 	password = "root123"
-	dbName      = "test"
-	DB, _ = gt.NewMysql(host192, port, user, password, dbName)
+	dbName   = "test"
+	DB, _    = gt.NewMysql(host192, port, user, password, dbName)
 	OutTable = "qihuo"
 )
 
-func main(){
+func main() {
 	date := "2022-07-05"
 	caseUrl := "http://futures.100ppi.com/qhb/day-%s.html"
 	ctx, _ := gt.Get(fmt.Sprintf(caseUrl, date))
 	//log.Println(ctx.Html)
 	// 数据提取
-    datas, _ := gt.GetPointHTML(ctx.Html, "div", "id", "domestic")
+	datas, _ := gt.GetPointHTML(ctx.Html, "div", "id", "domestic")
 	Data(datas, date, "内期表", "备注：内期表=国内期货主力合约表")
 	datas, _ = gt.GetPointHTML(ctx.Html, "div", "id", "overseas")
 	Data(datas, date, "外期表", "备注：外期表=国外期货主力合约表")

@@ -214,24 +214,15 @@ func Data(datas []string, date, typeName, note string) {
 -  [商品报价信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baojia)
 -  [期货信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/qihuo)
 
-## TODO List
-- 文件相关处理
-- 三方队列（redis, mysql, nsq）
-- ES
-- 高并发下载
-- Rabbit, RC4, RIPEMD-160 加密解密
-- excel 相关操作
-- pdf 相关操作
-- 暴力登录，暴力破解等
-- 文件相关操作
-- ES相关操作
-
-
-
 ## JetBrains 开源证书支持
 
 `gathertool` 项目一直以来都是在 JetBrains 公司旗下的 `GoLand` 集成开发环境中进行开发，基于 **free JetBrains Open Source license(s)** 正版免费授权，在此表达我的谢意。
 
 <a href="https://www.jetbrains.com/?from=gathertool" target="_blank"><img src="https://raw.githubusercontent.com/moonD4rk/staticfiles/master/picture/jetbrains-variant-4.png" width="256" align="middle"/></a>
 
-
+## TODO List
+- 文件相关处理
+- 高并发下载
+- Rabbit, RC4, RIPEMD-160 加密解密
+- 暴力登录，暴力破解等
+- 三方队列（redis, mysql, nsq）

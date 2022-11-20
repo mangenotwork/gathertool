@@ -9,8 +9,9 @@ package gathertool
 
 import (
 	"bytes"
-	"golang.org/x/net/html"
 	"strings"
+
+	"golang.org/x/net/html"
 )
 
 // GetPointHTML  获取指定位置的HTML， 用标签， 标签属性， 属性值来定位
@@ -27,7 +28,7 @@ func GetPointHTML(htmlStr, label, attr, val string) ([]string, error) {
 			if n.Data == label {
 				if attr == "" && val == "" {
 					rse = add(rse, n)
-				}else {
+				} else {
 					for _, a := range n.Attr {
 						if a.Key == attr && a.Val == val {
 							rse = add(rse, n)

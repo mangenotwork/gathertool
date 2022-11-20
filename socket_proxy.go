@@ -14,8 +14,8 @@ import (
 	"strconv"
 )
 
-// SockerProxy 启动一个socket5代理
-func SockerProxy(addr string) {
+// SocketProxy 启动一个socket5代理
+func SocketProxy(addr string) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Panic(err)

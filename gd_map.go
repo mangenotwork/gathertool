@@ -22,23 +22,23 @@ type GDMapApi interface {
 	Range(f func(k string, v interface{})) *gDMap
 	RangeAt(f func(id int, k string, v interface{})) *gDMap
 	CheckValue(value interface{}) bool // 检查是否存在某个值
-	Reverse() //反序
+	Reverse()                          //反序
 }
 
 // gDMap 固定顺序map
 type gDMap struct {
-	mux sync.Mutex
-	data map[string]interface{}
+	mux     sync.Mutex
+	data    map[string]interface{}
 	keyList []string
-	size int
+	size    int
 }
 
 // NewGDMap ues: NewGDMap().Add(k,v)
 func NewGDMap() *gDMap {
 	return &gDMap{
-		data:make(map[string]interface{}),
+		data:    make(map[string]interface{}),
 		keyList: make([]string, 0),
-		size: 0,
+		size:    0,
 	}
 }
 
@@ -46,12 +46,12 @@ func NewGDMap() *gDMap {
 func (m *gDMap) Add(key string, value interface{}) *gDMap {
 	m.mux.Lock()
 	defer m.mux.Unlock()
-	if _,ok := m.data[key]; ok {
+	if _, ok := m.data[key]; ok {
 		m.data[key] = value
 		return m
 	}
 	m.keyList = append(m.keyList, key)
-	m.size ++
+	m.size++
 	m.data[key] = value
 	return m
 }
@@ -67,12 +67,12 @@ func (m *gDMap) Get(key string) interface{} {
 func (m *gDMap) Del(key string) *gDMap {
 	m.mux.Lock()
 	defer m.mux.Unlock()
-	if _,ok := m.data[key]; ok {
+	if _, ok := m.data[key]; ok {
 		delete(m.data, key)
 		for i := 0; i < m.size; i++ {
 			if m.keyList[i] == key {
 				m.keyList = append(m.keyList[:i], m.keyList[i+1:]...)
-				m.size --
+				m.size--
 				return m
 			}
 		}
@@ -92,8 +92,8 @@ func (m *gDMap) KeyList() []string {
 
 // AddMap 写入map
 func (m *gDMap) AddMap(data map[string]interface{}) *gDMap {
-	for k,v := range data {
-		m.Add(k,v)
+	for k, v := range data {
+		m.Add(k, v)
 	}
 	return m
 }
@@ -106,7 +106,7 @@ func (m *gDMap) Range(f func(k string, v interface{})) *gDMap {
 	return m
 }
 
-// Range 遍历map含顺序id
+// RangeAt Range 遍历map含顺序id
 func (m *gDMap) RangeAt(f func(id int, k string, v interface{})) *gDMap {
 	for i := 0; i < m.size; i++ {
 		f(i, m.keyList[i], m.data[m.keyList[i]])
@@ -132,4 +132,3 @@ func (m *gDMap) Reverse() {
 		m.keyList[i], m.keyList[j] = m.keyList[j], m.keyList[i]
 	}
 }
-

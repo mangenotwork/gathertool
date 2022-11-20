@@ -13,12 +13,12 @@ import (
 	"time"
 )
 
-type sliceTool struct {}
+type sliceTool struct{}
 
 var st *sliceTool
 var stOnce sync.Once
 
-// use : SliceTool().CopyInt64(a)
+// SliceTool use : SliceTool().CopyInt64(a)
 func SliceTool() *sliceTool {
 	stOnce.Do(func() {
 		st = &sliceTool{}
@@ -26,60 +26,28 @@ func SliceTool() *sliceTool {
 	return st
 }
 
-//type SliceToolAPI interface {
-//	CopyInt64(a []int64) []int64
-//	CopyStr(a []string) []string
-//	CopyInt(a []int) []int
-//	ContainsByte(a []byte, x byte) bool
-//	ContainsInt(a []int, x int) bool
-//	ContainsInt64(a []int64, x int64) bool
-//	ContainsStr(a []string, x string) bool
-//	DeduplicateInt(a []int) []int
-//	DeduplicateInt64(a []int64) []int64
-//	DeduplicateStr(a []string) []string
-//	DelInt(a []int, i int) []int
-//	DelInt64(a []int64, i int) []int64
-//	DelStr(a []string, i int) []string
-//	MaxInt(a []int) int
-//	MaxInt64(a []int64) int64
-//	MinInt(a []int) int
-//	MinInt64(a []int64) int64
-//	PopInt(a []int) (int, []int)
-//	PopInt64(a []int64) (int64, []int64)
-//	PopStr(a []string) (string, []string)
-//	ReverseInt(a []int) []int
-//	ReverseInt64(a []int64) []int64
-//	ReverseStr(a []string) []string
-//	ShuffleInt(a []int) []int
-//}
-
-// use : SliceTool().CopyInt64(a)
-//func SliceTool() SliceToolAPI {
-//	return sliceTool{}
-//}
-
-// CopyInt64
+// CopyInt64 copy int64
 func (sliceTool) CopyInt64(a []int64) []int64 {
 	return append(a[:0:0], a...)
 }
 
-// CopyStr
+// CopyStr copy string
 func (sliceTool) CopyStr(a []string) []string {
 	return append(a[:0:0], a...)
 }
 
-// CopyInt
+// CopyInt copy int
 func (sliceTool) CopyInt(a []int) []int {
 	return append(a[:0:0], a...)
 }
 
-// ContainsByte
+// ContainsByte contains byte
 func (sliceTool) ContainsByte(a []byte, x byte) bool {
 	l := len(a)
 	if l == 0 {
 		return false
 	}
-	for i:=0; i<l; i++ {
+	for i := 0; i < l; i++ {
 		if a[i] == x {
 			return true
 		}
@@ -87,13 +55,13 @@ func (sliceTool) ContainsByte(a []byte, x byte) bool {
 	return false
 }
 
-// ContainsInt
+// ContainsInt contains int
 func (sliceTool) ContainsInt(a []int, x int) bool {
 	l := len(a)
 	if l == 0 {
 		return false
 	}
-	for i:=0; i<l; i++ {
+	for i := 0; i < l; i++ {
 		if a[i] == x {
 			return true
 		}
@@ -101,13 +69,13 @@ func (sliceTool) ContainsInt(a []int, x int) bool {
 	return false
 }
 
-// ContainsInt64
+// ContainsInt64  contains int64
 func (sliceTool) ContainsInt64(a []int64, x int64) bool {
 	l := len(a)
 	if l == 0 {
 		return false
 	}
-	for i:=0; i<l; i++ {
+	for i := 0; i < l; i++ {
 		if a[i] == x {
 			return true
 		}
@@ -115,13 +83,13 @@ func (sliceTool) ContainsInt64(a []int64, x int64) bool {
 	return false
 }
 
-// ContainsStr
+// ContainsStr contains str
 func (sliceTool) ContainsStr(a []string, x string) bool {
 	l := len(a)
 	if l == 0 {
 		return false
 	}
-	for i:=0; i<l; i++ {
+	for i := 0; i < l; i++ {
 		if a[i] == x {
 			return true
 		}
@@ -136,7 +104,7 @@ func (sliceTool) DeduplicateInt(a []int) []int {
 	}
 	seen := make(map[int]struct{})
 	j := 0
-	for i:=0; i<l; i++ {
+	for i := 0; i < l; i++ {
 		if _, ok := seen[a[i]]; ok {
 			continue
 		}
@@ -147,7 +115,7 @@ func (sliceTool) DeduplicateInt(a []int) []int {
 	return a[:j]
 }
 
-// DeduplicateInt64
+// DeduplicateInt64 deduplicate int64
 func (sliceTool) DeduplicateInt64(a []int64) []int64 {
 	l := len(a)
 	if l < 2 {
@@ -155,7 +123,7 @@ func (sliceTool) DeduplicateInt64(a []int64) []int64 {
 	}
 	seen := make(map[int64]struct{})
 	j := 0
-	for i:=0; i<l; i++ {
+	for i := 0; i < l; i++ {
 		if _, ok := seen[a[i]]; ok {
 			continue
 		}
@@ -166,7 +134,7 @@ func (sliceTool) DeduplicateInt64(a []int64) []int64 {
 	return a[:j]
 }
 
-// DeduplicateStr
+// DeduplicateStr  deduplicate string
 func (sliceTool) DeduplicateStr(a []string) []string {
 	l := len(a)
 	if l < 2 {
@@ -174,7 +142,7 @@ func (sliceTool) DeduplicateStr(a []string) []string {
 	}
 	seen := make(map[string]struct{})
 	j := 0
-	for i:=0; i<l; i++ {
+	for i := 0; i < l; i++ {
 		if _, ok := seen[a[i]]; ok {
 			continue
 		}
@@ -185,7 +153,7 @@ func (sliceTool) DeduplicateStr(a []string) []string {
 	return a[:j]
 }
 
-// DelInt
+// DelInt del int
 func (sliceTool) DelInt(a []int, i int) []int {
 	l := len(a)
 	if l == 0 {
@@ -197,7 +165,7 @@ func (sliceTool) DelInt(a []int, i int) []int {
 	return append(a[:i], a[i+1:]...)
 }
 
-// DelInt64
+// DelInt64 del int64
 func (sliceTool) DelInt64(a []int64, i int) []int64 {
 	l := len(a)
 	if l == 0 {
@@ -221,7 +189,6 @@ func (sliceTool) DelStr(a []string, i int) []string {
 	return append(a[:i], a[i+1:]...)
 }
 
-// MaxInt
 func (sliceTool) MaxInt(a []int) int {
 	l := len(a)
 	if l == 0 {
@@ -236,7 +203,6 @@ func (sliceTool) MaxInt(a []int) int {
 	return max
 }
 
-// MaxInt64
 func (sliceTool) MaxInt64(a []int64) int64 {
 	l := len(a)
 	if l == 0 {
@@ -251,7 +217,6 @@ func (sliceTool) MaxInt64(a []int64) int64 {
 	return max
 }
 
-// MinInt
 func (sliceTool) MinInt(a []int) int {
 	l := len(a)
 	if l == 0 {
@@ -266,7 +231,6 @@ func (sliceTool) MinInt(a []int) int {
 	return min
 }
 
-// MinInt64
 func (sliceTool) MinInt64(a []int64) int64 {
 	l := len(a)
 	if l == 0 {
@@ -281,7 +245,6 @@ func (sliceTool) MinInt64(a []int64) int64 {
 	return min
 }
 
-// PopInt
 func (sliceTool) PopInt(a []int) (int, []int) {
 	if len(a) == 0 {
 		return 0, nil
@@ -289,7 +252,6 @@ func (sliceTool) PopInt(a []int) (int, []int) {
 	return a[len(a)-1], a[:len(a)-1]
 }
 
-// PopInt64
 func (sliceTool) PopInt64(a []int64) (int64, []int64) {
 	if len(a) == 0 {
 		return 0, nil
@@ -297,7 +259,6 @@ func (sliceTool) PopInt64(a []int64) (int64, []int64) {
 	return a[len(a)-1], a[:len(a)-1]
 }
 
-// PopStr
 func (sliceTool) PopStr(a []string) (string, []string) {
 	if len(a) == 0 {
 		return "", nil
@@ -319,7 +280,7 @@ func (sliceTool) ReverseInt(a []int) []int {
 	return a
 }
 
-// ReverseInt64
+// ReverseInt64 reverse int64
 func (sliceTool) ReverseInt64(a []int64) []int64 {
 	l := len(a)
 	if l == 0 {
@@ -333,7 +294,7 @@ func (sliceTool) ReverseInt64(a []int64) []int64 {
 	return a
 }
 
-// ReverseStr
+// ReverseStr  reverseStr
 func (sliceTool) ReverseStr(a []string) []string {
 	l := len(a)
 	if l == 0 {

@@ -30,13 +30,12 @@ import (
 	"unsafe"
 
 	jsoniter "github.com/json-iterator/go"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/ianaindex"
+	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )
 
-// 全局json
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // StringValue 任何类型返回值字符串形式
@@ -44,7 +43,7 @@ func StringValue(i interface{}) string {
 	if i == nil {
 		return ""
 	}
-	if reflect.ValueOf(i).Kind() == reflect.String{
+	if reflect.ValueOf(i).Kind() == reflect.String {
 		return i.(string)
 	}
 	var buf bytes.Buffer
@@ -57,13 +56,13 @@ func StringValueMysql(i interface{}) string {
 	if i == nil {
 		return ""
 	}
-	if reflect.ValueOf(i).Kind() == reflect.String{
+	if reflect.ValueOf(i).Kind() == reflect.String {
 		str := i.(string)
 		str = strings.Replace(str, `"`, `\"`, -1)
-		if len(str) > 1 && string(str[len(str) -1]) == `\` {
+		if len(str) > 1 && string(str[len(str)-1]) == `\` {
 			str += `\`
 		}
-		return `"`+str+`"`
+		return `"` + str + `"`
 	}
 	var buf bytes.Buffer
 	stringValue(reflect.ValueOf(i), 0, &buf)
@@ -133,7 +132,7 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 		case string:
 			format = "%q"
 		}
-		_,_= fmt.Fprintf(buf, format, v.Interface())
+		_, _ = fmt.Fprintf(buf, format, v.Interface())
 	}
 }
 
@@ -146,7 +145,7 @@ func OSLine() string {
 }
 
 // MD5
-func MD5(str string) string  {
+func MD5(str string) string {
 	h := md5.New()
 	h.Write([]byte(str))
 	return hex.EncodeToString(h.Sum(nil))
@@ -164,16 +163,16 @@ func Json2Map(str string) (map[string]interface{}, error) {
 
 // Map2Json map -> json
 func Map2Json(m interface{}) (string, error) {
-	jsonStr,err :=json.Marshal(m)
+	jsonStr, err := json.Marshal(m)
 	return string(jsonStr), err
 }
 
 // Any2Map interface{} -> map[string]interface{}
-func Any2Map(data interface{}) map[string]interface{}{
+func Any2Map(data interface{}) map[string]interface{} {
 	if v, ok := data.(map[string]interface{}); ok {
 		return v
 	}
-	if reflect.ValueOf(data).Kind() == reflect.String{
+	if reflect.ValueOf(data).Kind() == reflect.String {
 		dataMap, err := Json2Map(data.(string))
 		if err == nil {
 			return dataMap
@@ -241,7 +240,7 @@ func Any2int64(data interface{}) int64 {
 
 // Any2Arr interface{} -> []interface{}
 func Any2Arr(data interface{}) []interface{} {
-	if v,ok := data.([]interface{}); ok {
+	if v, ok := data.([]interface{}); ok {
 		return v
 	}
 	return nil
@@ -249,18 +248,18 @@ func Any2Arr(data interface{}) []interface{} {
 
 // Any2Float64 interface{} -> float64
 func Any2Float64(data interface{}) float64 {
-	if v,ok := data.(float64); ok {
+	if v, ok := data.(float64); ok {
 		return v
 	}
-	if v,ok := data.(float32); ok {
+	if v, ok := data.(float32); ok {
 		return float64(v)
 	}
 	return 0
 }
 
 // Any2Strings interface{} -> []string
-func Any2Strings(data interface{}) []string{
-	listValue,ok := data.([]interface{})
+func Any2Strings(data interface{}) []string {
+	listValue, ok := data.([]interface{})
 	if !ok {
 		return nil
 	}
@@ -273,18 +272,18 @@ func Any2Strings(data interface{}) []string{
 
 // Any2Json interface{} -> json string
 func Any2Json(data interface{}) (string, error) {
-	jsonStr,err :=json.Marshal(data)
+	jsonStr, err := json.Marshal(data)
 	return string(jsonStr), err
 }
 
 // Int2Hex int -> hex
 func Int2Hex(i int64) string {
-	return fmt.Sprintf("%x",i)
+	return fmt.Sprintf("%x", i)
 }
 
 // Int642Hex int64 -> hex
 func Int642Hex(i int64) string {
-	return fmt.Sprintf("%x",i)
+	return fmt.Sprintf("%x", i)
 }
 
 // Hex2Int hex -> int
@@ -308,10 +307,10 @@ func Hex2Int64(s string) int64 {
 }
 
 // CleaningStr 清理字符串前后空白 和回车 换行符号
-func CleaningStr(str string) string{
-	str = strings.Replace(str, "\n","", -1)
-	str = strings.Replace(str, "\r","", -1)
-	str = strings.Replace(str, "\\n","", -1)
+func CleaningStr(str string) string {
+	str = strings.Replace(str, "\n", "", -1)
+	str = strings.Replace(str, "\r", "", -1)
+	str = strings.Replace(str, "\\n", "", -1)
 	//str = strings.Replace(str, "\"", "", -1)
 	str = strings.TrimSpace(str)
 	str = StrDeleteSpace(str)
@@ -359,7 +358,7 @@ func Str2Int(str string) int {
 	return i
 }
 
-// Str2Int string -> int32
+// Str2Int32 string -> int32
 func Str2Int32(str string) int32 {
 	i, err := strconv.Atoi(str)
 	if err != nil {
@@ -395,7 +394,7 @@ func Uint82Str(bs []uint8) string {
 	return string(ba)
 }
 
-// Str2Bytes string -> []byte
+// Str2Byte string -> []byte
 func Str2Byte(s string) []byte {
 	x := (*[2]uintptr)(unsafe.Pointer(&s))
 	h := [3]uintptr{x[0], x[1], x[1]}
@@ -560,7 +559,7 @@ func valueToInterface(value reflect.Value) interface{} {
 // EncodeByte encode byte
 func EncodeByte(v interface{}) []byte {
 	switch value := v.(type) {
-	case int, int8, int16, int32 :
+	case int, int8, int16, int32:
 		return Int2Byte(value.(int))
 	case int64:
 		return Int642Byte(value)
@@ -620,7 +619,6 @@ func Bit2Byte(b []uint8) []byte {
 	return by
 }
 
-
 // bitsToUint bitsToUint
 func bitsToUint(bits []uint8) uint {
 	v := uint(0)
@@ -661,7 +659,7 @@ func DeepCopy(dst, src interface{}) error {
 	return deepCopy(dst, src)
 }
 
-// Struct2Map Struct  ->  map
+// Struct2MapV2 Struct  ->  map
 // hasValue=true表示字段值不管是否存在都转换成map
 // hasValue=false表示字段为空或者不为0则转换成map
 func Struct2MapV2(obj interface{}, hasValue bool) (map[string]interface{}, error) {
@@ -715,7 +713,7 @@ func Struct2MapV2(obj interface{}, hasValue bool) (map[string]interface{}, error
 	return mp, nil
 }
 
-// Struct2Map2 struct -> map
+// Struct2MapV3 struct -> map
 func Struct2MapV3(obj interface{}) map[string]interface{} {
 	obj1 := reflect.TypeOf(obj)
 	obj2 := reflect.ValueOf(obj)
@@ -748,14 +746,15 @@ func P2E() {
 }
 
 // ============================================  转码
+
 // Charset 字符集类型
 type Charset string
 
 const (
 	UTF8    = Charset("UTF-8")
 	GB18030 = Charset("GB18030")
-	GBK = Charset("GBK")
-	GB2312 = Charset("GB2312")
+	GBK     = Charset("GBK")
+	GB2312  = Charset("GB2312")
 )
 
 // ConvertByte2String 编码转换
@@ -763,16 +762,16 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	var str string
 	switch charset {
 	case GB18030:
-		var decodeBytes,_=simplifiedchinese.GB18030.NewDecoder().Bytes(byte)
-		str= string(decodeBytes)
+		var decodeBytes, _ = simplifiedchinese.GB18030.NewDecoder().Bytes(byte)
+		str = string(decodeBytes)
 
 	case GBK:
-		var decodeBytes,_=simplifiedchinese.GBK.NewDecoder().Bytes(byte)
-		str= string(decodeBytes)
+		var decodeBytes, _ = simplifiedchinese.GBK.NewDecoder().Bytes(byte)
+		str = string(decodeBytes)
 
 	case GB2312:
-		var decodeBytes,_=simplifiedchinese.HZGB2312.NewDecoder().Bytes(byte)
-		str= string(decodeBytes)
+		var decodeBytes, _ = simplifiedchinese.HZGB2312.NewDecoder().Bytes(byte)
+		str = string(decodeBytes)
 
 	case UTF8:
 		fallthrough
@@ -784,7 +783,6 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	return str
 }
 
-// UnicodeDec
 func UnicodeDec(raw string) string {
 	str, err := strconv.Unquote(strings.Replace(strconv.Quote(raw), `\\u`, `\u`, -1))
 	if err != nil {
@@ -793,7 +791,6 @@ func UnicodeDec(raw string) string {
 	return str
 }
 
-// UnicodeDecByte
 func UnicodeDecByte(raw []byte) []byte {
 	rawStr := string(raw)
 	return []byte(UnicodeDec(rawStr))
@@ -809,23 +806,23 @@ func UnescapeUnicode(raw []byte) ([]byte, error) {
 }
 
 // Base64Encode base64 编码
-func Base64Encode(str string) string{
+func Base64Encode(str string) string {
 	return base64.StdEncoding.EncodeToString([]byte(str))
 }
 
 // Base64Decode base64 解码
-func Base64Decode(str string) (string,error){
+func Base64Decode(str string) (string, error) {
 	b, err := base64.StdEncoding.DecodeString(str)
 	return string(b), err
 }
 
 // Base64UrlEncode base64 url 编码
-func Base64UrlEncode(str string) string{
+func Base64UrlEncode(str string) string {
 	return base64.URLEncoding.EncodeToString([]byte(str))
 }
 
 // Base64UrlDecode base64 url 解码
-func Base64UrlDecode(str string) (string,error){
+func Base64UrlDecode(str string) (string, error) {
 	b, err := base64.URLEncoding.DecodeString(str)
 	return string(b), err
 }
@@ -890,77 +887,78 @@ func getEncoding(charset string) encoding.Encoding {
 	return enc
 }
 
-// ToUTF8
+// ToUTF8  to utf8
 func ToUTF8(srcCharset string, src string) (dst string, err error) {
 	return convert("UTF-8", srcCharset, src)
 }
 
-// UTF8To
+// UTF8To utf8 to
 func UTF8To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "UTF-8", src)
 }
 
-// ToUTF16
+// ToUTF16 to utf16
 func ToUTF16(srcCharset string, src string) (dst string, err error) {
 	return convert("UTF-16", srcCharset, src)
 }
 
-// UTF16To
+// UTF16To utf16 to
 func UTF16To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "UTF-16", src)
 }
 
-// ToBIG5
+// ToBIG5  to big5
 func ToBIG5(srcCharset string, src string) (dst string, err error) {
 	return convert("big5", srcCharset, src)
 }
 
-// BIG5To
+// BIG5To  big to
 func BIG5To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "big5", src)
 }
 
-// ToGDK
+// ToGDK to gdk
 func ToGDK(srcCharset string, src string) (dst string, err error) {
 	return convert("gbk", srcCharset, src)
 }
 
-// GDKTo
+// GDKTo gdk to
 func GDKTo(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "gbk", src)
 }
 
-// ToGB18030
+// ToGB18030  to gb18030
 func ToGB18030(srcCharset string, src string) (dst string, err error) {
 	return convert("gb18030", srcCharset, src)
 }
 
-// GB18030To
+// GB18030To gb18030 to
 func GB18030To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "gb18030", src)
 }
 
-// ToGB2312
+// ToGB2312 to gb2312
 func ToGB2312(srcCharset string, src string) (dst string, err error) {
 	return convert("GB2312", srcCharset, src)
 }
 
-// GB2312To
+// GB2312To gb2312 to
 func GB2312To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "GB2312", src)
 }
 
-// ToHZGB2312
+// ToHZGB2312 to hzgb2312
 func ToHZGB2312(srcCharset string, src string) (dst string, err error) {
 	return convert("HZGB2312", srcCharset, src)
 }
 
-// HZGB2312To
+// HZGB2312To hzgb2312 to
 func HZGB2312To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "HZGB2312", src)
 }
 
 // ================================================ Set 集合
+
 // 可以用于去重
 type Set map[string]struct{}
 
@@ -978,11 +976,12 @@ func (s Set) Delete(key string) {
 }
 
 // ================================================ Stack 栈
+
 type Stack struct {
 	data map[int]interface{}
 }
 
-func New() *Stack{
+func New() *Stack {
 	s := new(Stack)
 	s.data = make(map[int]interface{})
 	return s
@@ -1006,7 +1005,7 @@ func (s *Stack) String() string {
 
 // IsContainStr  字符串是否等于items中的某个元素
 func IsContainStr(items []string, item string) bool {
-	for i:=0; i<len(items); i++ {
+	for i := 0; i < len(items); i++ {
 		if items[i] == item {
 			return true
 		}
@@ -1055,14 +1054,14 @@ func ByteToBinaryString(data byte) (str string) {
 }
 
 // StrDuplicates  数组，切片去重和去空串
-func StrDuplicates(a []string) []string{
+func StrDuplicates(a []string) []string {
 	m := make(map[string]struct{})
 	ret := make([]string, 0, len(a))
-	for i:=0; i < len(a); i++{
-		if a[i] == ""{
+	for i := 0; i < len(a); i++ {
+		if a[i] == "" {
 			continue
 		}
-		if _,ok := m[a[i]]; !ok {
+		if _, ok := m[a[i]]; !ok {
 			m[a[i]] = struct{}{}
 			ret = append(ret, a[i])
 		}
@@ -1071,9 +1070,11 @@ func StrDuplicates(a []string) []string{
 }
 
 // IsElementStr 判断字符串是否与数组里的某个字符串相同
-func IsElementStr(listData []string, element string) bool{
-	for _,k := range listData{
-		if k == element{ return true }
+func IsElementStr(listData []string, element string) bool {
+	for _, k := range listData {
+		if k == element {
+			return true
+		}
 	}
 	return false
 }
@@ -1136,23 +1137,19 @@ func CopySlice(s []interface{}) []interface{} {
 	return append(s[:0:0], s...)
 }
 
-// CopySliceStr
-func CopySliceStr(s []string) []string{
+func CopySliceStr(s []string) []string {
 	return append(s[:0:0], s...)
 }
 
-// CopySliceInt
 func CopySliceInt(s []int) []int {
 	return append(s[:0:0], s...)
 }
 
-// CopySliceInt64
 func CopySliceInt64(s []int64) []int64 {
 	return append(s[:0:0], s...)
 }
 
-// IsInSlice
-func IsInSlice(s []interface{}, v interface{})  bool {
+func IsInSlice(s []interface{}, v interface{}) bool {
 	for i := range s {
 		if s[i] == v {
 			return true
@@ -1175,13 +1172,12 @@ func ReplaceAllToOne(str string, from []string, to string) string {
 // MapStr2Any map[string]string -> map[string]interface{}
 func MapStr2Any(m map[string]string) map[string]interface{} {
 	dest := make(map[string]interface{})
-	for k,v := range m {
+	for k, v := range m {
 		dest[k] = interface{}(v)
 	}
 	return dest
 }
 
-// Exists
 func Exists(path string) bool {
 	if stat, err := os.Stat(path); stat != nil && !os.IsNotExist(err) {
 		return true
@@ -1189,7 +1185,6 @@ func Exists(path string) bool {
 	return false
 }
 
-// IsDir
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
 	if err != nil {
@@ -1198,7 +1193,6 @@ func IsDir(path string) bool {
 	return s.IsDir()
 }
 
-// Pwd
 func Pwd() string {
 	path, err := os.Getwd()
 	if err != nil {
@@ -1207,12 +1201,10 @@ func Pwd() string {
 	return path
 }
 
-// Chdir
 func Chdir(dir string) error {
 	return os.Chdir(dir)
 }
 
-// IsFile
 func IsFile(path string) bool {
 	s, err := os.Stat(path)
 	if err != nil {
@@ -1229,7 +1221,6 @@ const (
 	TiB = GiB * 1024
 )
 
-// HumanFriendlyTraffic
 func HumanFriendlyTraffic(bytes uint64) string {
 	if bytes <= KiB {
 		return fmt.Sprintf("%d B", bytes)
@@ -1246,7 +1237,6 @@ func HumanFriendlyTraffic(bytes uint64) string {
 	return fmt.Sprintf("%.2f TiB", float32(bytes)/TiB)
 }
 
-// StrToSize
 func StrToSize(sizeStr string) int64 {
 	i := 0
 	for ; i < len(sizeStr); i++ {
@@ -1287,7 +1277,6 @@ func StrToSize(sizeStr string) int64 {
 	}
 	return -1
 }
-
 
 func MapCopy(data map[string]interface{}) (copy map[string]interface{}) {
 	copy = make(map[string]interface{}, len(data))
@@ -1361,7 +1350,6 @@ func Slice2Map(slice interface{}) map[string]interface{} {
 	return nil
 }
 
-// GzipCompress
 func GzipCompress(src []byte) []byte {
 	var in bytes.Buffer
 	w := gzip.NewWriter(&in)
@@ -1370,7 +1358,6 @@ func GzipCompress(src []byte) []byte {
 	return in.Bytes()
 }
 
-// GzipDecompress
 func GzipDecompress(src []byte) []byte {
 	dst := make([]byte, 0)
 	br := bytes.NewReader(src)
@@ -1473,12 +1460,12 @@ func ByteToUTF8(strBuf []byte) []byte {
 	}
 }
 
-// IsUtf8
 func IsUtf8(buf []byte) bool {
 	return utf8.Valid(buf)
 }
 
 // ====================================  json find
+
 // JsonFind 按路径寻找指定json值
 // 用法参考  ./_examples/json/main.go
 // @find : 寻找路径，与目录的url类似， 下面是一个例子：
@@ -1492,28 +1479,28 @@ func JsonFind(jsonStr, find string) (interface{}, error) {
 	jxList := strings.Split(find, "/")
 	jxLen := len(jxList)
 	var (
-		data = Any2Map(jsonStr)
+		data  = Any2Map(jsonStr)
 		value interface{}
-		err error
+		err   error
 	)
-	for i:= 0; i< jxLen; i++ {
+	for i := 0; i < jxLen; i++ {
 		l := len(jxList[i])
 		if l > 2 && string(jxList[i][0]) == "[" && string(jxList[i][l-1]) == "]" {
-			numStr := jxList[i][1:l-1]
+			numStr := jxList[i][1 : l-1]
 			dataList := Any2Arr(value)
 			value = dataList[Any2Int(numStr)]
 			data, err = interface2Map(value)
 			if err != nil {
 				continue
 			}
-		}else{
+		} else {
 			if IsHaveKey(data, jxList[i]) {
 				value = data[jxList[i]]
 				data, err = interface2Map(value)
 				if err != nil {
 					continue
 				}
-			}else{
+			} else {
 				value = nil
 			}
 		}
@@ -1565,11 +1552,11 @@ func IsHaveKey(data map[string]interface{}, key string) bool {
 }
 
 // Any2Map interface{} -> map[string]interface{}
-func interface2Map(data interface{}) (map[string]interface{}, error){
+func interface2Map(data interface{}) (map[string]interface{}, error) {
 	if v, ok := data.(map[string]interface{}); ok {
 		return v, nil
 	}
-	if reflect.ValueOf(data).Kind() == reflect.String{
+	if reflect.ValueOf(data).Kind() == reflect.String {
 		return Json2Map(data.(string))
 	}
 	return nil, fmt.Errorf("not map type")

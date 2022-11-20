@@ -189,7 +189,7 @@ func generateKeyPair() (rawCert, rawKey []byte, err error) {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"Zarten"},
+			Organization: []string{"ManGe-gathertool"},
 		},
 		NotBefore: notBefore,
 		NotAfter:  notAfter,

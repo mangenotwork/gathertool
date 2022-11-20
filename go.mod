@@ -13,4 +13,5 @@ require (
 	golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985
 	golang.org/x/text v0.3.6
 	google.golang.org/grpc v1.47.0
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )

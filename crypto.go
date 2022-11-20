@@ -48,7 +48,7 @@ type DES interface {
 
 // NewAES :  use NewAES(AES_CBC)
 func NewAES(typeName string, arg ...[]byte) AES {
-	iv := []byte{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6}
+	iv := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6}
 	if len(arg) != 0 {
 		iv = arg[0]
 	}
@@ -56,7 +56,7 @@ func NewAES(typeName string, arg ...[]byte) AES {
 	case "cbc", "Cbc", CBC:
 		return &cbcObj{
 			cryptoType: "aes",
-			iv: iv,
+			iv:         iv,
 		}
 	case "ecb", "Ecb", ECB:
 		return &ecbObj{
@@ -69,7 +69,7 @@ func NewAES(typeName string, arg ...[]byte) AES {
 	case "ctr", "Ctr", CTR:
 		return &ctrObj{
 			cryptoType: "aes",
-			count: iv,
+			count:      iv,
 		}
 	default:
 		return &cbcObj{
@@ -80,7 +80,7 @@ func NewAES(typeName string, arg ...[]byte) AES {
 
 // NewDES :  use NewDES(DES_CBC)
 func NewDES(typeName string, arg ...[]byte) DES {
-	iv := []byte{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6}
+	iv := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6}
 	if len(arg) != 0 {
 		iv = arg[0]
 	}
@@ -88,7 +88,7 @@ func NewDES(typeName string, arg ...[]byte) DES {
 	case "cbc", "Cbc", CBC:
 		return &cbcObj{
 			cryptoType: "des",
-			iv: iv,
+			iv:         iv,
 		}
 	case "ecb", "Ecb", ECB:
 		return &ecbObj{
@@ -100,12 +100,12 @@ func NewDES(typeName string, arg ...[]byte) DES {
 		}
 	case "ctr", "Ctr", CTR:
 		return &ctrObj{
-			count: iv,
+			count:      iv,
 			cryptoType: "des",
 		}
 	default:
 		return &cbcObj{
-			iv: iv,
+			iv:         iv,
 			cryptoType: "des",
 		}
 	}
@@ -114,7 +114,7 @@ func NewDES(typeName string, arg ...[]byte) DES {
 // CBC : 密码分组链接模式（Cipher Block Chaining (CBC)） default
 type cbcObj struct {
 	cryptoType string
-	iv []byte
+	iv         []byte
 }
 
 func (cbc *cbcObj) getBlock(key []byte) (block cipher.Block, err error) {
@@ -127,32 +127,32 @@ func (cbc *cbcObj) getBlock(key []byte) (block cipher.Block, err error) {
 	return
 }
 
-// AES CBC Encrypt
+// Encrypt AES CBC Encrypt
 func (cbc *cbcObj) Encrypt(str, key []byte) ([]byte, error) {
 	block, err := cbc.getBlock(key)
 	if err != nil {
-		Error("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
+		Error("[" + cbc.cryptoType + "-CBC] ERROR:" + err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
 	originData := cbc.pkcs5Padding(str, blockSize)
-	blockMode := cipher.NewCBCEncrypter(block,cbc.iv)
-	cryptData := make([]byte,len(originData))
-	blockMode.CryptBlocks(cryptData,originData)
+	blockMode := cipher.NewCBCEncrypter(block, cbc.iv)
+	cryptData := make([]byte, len(originData))
+	blockMode.CryptBlocks(cryptData, originData)
 	P2E()
 	return cryptData, nil
 }
 
-// AES CBC Decrypt
+// Decrypt AES CBC Decrypt
 func (cbc *cbcObj) Decrypt(str, key []byte) ([]byte, error) {
 	block, err := cbc.getBlock(key)
 	if err != nil {
-		Error("["+cbc.cryptoType+"-CBC] ERROR:" +err.Error())
+		Error("[" + cbc.cryptoType + "-CBC] ERROR:" + err.Error())
 		return []byte(""), err
 	}
 	blockMode := cipher.NewCBCDecrypter(block, cbc.iv)
-	originStr := make([]byte,len(str))
-	blockMode.CryptBlocks(originStr,str)
+	originStr := make([]byte, len(str))
+	blockMode.CryptBlocks(originStr, str)
 	P2E()
 	return cbc.pkcs5UnPadding(originStr), nil
 }
@@ -184,11 +184,11 @@ func (ecb *ecbObj) getBlock(key []byte) (block cipher.Block, err error) {
 	return
 }
 
-// AES ECB Encrypt
+// Encrypt AES ECB Encrypt
 func (ecb *ecbObj) Encrypt(str, key []byte) ([]byte, error) {
 	block, err := ecb.getBlock(key)
 	if err != nil {
-		Error("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
+		Error("[" + ecb.cryptoType + "-ECB] ERROR:" + err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
@@ -226,11 +226,11 @@ func (ecb *ecbObj) pkcs5PaddingAes(ciphertext []byte, blockSize int) []byte {
 	return ciphertext
 }
 
-// AES ECB Decrypt
+// Decrypt AES ECB Decrypt
 func (ecb *ecbObj) Decrypt(str, key []byte) ([]byte, error) {
 	block, err := ecb.getBlock(key)
 	if err != nil {
-		Error("["+ecb.cryptoType+"-ECB] ERROR:" +err.Error())
+		Error("[" + ecb.cryptoType + "-ECB] ERROR:" + err.Error())
 		return []byte(""), err
 	}
 	blockSize := block.BlockSize()
@@ -292,12 +292,12 @@ func (cfb *cfbObj) getBlock(key []byte) (block cipher.Block, err error) {
 	return
 }
 
-// AES CFB Encrypt
+// Encrypt AES CFB Encrypt
 func (cfb *cfbObj) Encrypt(str, key []byte) ([]byte, error) {
 	P2E()
 	block, err := cfb.getBlock(key)
 	if err != nil {
-		Error("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
+		Error("[" + cfb.cryptoType + "-CFB] ERROR:" + err.Error())
 		return nil, err
 	}
 
@@ -325,12 +325,12 @@ func (cfb *cfbObj) Encrypt(str, key []byte) ([]byte, error) {
 	return nil, nil
 }
 
-// AES CFB Decrypt
+// Decrypt AES CFB Decrypt
 func (cfb *cfbObj) Decrypt(str, key []byte) ([]byte, error) {
 	P2E()
 	block, err := cfb.getBlock(key)
 	if err != nil {
-		Error("["+cfb.cryptoType+"-CFB] ERROR:" +err.Error())
+		Error("[" + cfb.cryptoType + "-CFB] ERROR:" + err.Error())
 		return nil, err
 	}
 
@@ -358,7 +358,7 @@ func (cfb *cfbObj) Decrypt(str, key []byte) ([]byte, error) {
 
 // 计算器模式（Counter (CTR)）
 type ctrObj struct {
-	count []byte //指定计数器,长度必须等于block的块尺寸
+	count      []byte //指定计数器,长度必须等于block的块尺寸
 	cryptoType string
 }
 
@@ -375,34 +375,34 @@ func (ctr *ctrObj) getBlock(key []byte) (block cipher.Block, err error) {
 	return
 }
 
-// AES CTR Encrypt
+// Encrypt AES CTR Encrypt
 func (ctr *ctrObj) Encrypt(str, key []byte) ([]byte, error) {
 	return ctr.crypto(str, key)
 }
 
-// AES CTR Decrypt
+// Decrypt AES CTR Decrypt
 func (ctr *ctrObj) Decrypt(str, key []byte) ([]byte, error) {
 	return ctr.crypto(str, key)
 }
 
 func (ctr *ctrObj) crypto(str, key []byte) ([]byte, error) {
 	P2E()
-	block,err:=ctr.getBlock(key)
+	block, err := ctr.getBlock(key)
 	if err != nil {
-		Error("[AES-CTR] ERROR:" +err.Error())
+		Error("[AES-CTR] ERROR:" + err.Error())
 		return []byte(""), err
 	}
 	//指定分组模式
-	blockMode:=cipher.NewCTR(block, ctr.count)
+	blockMode := cipher.NewCTR(block, ctr.count)
 	//执行加密、解密操作
-	res:=make([]byte,len(str))
-	blockMode.XORKeyStream(res,str)
+	res := make([]byte, len(str))
+	blockMode.XORKeyStream(res, str)
 	//返回明文或密文
 	return res, nil
 }
 
 // 输出反馈模式（Output FeedBack (OFB)）
-type ofbObj struct {}
+type ofbObj struct{}
 
 func hmacFunc(h func() hash.Hash, str, key []byte) string {
 	mac := hmac.New(h, key)
@@ -411,22 +411,22 @@ func hmacFunc(h func() hash.Hash, str, key []byte) string {
 	return res
 }
 
-// HmacMD5
+// HmacMD5 hmac md5
 func HmacMD5(str, key string) string {
 	return hmacFunc(md5.New, []byte(str), []byte(key))
 }
 
-// HmacSHA1
+// HmacSHA1 hmac sha1
 func HmacSHA1(str, key string) string {
 	return hmacFunc(sha1.New, []byte(str), []byte(key))
 }
 
-// HmacSHA256
+// HmacSHA256 hmac sha256
 func HmacSHA256(str, key string) string {
 	return hmacFunc(sha256.New, []byte(str), []byte(key))
 }
 
-// HmacSHA512
+// HmacSHA512 hmac sha512
 func HmacSHA512(str, key string) string {
 	return hmacFunc(sha512.New, []byte(str), []byte(key))
 }
@@ -435,8 +435,7 @@ func pbkdf2Func(h func() hash.Hash, str, salt []byte, iterations, keySize int) [
 	return pbkdf2.Key(str, salt, iterations, keySize, h)
 }
 
-// PBKDF2
-func PBKDF2(str, salt []byte, iterations, keySize int) ([]byte) {
+func PBKDF2(str, salt []byte, iterations, keySize int) []byte {
 	return pbkdf2Func(sha256.New, str, salt, iterations, keySize)
 }
 
@@ -450,8 +449,8 @@ func jwtEncrypt(token *jwt.Token, data map[string]interface{}, secret string) (s
 	return token.SignedString([]byte(secret))
 }
 
-// JwtEncrypt
-func JwtEncrypt(data map[string]interface{}, secret, method string) (string, error){
+// JwtEncrypt jwt Encrypt
+func JwtEncrypt(data map[string]interface{}, secret, method string) (string, error) {
 	switch method {
 	case "256":
 		return jwtEncrypt(jwt.New(jwt.SigningMethodHS256), data, secret)
@@ -460,28 +459,25 @@ func JwtEncrypt(data map[string]interface{}, secret, method string) (string, err
 	case "512":
 		return jwtEncrypt(jwt.New(jwt.SigningMethodHS512), data, secret)
 	}
-	return "",fmt.Errorf("未知method; method= 256 or 384 or 512 ")
+	return "", fmt.Errorf("未知method; method= 256 or 384 or 512 ")
 }
 
-// JwtEncrypt256
-func JwtEncrypt256(data map[string]interface{}, secret string) (string, error){
+func JwtEncrypt256(data map[string]interface{}, secret string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	return jwtEncrypt(token, data, secret)
 }
 
-// JwtEncrypt384
-func JwtEncrypt384(data map[string]interface{}, secret string) (string, error){
+func JwtEncrypt384(data map[string]interface{}, secret string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS384)
 	return jwtEncrypt(token, data, secret)
 }
 
-// JwtEncrypt512
-func JwtEncrypt512(data map[string]interface{}, secret string) (string, error){
+func JwtEncrypt512(data map[string]interface{}, secret string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS512)
 	return jwtEncrypt(token, data, secret)
 }
 
-// JwtDecrypt
+// JwtDecrypt jwt decrypt
 func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err error) {
 	data = make(map[string]interface{})
 	var secretFunc = func() jwt.Keyfunc { //按照这样的规则解析
@@ -503,11 +499,10 @@ func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err er
 		return
 	}
 	for k, v := range claim {
-		data[k] =v
+		data[k] = v
 	}
 	return
 }
-
 
 // TODO Rabbit
 
@@ -553,5 +548,4 @@ func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err er
 34: “RSA-RIPEMD160”
 35: “md5WithRSAEncryption”
 36: “RSA-MD5”
- */
-
+*/

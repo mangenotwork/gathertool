@@ -10,8 +10,7 @@ import (
 	gt "github.com/mangenotwork/gathertool"
 )
 
-
-func main(){
+func main() {
 	//main2()
 	main1()
 }
@@ -29,27 +28,25 @@ var (
 	c, _ = gt.NewCSV("data.xls")
 )
 
-func main1(){
+func main1() {
 	// 1.在页面 http://ip.bczs.net/country/CN 获取所有ip
-	_,_=gt.Get("http://ip.bczs.net/country/CN",gt.SucceedFunc(IPListSucceed))
+	_, _ = gt.Get("http://ip.bczs.net/country/CN", gt.SucceedFunc(IPListSucceed))
 
 	// 2. 并发抓取详情数据, 20个并发
-	gt.StartJobGet(10,queue,
-		gt.SucceedFunc(GetIPSucceed),//请求成功后执行的方法
-		gt.RetryFunc(GetIPRetry),//遇到 502,403 等状态码重试前执行的方法，一般为添加休眠时间或更换代理
-		gt.FailedFunc(GetIPFailed),//请求失败后执行的方法
+	gt.StartJobGet(10, queue,
+		gt.SucceedFunc(GetIPSucceed), //请求成功后执行的方法
+		gt.RetryFunc(GetIPRetry),     //遇到 502,403 等状态码重试前执行的方法，一般为添加休眠时间或更换代理
+		gt.FailedFunc(GetIPFailed),   //请求失败后执行的方法
 	)
 	//c.Close()
 
-	select {
-
-	}
+	select {}
 
 }
 
-// 请求成功执行
-func IPListSucceed(ctx *gt.Context){
-	i:=1
+// IPListSucceed 请求成功执行
+func IPListSucceed(ctx *gt.Context) {
+	i := 1
 	for _, tbody := range gt.RegHtmlTbody(ctx.RespBodyString()) {
 		for _, tr := range gt.RegHtmlTr(tbody) {
 			if i > 500 {
@@ -61,35 +58,34 @@ func IPListSucceed(ctx *gt.Context){
 				gt.Error("异常数据 ： ", td)
 				continue
 			}
-			startIp := gt.Any2String(gt.RegHtmlATxt(td[0])[0])// IP起始
-			endIP := td[1]// 结束
-			number := td[2]// 数量
+			startIp := gt.Any2String(gt.RegHtmlATxt(td[0])[0]) // IP起始
+			endIP := td[1]                                     // 结束
+			number := td[2]                                    // 数量
 			// 创建队列 抓取详情信息
 			queue.Add(&gt.Task{
-				Url: "http://ip.bczs.net/"+startIp,
+				Url: "http://ip.bczs.net/" + startIp,
 				Data: map[string]interface{}{
-					"start_ip":startIp,
-					"end_ip":endIP,
-					"number":number,
+					"start_ip": startIp,
+					"end_ip":   endIP,
+					"number":   number,
 				},
 			})
 			i++
 		}
 	}
-	End:
+End:
 }
 
-
-// 获取详情信息成功的处理
-func GetIPSucceed(cxt *gt.Context){
+// GetIPSucceed 获取详情信息成功的处理
+func GetIPSucceed(cxt *gt.Context) {
 	// 使用goquery库提取数据
-	dom,err := goquery.NewDocumentFromReader(strings.NewReader(cxt.RespBodyString()))
-	if err != nil{
+	dom, err := goquery.NewDocumentFromReader(strings.NewReader(cxt.RespBodyString()))
+	if err != nil {
 		log.Println(err)
 		return
 	}
 	result, err := dom.Find("div[id=result] .well").Html()
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 	// 固定顺序map
@@ -113,8 +109,8 @@ func GetIPSucceed(cxt *gt.Context){
 
 }
 
-// 获取详情信息重试的处理
-func GetIPRetry(c *gt.Context){
+// GetIPRetry 获取详情信息重试的处理
+func GetIPRetry(c *gt.Context) {
 	//更换代理
 	//c.SetProxy(uri)
 
@@ -124,36 +120,35 @@ func GetIPRetry(c *gt.Context){
 		//Transport: &http.Transport{
 		//	Proxy: http.ProxyURL(uri),
 		//},
-		Timeout: 5*time.Second,
+		Timeout: 5 * time.Second,
 	}
 
 	log.Println("休息1s")
-	time.Sleep(1*time.Second)
+	time.Sleep(1 * time.Second)
 }
 
-// 获取详情信息失败执行返还给队列
-func GetIPFailed(c *gt.Context){
-	queue.Add(c.Task)//请求失败归还到队列
+// GetIPFailed 获取详情信息失败执行返还给队列
+func GetIPFailed(c *gt.Context) {
+	queue.Add(c.Task) //请求失败归还到队列
 }
-
 
 // 第二种实现
-func main2(){
+func main2() {
 	// 连接数据库
 	var (
-		host   = "192.168.0.192"
-		port    = 3306
-		user      = "root"
-		password  = "root123"
-		dbname = "test"
+		host     = "192.168.0.192"
+		port     = 3306
+		user     = "root"
+		password = "root123"
+		dbname   = "test"
 	)
-	db,err := gt.NewMysql(host, port, user, password, dbname)
+	db, err := gt.NewMysql(host, port, user, password, dbname)
 	if err != nil {
 		panic(err)
 	}
 	// 请求数据
 	ctx, err := gt.Get("http://ip.bczs.net/country/CN")
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 		return
 	}
@@ -168,9 +163,9 @@ func main2(){
 			// 保存抓取数据
 			err := db.InsertAt("ip", map[string]interface{}{
 				"start": td[0],
-				"end": td[1],
-				"num": td[2],
-					})
+				"end":   td[1],
+				"num":   td[2],
+			})
 			if err != nil {
 				panic(err)
 			}
