@@ -10,45 +10,60 @@ package gathertool
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
-type Conf struct {
+var Config *conf
+
+type conf struct {
 	Path string
 	Data map[string]interface{}
 }
 
-func NewConf(appConfigPath string) (*Conf, error) {
-	conf := &Conf{
+func NewConf(appConfigPath string) error {
+	Config = &conf{
 		Path: appConfigPath,
 		Data: make(map[string]interface{}),
 	}
-	err := conf.Init()
-	return conf, err
+	err := Config.Init()
+	return err
 }
 
-func (c *Conf) Init() error {
+func (c *conf) Init() error {
 	if !fileExists(c.Path) {
-		return fmt.Errorf("未找到配置文件!")
+		return fmt.Errorf("未找到配置文件 [%v] !", c.Path)
 	}
-	log.Println("读取配置文件:", c.Path)
+	Info("读取配置文件:", c.Path)
 	//读取yaml文件到缓存中
 	config, err := ioutil.ReadFile(c.Path)
 	if err != nil {
+		Errorf("读取配置文件[%v]失败", c.Path)
 		return err
 	}
 	return yaml.Unmarshal(config, c.Data)
 }
 
-func (c *Conf) GetInt(key string) int {
-	return c.Data[key].(int)
+func (c *conf) GetInt(key string) int {
+	if c.Data == nil {
+		_ = c.Init()
+	}
+	return Any2Int(c.Data[key])
 }
 
-func (c *Conf) Get(key string) interface{} {
+func (c *conf) Get(key string) interface{} {
+	if c.Data == nil {
+		_ = c.Init()
+	}
 	return c.Data[key]
+}
+
+func (c *conf) GetStr(key string) string {
+	if c.Data == nil {
+		_ = c.Init()
+	}
+	return Any2String(c.Data[key])
 }
 
 func fileExists(name string) bool {

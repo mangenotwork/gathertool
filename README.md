@@ -220,8 +220,69 @@ func Data(datas []string, date, typeName, note string) {
 
 <a href="https://www.jetbrains.com/?from=gathertool" target="_blank"><img src="https://raw.githubusercontent.com/moonD4rk/staticfiles/master/picture/jetbrains-variant-4.png" width="256" align="middle"/></a>
 
+## 里程碑
+
+#### v0.2.1 ~ v0.2.9
+```
+2021.10 ~ 2022.3
+库的基本完成与完善，用于正式工作环境
+```
+
+#### v0.3.4
+```
+新增代理与抓包
+启动一个代理服务，并抓包对数据包进行处理
+```
+
+#### v0.3.5
+```
+新增socket5代理
+```
+
+#### v0.3.6
+```
+新增:
+1. func SimpleServer(addr string, g *grpc.Server) : grpc服务端
+2. func NewTask() *Task : task的实例方法
+3. func (task *Task) SetUrl(urlStr string) *Task & func (task *Task) SetJsonParam(jsonStr string) *Task
+
+修复:
+1. Context对象，Task为空的问题
+
+```
+
+#### v0.3.7
+```
+新增:
+1. 新增html解析，指定html内容提取
+2. 新增抓取实例
+3. 优化部分方法
+4. 添加注释
+```
+
+#### v0.3.9
+```
+新增:
+1. 新增配置，支持yaml
+
+优化部分方法
+代码审查
+```
+
+#### v0.4.1
+```
+新增:
+1. 文件相关处理
+2. 文件压缩解压
+3. 新增抓取实列 _examples/cnlinfo
+
+优化部分方法
+代码审查
+
+```
+
+
 ## TODO List
-- 文件相关处理
 - 高并发下载
 - Rabbit, RC4, RIPEMD-160 加密解密
 - 暴力登录，暴力破解等

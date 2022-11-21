@@ -8,6 +8,8 @@
 package gathertool
 
 import (
+	"archive/tar"
+	"archive/zip"
 	"bytes"
 	"compress/gzip"
 	"crypto/md5"
@@ -22,10 +24,13 @@ import (
 	"math"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 	"unicode/utf8"
 	"unsafe"
 
@@ -1560,4 +1565,402 @@ func interface2Map(data interface{}) (map[string]interface{}, error) {
 		return Json2Map(data.(string))
 	}
 	return nil, fmt.Errorf("not map type")
+}
+
+// Int642Str int64 -> string
+func Int642Str(i int64) string {
+	return strconv.FormatInt(i, 10)
+}
+
+// Get16MD5Encode 返回一个16位md5加密后的字符串
+func Get16MD5Encode(data string) string {
+	return GetMD5Encode(data)[8:24]
+}
+
+// GetMD5Encode 获取Md5编码
+func GetMD5Encode(data string) string {
+	h := md5.New()
+	h.Write([]byte(data))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// ========================================================  文件相关处理
+
+// GetAllFile 获取目录下的所有文件
+func GetAllFile(pathname string) ([]string, error) {
+	s := make([]string, 0)
+	rd, err := ioutil.ReadDir(pathname)
+	if err != nil {
+		Error("read dir fail:", err)
+		return s, err
+	}
+	for _, fi := range rd {
+		if !fi.IsDir() {
+			fullName := pathname + "/" + fi.Name()
+			s = append(s, fullName)
+		}
+	}
+	return s, nil
+}
+
+func subString(str string, start, end int) string {
+	rs := []rune(str)
+	length := len(rs)
+	if start < 0 || start > length {
+		Error("start is wrong")
+		return ""
+	}
+	if end < start || end > length {
+		Error("end is wrong")
+		return ""
+	}
+	return string(rs[start:end])
+}
+
+// DeCompressZIP zip解压文件
+func DeCompressZIP(zipFile, dest string) error {
+	reader, err := zip.OpenReader(zipFile)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = reader.Close()
+	}()
+	for _, file := range reader.File {
+		rc, err := file.Open()
+		if err != nil {
+			return err
+		}
+		filename := dest + file.Name
+		err = os.MkdirAll(subString(filename, 0, strings.LastIndex(filename, "/")), 0755)
+		if err != nil {
+			return err
+		}
+		w, err := os.Create(filename)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(w, rc)
+		if err != nil {
+			return err
+		}
+		_ = w.Close()
+		_ = rc.Close()
+	}
+	return nil
+}
+
+// DeCompressTAR tar 解压文件
+func DeCompressTAR(tarFile, dest string) error {
+	file, err := os.Open(tarFile)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+	tr := tar.NewReader(file)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		filename := dest + hdr.Name
+		err = os.MkdirAll(subString(filename, 0, strings.LastIndex(filename, "/")), 0755)
+		if err != nil {
+			return err
+		}
+		w, err := os.Create(filename)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(w, tr)
+		if err != nil {
+			return err
+		}
+		_ = w.Close()
+	}
+	return nil
+}
+
+// DecompressionZipFile zip压缩文件
+func DecompressionZipFile(src, dest string) error {
+	reader, err := zip.OpenReader(src)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = reader.Close()
+	}()
+	for _, file := range reader.File {
+		filePath := path.Join(dest, file.Name)
+		if file.FileInfo().IsDir() {
+			_ = os.MkdirAll(filePath, os.ModePerm)
+		} else {
+			if err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+				return err
+			}
+			inFile, err := file.Open()
+			if err != nil {
+				return err
+			}
+			outFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(outFile, inFile)
+			if err != nil {
+				return err
+			}
+			_ = inFile.Close()
+			_ = outFile.Close()
+		}
+	}
+	return nil
+}
+
+// CompressFiles 压缩很多文件
+// files 文件数组，可以是不同dir下的文件或者文件夹
+// dest 压缩文件存放地址
+func CompressFiles(files []string, dest string) error {
+	d, _ := os.Create(dest)
+	defer d.Close()
+	w := zip.NewWriter(d)
+	defer w.Close()
+	for _, file := range files {
+		err := compressFiles(file, "", w)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func compressFiles(filePath string, prefix string, zw *zip.Writer) error {
+	file, err := os.Open(filePath)
+	info, err := file.Stat()
+	if err != nil {
+		return err
+	}
+	if info.IsDir() {
+		prefix = prefix + "/" + info.Name()
+		fileInfos, err := file.Readdir(-1)
+		if err != nil {
+			return err
+		}
+		for _, fi := range fileInfos {
+			f := file.Name() + "/" + fi.Name()
+			if err != nil {
+				return err
+			}
+			err = compressFiles(f, prefix, zw)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		header, err := zip.FileInfoHeader(info)
+		header.Name = prefix + "/" + header.Name
+		if err != nil {
+			return err
+		}
+		writer, err := zw.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(writer, file)
+		file.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// CompressDirZip 压缩目录
+func CompressDirZip(src, outFile string) error {
+	// 预防：旧文件无法覆盖
+	_ = os.RemoveAll(outFile)
+	// 创建：zip文件
+	zipFile, err := os.Create(outFile)
+	if err != nil {
+		return err
+	}
+	defer zipFile.Close()
+	// 打开：zip文件
+	archive := zip.NewWriter(zipFile)
+	defer archive.Close()
+	// 遍历路径信息
+	filepath.Walk(src, func(path string, info os.FileInfo, _ error) error {
+		// 如果是源路径，提前进行下一个遍历
+		if path == src {
+			return nil
+		}
+		// 获取：文件头信息
+		header, _ := zip.FileInfoHeader(info)
+		header.Name = strings.TrimPrefix(path, src+`/`)
+		// 判断：文件是不是文件夹
+		if info.IsDir() {
+			header.Name += `/`
+		} else {
+			// 设置：zip的文件压缩算法
+			header.Method = zip.Deflate
+		}
+		// 创建：压缩包头部信息
+		writer, _ := archive.CreateHeader(header)
+		if !info.IsDir() {
+			file, _ := os.Open(path)
+			defer file.Close()
+			io.Copy(writer, file)
+		}
+		return nil
+	})
+	return nil
+}
+
+// OutJsonFile 将data输出到json文件
+func OutJsonFile(data interface{}, fileName string) error {
+	var (
+		f   *os.File
+		err error
+	)
+	if Exists(fileName) { //如果文件存在
+		f, err = os.OpenFile(fileName, os.O_APPEND, 0666) //打开文件
+	} else {
+		f, err = os.Create(fileName) //创建文件
+	}
+	if err != nil {
+		return err
+	}
+	str, err := Any2Json(data)
+	if err != nil {
+		return err
+	}
+	_, err = io.WriteString(f, str)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ===================================================  雪花Id
+
+type IdWorker struct {
+	startTime             int64
+	workerIdBits          uint
+	datacenterIdBits      uint
+	maxWorkerId           int64
+	maxDatacenterId       int64
+	sequenceBits          uint
+	workerIdLeftShift     uint
+	datacenterIdLeftShift uint
+	timestampLeftShift    uint
+	sequenceMask          int64
+	workerId              int64
+	datacenterId          int64
+	sequence              int64
+	lastTimestamp         int64
+	signMask              int64
+	idLock                *sync.Mutex
+}
+
+func (idw *IdWorker) InitIdWorker(workerId, datacenterId int64) error {
+	var baseValue int64 = -1
+	idw.startTime = 1463834116272
+	idw.workerIdBits = 5
+	idw.datacenterIdBits = 5
+	idw.maxWorkerId = baseValue ^ (baseValue << idw.workerIdBits)
+	idw.maxDatacenterId = baseValue ^ (baseValue << idw.datacenterIdBits)
+	idw.sequenceBits = 12
+	idw.workerIdLeftShift = idw.sequenceBits
+	idw.datacenterIdLeftShift = idw.workerIdBits + idw.workerIdLeftShift
+	idw.timestampLeftShift = idw.datacenterIdBits + idw.datacenterIdLeftShift
+	idw.sequenceMask = baseValue ^ (baseValue << idw.sequenceBits)
+	idw.sequence = 0
+	idw.lastTimestamp = -1
+	idw.signMask = ^baseValue + 1
+	idw.idLock = &sync.Mutex{}
+	if idw.workerId < 0 || idw.workerId > idw.maxWorkerId {
+		return fmt.Errorf("workerId[%v] is less than 0 or greater than maxWorkerId[%v].",
+			workerId, datacenterId)
+	}
+	if idw.datacenterId < 0 || idw.datacenterId > idw.maxDatacenterId {
+		return fmt.Errorf("datacenterId[%d] is less than 0 or greater than maxDatacenterId[%d].",
+			workerId, datacenterId)
+	}
+	idw.workerId = workerId
+	idw.datacenterId = datacenterId
+	return nil
+}
+
+// NextId 返回一个唯一的 INT64 ID
+func (idw *IdWorker) NextId() (int64, error) {
+	idw.idLock.Lock()
+	timestamp := time.Now().UnixNano()
+	if timestamp < idw.lastTimestamp {
+		return -1, fmt.Errorf(fmt.Sprintf("Clock moved backwards.  Refusing to generate id for %d milliseconds",
+			idw.lastTimestamp-timestamp))
+	}
+	if timestamp == idw.lastTimestamp {
+		idw.sequence = (idw.sequence + 1) & idw.sequenceMask
+		if idw.sequence == 0 {
+			timestamp = idw.tilNextMillis()
+			idw.sequence = 0
+		}
+	} else {
+		idw.sequence = 0
+	}
+	idw.lastTimestamp = timestamp
+	idw.idLock.Unlock()
+	id := ((timestamp - idw.startTime) << idw.timestampLeftShift) |
+		(idw.datacenterId << idw.datacenterIdLeftShift) |
+		(idw.workerId << idw.workerIdLeftShift) |
+		idw.sequence
+	if id < 0 {
+		id = -id
+	}
+	return id, nil
+}
+
+// tilNextMillis
+func (idw *IdWorker) tilNextMillis() int64 {
+	timestamp := time.Now().UnixNano()
+	if timestamp <= idw.lastTimestamp {
+		timestamp = time.Now().UnixNano() / int64(time.Millisecond)
+	}
+	return timestamp
+}
+
+func ID64() (int64, error) {
+	currWorker := &IdWorker{}
+	err := currWorker.InitIdWorker(1000, 2)
+	if err != nil {
+		return 0, err
+	}
+	return currWorker.NextId()
+}
+
+func ID() int64 {
+	id, _ := ID64()
+	return id
+}
+
+func IDStr() string {
+	currWorker := &IdWorker{}
+	err := currWorker.InitIdWorker(1000, 2)
+	if err != nil {
+		return ""
+	}
+	id, err := currWorker.NextId()
+	if err != nil {
+		return ""
+	}
+	return Int642Str(id)
+}
+
+func IDMd5() string {
+	return Get16MD5Encode(IDStr())
 }

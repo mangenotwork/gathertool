@@ -8,7 +8,10 @@
 package gathertool
 
 import (
+	"context"
+	"io/ioutil"
 	"net"
+	"os/exec"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -32,13 +35,72 @@ func SSHClient(user string, pass string, addr string) (*ssh.Client, error) {
 	if nil != err {
 		return nil, err
 	}
-
 	clientConn, chans, reqs, err := ssh.NewClientConn(sshConn, addr, config)
 	if nil != err {
 		sshConn.Close()
 		return nil, err
 	}
-
 	client := ssh.NewClient(clientConn, chans, reqs)
 	return client, nil
+}
+
+// LinuxSendCommand Linux Send Command Linux执行命令
+func LinuxSendCommand(command string) (opStr string) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "/bin/bash", "-c", command)
+	stdout, stdoutErr := cmd.StdoutPipe()
+	defer func() {
+		_ = stdout.Close()
+	}()
+	if stdoutErr != nil {
+		Error("ERR stdout : ", stdoutErr)
+		return stdoutErr.Error()
+	}
+	if startErr := cmd.Start(); startErr != nil {
+		Error("ERR Start : ", startErr)
+		return startErr.Error()
+	}
+	opBytes, opBytesErr := ioutil.ReadAll(stdout)
+	if opBytesErr != nil {
+		opStr = opBytesErr.Error()
+	}
+	opStr = string(opBytes)
+	_ = cmd.Wait()
+	return
+}
+
+// WindowsSendCommand Windows Send Command
+func WindowsSendCommand(command []string) (opStr string) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if len(command) < 1 {
+		return ""
+	}
+	cmd := exec.CommandContext(ctx, command[0], command[1:len(command)]...)
+	stdout, stdoutErr := cmd.StdoutPipe()
+	if stdoutErr != nil {
+		Error("ERR stdout : ", stdoutErr)
+		return stdoutErr.Error()
+	}
+	defer func() {
+		_ = stdout.Close()
+	}()
+	if startErr := cmd.Start(); startErr != nil {
+		Error("ERR Start : ", startErr)
+		return startErr.Error()
+	}
+	opBytes, opBytesErr := ioutil.ReadAll(stdout)
+	if opBytesErr != nil {
+		Error(opBytesErr)
+		return opBytesErr.Error()
+	}
+	opStr = string(opBytes)
+	_ = cmd.Wait()
+	return
+}
+
+// TODO WindwsSendPipe 执行windows 管道命令
+func WindwsSendPipe(command1, command2 []string) (opStr string) {
+	return ""
 }

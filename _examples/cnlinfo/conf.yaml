@@ -1,0 +1,5 @@
+# 抓取结果输出文件
+out_file: "fenlei.json"
+# 请求延时
+req_delay_min : 1
+req_delay_max : 3
