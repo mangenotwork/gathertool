@@ -213,6 +213,7 @@ func Data(datas []string, date, typeName, note string) {
 -  [搭建socket5代理](https://github.com/mangenotwork/gathertool/tree/main/_examples/socket5)
 -  [商品报价信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baojia)
 -  [期货信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/qihuo)
+-  [行业信息网行业分类](https://github.com/mangenotwork/gathertool/tree/main/_examples/cnlinfo)
 
 ## JetBrains 开源证书支持
 
