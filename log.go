@@ -13,6 +13,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -21,12 +22,12 @@ var LogClose bool = false
 var std = newStd()
 
 // CloseLog 关闭日志
-func CloseLog(){
+func CloseLog() {
 	LogClose = true
 }
 
 type logger struct {
-	outFile bool
+	outFile       bool
 	outFileWriter *os.File
 }
 
@@ -37,40 +38,45 @@ func newStd() *logger {
 // SetLogFile 设置日志输出到的指定文件
 func SetLogFile(name string) {
 	std.outFile = true
-	std.outFileWriter, _ = os.OpenFile( name+time.Now().Format("-20060102")+".log",
+	std.outFileWriter, _ = os.OpenFile(name+time.Now().Format("-20060102")+".log",
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 }
 
 // Level 日志等级
 type Level int
 
-var LevelMap = map[Level]string {
-	1 : "Info  ",
-	2 : "Debug ",
-	3 : "Warn  ",
-	4 : "Error ",
+var LevelMap = map[Level]string{
+	1: "Info  ",
+	2: "Debug ",
+	3: "Warn  ",
+	4: "Error ",
 }
 
 // Log 日志
 func (l *logger) Log(level Level, args string, times int) {
-	if LogClose {
-		return
-	}
 	var buffer bytes.Buffer
-	buffer.WriteString(time.Now().Format("2006-01-02 15:04:05 |"))
+	buffer.WriteString(time.Now().Format("2006-01-02 15:04:05.000 "))
 	buffer.WriteString(LevelMap[level])
 	_, file, line, _ := runtime.Caller(times)
-	buffer.WriteString("|")
-	buffer.WriteString(file)
+	fileList := strings.Split(file, "/")
+	// 最多显示两级路径
+	if len(fileList) > 3 {
+		fileList = fileList[len(fileList)-3 : len(fileList)]
+	}
+	buffer.WriteString(strings.Join(fileList, "/"))
 	buffer.WriteString(":")
 	buffer.WriteString(strconv.Itoa(line))
-	buffer.WriteString(" : ")
+	buffer.WriteString(" \t| ")
 	buffer.WriteString(args)
 	buffer.WriteString("\n")
-	outString := buffer.Bytes()
-	_,_ = buffer.WriteTo(os.Stdout)
+	out := buffer.Bytes()
+	if LogClose {
+		_, _ = buffer.WriteTo(os.Stdout)
+	}
+
+	// 输出到文件或远程日志服务
 	if l.outFile {
-		_,_ = l.outFileWriter.Write(outString)
+		_, _ = l.outFileWriter.Write(out)
 	}
 }
 
@@ -156,11 +162,11 @@ func ErrorfTimes(format string, times int, args ...interface{}) {
 
 // Bar 终端显示的进度条
 type Bar struct {
-	percent int64 //百分比
-	cur   int64 //当前进度位置
-	total  int64 //总进度
-	rate  string //进度条
-	graph  string //显示符号
+	percent int64  //百分比
+	cur     int64  //当前进度位置
+	total   int64  //总进度
+	rate    string //进度条
+	graph   string //显示符号
 }
 
 func (bar *Bar) NewOption(start, total int64) {
@@ -194,6 +200,6 @@ func (bar *Bar) Play(cur int64) {
 	fmt.Printf("\r[%-50s]%3d%% %8d/%d", bar.rate, bar.percent, bar.cur, bar.total)
 }
 
-func (bar *Bar) Finish(){
+func (bar *Bar) Finish() {
 	fmt.Println()
 }

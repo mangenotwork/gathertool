@@ -10,14 +10,23 @@ func main() {
 	gt.CPUMax()
 
 	// 普通 GET api压测
-	url := "http://192.168.0.9:8002/v1/health"
-	// 请求10000次 并发数 1000
-	test := gt.NewTestUrl(url, "Get", 10000, 1000)
-	test.Run()
-	test.Run(gt.SucceedFunc(func(ctx *gt.Context) {
-		log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
-	}))
+	//url := "http://192.168.4.2:8200/api/kjhinfo.ashx"
+	url := "http://192.168.4.12:8091/"
+	//url := "http://192.168.4.15:8096/api/appprofile/GetCollectPariseTest?id=2212011659209123"
 
+	// 请求10000次 并发数 1000
+	test := gt.NewTestUrl(url, "Get", 100000, 10000)
+	test.Run()
+
+	//token := &http.Header{}
+	//token.Add("validkey", "q1w2e382008300tqw800820")
+
+	//test.Run(token, gt.SucceedFunc(func(ctx *gt.Context) {
+	//	log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
+	//}))
+
+	//ctx, _ := gt.Get(url)
+	//log.Println(ctx.Html)
 	//// 设置 GET Header 的压测
 	////url2 := "http://192.168.0.9:18084/static_service/v1/auth/video/page"
 	//url2 := "http://192.168.0.9:18084/static_service/v1/auth/quality_article/list"
@@ -127,7 +136,7 @@ func GetToken(uid string) string {
 		log.Println(err)
 	}
 	c.Do()
-	dataMap := gt.Json2Map(string(c.RespBody))
+	dataMap, _ := gt.Json2Map(string(c.RespBody))
 	body := gt.Any2Map(dataMap["body"])
 	data := gt.Any2Map(body["data"])
 	//log.Println(data["token"])

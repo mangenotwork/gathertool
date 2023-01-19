@@ -184,7 +184,7 @@ func NewOptions(url string, vs ...interface{}) *Context {
 	return Req(request, vs...)
 }
 
-// Upload 上传文件
+// Upload 下载文件
 func Upload(url, savePath string, vs ...interface{}) (*Context, error) {
 	c := NewGet(urlStr(url), vs)
 	c.Upload(savePath)
