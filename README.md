@@ -285,13 +285,7 @@ func Data(datas []string, date, typeName, note string) {
 #### v0.4.2
 ```shell
 新增:
-1. 并发下载
-2. Rabbit, RC4, RIPEMD-160 加密解密
-3. 日志路径打印两个段
-4. 暴力登录 web admin 场景
-5. ssh暴力登录
+1. 
 
 ```
 
-## TODO List
-- 三方队列（redis, mysql, nsq）
