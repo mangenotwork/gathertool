@@ -42,3 +42,17 @@ func RabbitConsumer() {
 	data := mq.Consumer(topic)
 	gt.Info(string(data))
 }
+
+func KafkaProducer() {
+	mq := gt.NewKafka([]string{"192.168.4.12:9092"})
+	topic := "test"
+	data := []byte("data")
+	mq.Producer(topic, data)
+}
+
+func KafkaConsumer() {
+	topic := "test"
+	mq := gt.NewKafka([]string{"192.168.4.12:9092"})
+	data := mq.Consumer(topic)
+	gt.Info(string(data))
+}
