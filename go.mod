@@ -14,6 +14,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
+	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xuri/excelize/v2 v2.7.0
