@@ -285,7 +285,12 @@ func Data(datas []string, date, typeName, note string) {
 #### v0.4.2
 ```shell
 新增:
-1. 
+1. redis, nsq, rabbitmq, kafka 消息队列方法
+2. 新增彩票抓取实例 _examples/cz89
+3. 新增抓取host所有链接实例与方法
+4. 新增排查host死链实例与方法
+
+代码审查
 
 ```
 

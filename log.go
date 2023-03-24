@@ -18,12 +18,12 @@ import (
 )
 
 // LogClose 是否关闭日志
-var LogClose bool = false
+var LogClose bool = true
 var std = newStd()
 
 // CloseLog 关闭日志
 func CloseLog() {
-	LogClose = true
+	LogClose = false
 }
 
 type logger struct {
@@ -46,10 +46,10 @@ func SetLogFile(name string) {
 type Level int
 
 var LevelMap = map[Level]string{
-	1: "Info  ",
-	2: "Debug ",
-	3: "Warn  ",
-	4: "Error ",
+	1: "[Info]  ",
+	2: "[Debug] ",
+	3: "[Warn]  ",
+	4: "[Error] ",
 }
 
 // Log 日志
