@@ -1,23 +1,28 @@
-# gathertool
-gathertool是golang脚本化开发库，目的是提高对应场景程序开发的效率；
-轻量级爬虫库，接口测试&压力测试库，DB操作库。
-请使用最新版本!!!
+## 简介
+> gathertool是golang脚本化开发集成库，目的是提高对应场景脚本程序开发的效率；
+>
+> gathertool也是一款轻量级爬虫库，特色是分离了请求事件，通俗点理解就是对请求过程状态进行事件处理。
+>
+> gathertool也是接口测试&压力测试库，在接口测试脚本开发上有明显的效率优势，
+>
+> gathertool还集成了对三方中间件的操作，DB操作等。
 
-## 使用场景
-1. 爬虫脚本开发
-2. 接口测试&压力测试脚本开发
-3. http/s代理服务器, socket5代理服务器
-4. mysql相关操作方法
-5. redis相关操作方法
-6. mongo相关操作方法
-7. 数据提取&清洗相关操作
-8. Websocket相关操作方法
-9. TCP客户端
-10. UDP客户端
-11. SSH客户端
-12. 加密解密脚本开发
-13. ip扫描，端口扫描脚本开发
+---
 
+## 使用
+> import "github.com/mangenotwork/gathertool"
+>
+> go get github.com/mangenotwork/gathertool
+
+---
+
+## 介绍
+> gathertool是一个高度封装工具库，包含了http/s的请求，Mysql数据库方法，数据类型处理方法，数据提取方法，websocket相关方法，
+> TCP|UDP相关方法，NoSql相关方法，开发常用方法等;  可以用于爬虫程序，接口&压力测试程序，常见网络协议调试程序，数据提取与存储程序等；
+> gathertool的请求特点: 会在请求阶段执行各个事件如请求失败后的重试事件,请求前后的事件，请求成功事件等等, 可以根据请求状态码自定义这些事件；
+> gathertool还拥有很好的可扩展性， 适配传入任意自定义http请求对象， 能适配各种代理对象等等；
+> gathertool还拥有抓取数据存储功能, 比如存储到mysql, redis, mongo, pgsql等等; 还有很多创新的地方文档会根据具体方法进行介绍；
+> gathertool还封装了消息队列接口，支持Nsq,Kafka,rabbitmq,redis等消息队列中间件
 
 ## 文档： 
 [https://pkg.go.dev 点击开始](https://pkg.go.dev/github.com/mangenotwork/gathertool)
@@ -27,7 +32,7 @@ gathertool是golang脚本化开发库，目的是提高对应场景程序开发�
 > go get github.com/mangenotwork/gathertool
 
 
-简单的get请求
+#### 简单的get请求
 ```go
 import gt "github.com/mangenotwork/gathertool"
 
@@ -40,7 +45,7 @@ func main(){
 }
 ```
 
-含请求事件请求
+#### 含请求事件请求
 ```go
 import gt "github.com/mangenotwork/gathertool"
 
@@ -71,7 +76,7 @@ func main(){
 }
 ```
 
-事件方法复用
+#### 事件方法复用
 ```go
 func main(){
     gt.NewGet(`http://192.168.0.1`).SetSucceedFunc(succeed).SetFailedFunc(failed).SetRetryFunc(retry).Do()
@@ -95,7 +100,7 @@ func baiduSucceed(ctx *gt.Context){
 }
 ```
 
-post请求
+#### post请求
 ```
     // FormData
     postData := gt.FormData{
@@ -125,7 +130,7 @@ post请求
 
 ```
 
-数据存储到mysql
+#### 数据存储到mysql
 ```
 var (
     host   = "192.168.0.100"
@@ -149,7 +154,7 @@ tableName := "data"
 db.Spider2022DB.InsertAt(tableName, inputdata)
 ```
 
-HTML数据提取
+#### HTML数据提取
 ```
 func main(){
 	date := "2022-07-05"
@@ -196,6 +201,71 @@ func Data(datas []string, date, typeName, note string) {
 			}
 		}
 	}
+}
+```
+
+#### Json数据提取
+```
+func main(){
+	txt := `{
+    "reason":"查询成功!",
+    "result":{
+        "city":"苏州",
+        "realtime":{
+            "temperature":"17",
+            "humidity":"69",
+            "info":"阴",
+            "wid":"02",
+            "direct":"东风",
+            "power":"2级",
+            "aqi":"30"
+        },
+        "future":[
+            {
+                "date":"2021-10-25",
+                "temperature":"12\/21℃",
+                "weather":"多云",
+                "wid":{
+                    "day":"01",
+                    "night":"01"
+                },
+                "direct":"东风"
+            },
+            {
+                "date":"2021-10-26",
+                "temperature":"13\/21℃",
+                "weather":"多云",
+                "wid":{
+                    "day":"01",
+                    "night":"01"
+                },
+                "direct":"东风转东北风"
+            },
+            {
+                "date":"2021-10-27",
+                "temperature":"13\/22℃",
+                "weather":"多云",
+                "wid":{
+                    "day":"01",
+                    "night":"01"
+                },
+                "direct":"东北风"
+            }
+        ]
+    },
+    "error_code":0
+}`
+
+	jx1 := "/result/future/[0]/date"
+	jx2 := "/result/future/[0]"
+	jx3 := "/result/future"
+
+	log.Println(gt.JsonFind(txt, jx1))
+	log.Println(gt.JsonFind2Json(txt, jx2))
+	log.Println(gt.JsonFind2Json(txt, jx3))
+	log.Println(gt.JsonFind2Map(txt, jx2))
+	log.Println(gt.JsonFind2Arr(txt, jx3))
+
 }
 ```
 
