@@ -1739,23 +1739,19 @@ ShuffleInt 洗牌
 
 ## 4.10 时间相关方法
 
-> func Timestamp() string
-
+#### func Timestamp() string
 时间戳
 
 ---
-> func BeginDayUnix() int64
-
+#### func BeginDayUnix() int64
 获取当天 0点
 
 ---
-> func EndDayUnix() int64
-
+#### func EndDayUnix() int64
 获取当天 24点
 
 ---
-> func MinuteAgo(i int) int64
-
+#### func MinuteAgo(i int) int64
 获取多少分钟前的时间戳
 
 ---
@@ -1764,45 +1760,48 @@ ShuffleInt 洗牌
 获取多少小时前的时间戳
 
 ---
-> func DayAgo(i int) int64
-
+#### func DayAgo(i int) int64
 获取多少天前的时间戳
 
 ---
-> func Daydiff(beginDay string, endDay string) int
-
+#### func Daydiff(beginDay string, endDay string) int
 两个时间字符串的日期差
 
 ---
-> func TickerRun(t time.Duration, runFirst bool, f func())
-
+#### func TickerRun(t time.Duration, runFirst bool, f func())
 间隔运行
 
 ---
+#### func Timestamp2Date(timestamp int64) string
 
-func Timestamp2Date(timestamp int64) string
+---
+#### func GetChineseMonthDay(date string) (rMonth, rDay int64)
+GetChineseMonthDay 获取农历
 
+---
+#### func NowToEnd() (int64, error)
+ NowToEnd 计算当前时间到这天结束还有多久
 
-// GetChineseMonthDay 获取农历
-func GetChineseMonthDay(date string) (rmonth, rday int64)
+---
+#### func IsLeap(year int) bool
+IsLeap 是否是闰年
 
+---
+#### func IsToday(timestamp int64) string
+IsToday 判断是否是今天   "2006-01-02 15:04:05"
 
-// NowToEnd 计算当前时间到这天结束还有多久
-func NowToEnd() (int64, error)
+---
+#### func IsTodayList(timestamp int64) string
+IsTodayList 列表页的时间显示  "01-02 15:04"
 
-// IsLeap 是否是闰年
-func IsLeap(year int) bool
+---
+#### func Timestamp2Week(timestamp int64) string
 
-// IsToday 判断是否是今天   "2006-01-02 15:04:05"
-// timestamp 需要判断的时间
-func IsToday(timestamp int64) string
+---
+#### func Timestamp2WeekXinQi(timestamp int64) string
 
-// IsTodayList 列表页的时间显示  "01-02 15:04"
-func IsTodayList(timestamp int64) string
+---
 
-func Timestamp2Week(timestamp int64) string
-
-func Timestamp2WeekXinQi(timestamp int64) string
 
 
 

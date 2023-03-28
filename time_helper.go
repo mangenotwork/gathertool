@@ -115,7 +115,7 @@ var (
 )
 
 // GetChineseMonthDay 获取农历
-func GetChineseMonthDay(date string) (rmonth, rday int64) {
+func GetChineseMonthDay(date string) (rMonth, rDay int64) {
 	var monCyl, leapMonth int = 0, 0
 	t1, _ := time.Parse(timeFormat, "1900-01-31 00:00:00")
 	t2, err := time.Parse(timeFormatYYYYMMDD, date)
@@ -183,15 +183,15 @@ func GetChineseMonthDay(date string) (rmonth, rday int64) {
 	// 	doubleMonth = "闰"
 	// }
 	//return cyclical() + animalsYear() + "年" + doubleMonth + chineseMonth[month-1] + "月" + getChinaDayString(day)
-	rmonth, err = strconv.ParseInt(chineseMonth[month-1], 10, 64)
+	rMonth, err = strconv.ParseInt(chineseMonth[month-1], 10, 64)
 	if err != nil {
 		Error(err)
 	}
-	rday, err = strconv.ParseInt(getChinaDayString(day), 10, 64)
+	rDay, err = strconv.ParseInt(getChinaDayString(day), 10, 64)
 	if err != nil {
 		Error(err)
 	}
-	return rmonth, rday
+	return rMonth, rDay
 }
 
 func yearDays(y int) int {
