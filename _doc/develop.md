@@ -1802,6 +1802,1981 @@ IsTodayList 列表页的时间显示  "01-02 15:04"
 
 ---
 
+## 五、数据提取
+
+### 5.1 正则
+
+#### func RegFindAll(regStr, rest string) [][]string
+正则提取所有
+```
+list := RegFindAll(`<option(.*?)</option>`, txt)
+```
+
+---
+
+#### func RegHtmlA(str string, property ...string) []string
+提取a标签
+```
+`(?is:<a.*?</a>)`
+```
+
+---
+#### func RegHtmlTitle(str string, property ...string) []string
+
+提取title标签
+```
+`(?is:<title.*?</title>)`
+```
+
+---
+#### func RegHtmlTr(str string, property ...string) []string
+提取tr标签
+```
+`(?is:<tr.*?</tr>)`
+```
+
+---
+
+#### func RegHtmlInput(str string, property ...string) []string
+提取input标签
+```
+`(?is:<input.*?>)`
+```
+
+---
+
+#### func RegHtmlTd(str string, property ...string) []string
+提取td标签
+```
+`(?is:<td.*?</td>)`
+```
+
+---
+
+#### func RegHtmlP(str string, property ...string) []string
+提取P标签
+```
+`(?is:<p.*?</p>)`
+```
+
+---
+
+#### func RegHtmlSpan(str string, property ...string) []string
+提取span标签
+```
+`(?is:<span.*?</span>)`
+```
+
+---
+
+#### func RegHtmlSrc(str string, property ...string) []string
+提取src内容
+```
+`(?is:src=\".*?\")`
+```
+
+---
+
+#### func RegHtmlHref(str string, property ...string) []string
+提取href内容
+```
+`(?is:href=\".*?\")`
+```
+
+---
+
+#### func RegHtmlVideo(str string, property ...string) []string
+提取video内容
+```
+`(?is:<video.*?</video>)`
+```
+
+---
+
+#### func RegHtmlCanvas(str string, property ...string) []string
+提取canvas
+```
+`(?is:<canvas.*?</canvas>)`
+```
+
+---
+
+#### func RegHtmlCode(str string, property ...string) []string
+提取code标签
+```
+`(?is:<code.*?</code>)`
+```
+
+---
+
+#### func RegHtmlImg(str string, property ...string) []string
+提取img标签
+```
+`(?is:<img.*?/>)`
+```
+
+---
+
+#### func RegHtmlUl(str string, property ...string) []string
+提取ul标签
+```
+`(?is:<ul.*?</ul>)`
+```
+
+---
+
+#### func RegHtmlLi(str string, property ...string) []string
+提取li标签
+```
+`(?is:<li.*?</li>)`
+```
+
+---
+
+#### func RegHtmlMeta(str string, property ...string) []string
+提取meta标签
+```
+`(?is:<meta.*?>)`
+```
+
+---
+
+#### func RegHtmlSelect(str string, property ...string) []string
+提取select标签
+```
+`(?is:<select.*?</select>)`
+```
+
+---
+
+#### func RegHtmlTable(str string, property ...string) []string
+提取table标签
+```
+`(?is:<table.*?</table>)`
+```
+
+---
+
+#### func RegHtmlButton(str string, property ...string) []string
+提取button标签
+```
+`(?is:<button.*?</button>)`
+```
+
+---
+
+#### func RegHtmlH(str, typeH string, property ...string) []string
+提取h标签
+```
+`(?is:<h1.*?</h1>)`
+```
+
+---
+
+#### func RegHtmlTbody(str string, property ...string) []string
+提取Tbody标签
+```
+`(?is:<table.*?</table>)`
+```
+
+---
+
+#### func RegHtmlATxt(str string, property ...string) []string
+提取a标签内容非标签部分
+```
+`(?is:<a.*?>(.*?)</a>)`
+```
+
+---
+
+#### func RegHtmlTitleTxt(str string, property ...string) []string
+提取title标签内容非标签部分
+```
+`(?is:<title.*?>(.*?)</title>)`
+```
+
+---
+
+#### func RegHtmlTrTxt(str string, property ...string) []string
+提取tr标签内容非标签部分
+```
+`(?is:<tr.*?>(.*?)</tr>)`
+```
+
+---
+
+#### func RegHtmlInputTxt(str string, property ...string) []string
+提取input标签内容非标签部分
+```
+`(?is:<input(.*?)>)`
+```
+
+---
+
+#### func RegHtmlTdTxt(str string, property ...string) []string
+提取td标签内容非标签部分
+```
+`(?is:<td.*?>(.*?)</td>)`
+```
+
+---
+
+#### func RegHtmlPTxt(str string, property ...string) []string
+提取p标签内容非标签部分
+```
+`(?is:<p.*?>(.*?)</p>)`
+```
+
+---
+
+#### func RegHtmlSpanTxt(str string, property ...string) []string
+提取span标签内容非标签部分
+```
+`(?is:<span.*?>(.*?)</span>)`
+```
+
+---
+
+#### func RegHtmlSrcTxt(str string, property ...string) []string
+提取Src内容
+```
+`(?is:src=\"(.*?)\")`
+```
+
+---
+
+#### func RegHtmlHrefTxt(str string, property ...string) []string
+提取href内容
+```
+`(?is:href=\"(.*?)\")`
+```
+
+---
+
+#### func RegHtmlCodeTxt(str string, property ...string) []string
+提取code标签内容非标签部分
+```
+`(?is:<code.*?>(.*?)</code>)`
+```
+
+---
+
+#### func RegHtmlUlTxt(str string, property ...string) []string
+提取ul标签内容非标签部分
+```
+`(?is:<ul.*?>(.*?)</ul>)`
+```
+
+---
+
+#### func RegHtmlLiTxt(str string, property ...string) []string
+提取li标签内容非标签部分
+```
+`(?is:<li.*?>(.*?)</li>)`
+```
+
+---
+
+#### func RegHtmlSelectTxt(str string, property ...string) []string
+提取select标签内容非标签部分
+```
+`(?is:<select.*?>(.*?)</select>)`
+```
+
+---
+
+#### func RegHtmlTableTxt(str string, property ...string) []string
+提取table标签内容非标签部分
+```
+`(?is:<table.*?>(.*?)</table>)`
+```
+
+---
+
+#### func RegHtmlButtonTxt(str string, property ...string) []string
+提取button标签内容非标签部分
+```
+`(?is:<button.*?>(.*?)</button>)`
+```
+
+---
+
+#### func RegHtmlHTxt(str, typeH string, property ...string) []string
+提取h标签内容非标签部分
+```
+`(?is:<h1.*?>(.*?)</h1>)`
+```
+
+---
+
+#### func RegDelHtml(str string) string
+删除所有标签
+
+---
+
+#### func RegDelNumber(str string) string
+删除所有数字
+
+---
+
+#### func RegDelHtmlA(str string) string
+删除所有a标签
+
+---
+
+#### func RegDelHtmlTitle(str string) string
+删除所有html标签
+
+---
+
+#### func RegDelHtmlTr(str string) string
+删除所有tr标签
+
+---
+
+#### func RegDelHtmlInput(str string, property ...string) string
+删除所有input标签
+
+---
+
+#### func RegDelHtmlTd(str string, property ...string) string
+删除所有td标签
+
+---
+
+#### func RegDelHtmlP(str string, property ...string) string
+删除所有p标签
+
+---
+
+#### func RegDelHtmlSpan(str string, property ...string) string
+删除所有span标签
+
+---
+
+#### func RegDelHtmlSrc(str string, property ...string) string
+删除所有src
+
+---
+
+#### func RegDelHtmlHref(str string, property ...string) string
+删除所有href
+
+---
+
+#### func RegDelHtmlVideo(str string, property ...string) string
+删除所有video标签
+
+---
+
+#### func RegDelHtmlCanvas(str string, property ...string) string
+删除所有canvas标签
+
+---
+
+#### func RegDelHtmlCode(str string, property ...string) string
+删除所有code标签
+
+---
+
+#### func RegDelHtmlImg(str string, property ...string) string
+删除所有img标签
+
+---
+
+#### func RegDelHtmlUl(str string, property ...string) string
+删除所有ul标签
+
+---
+
+#### func RegDelHtmlLi(str string, property ...string) string
+删除所有li标签
+
+---
+
+#### func RegDelHtmlMeta(str string, property ...string) string
+删除所有meta标签
+
+---
+
+#### func RegDelHtmlSelect(str string, property ...string) string
+删除所有select标签
+
+---
+
+#### func RegDelHtmlTable(str string, property ...string) string
+删除所有table标签
+
+---
+
+#### func RegDelHtmlButton(str string, property ...string) string
+删除所有button标签
+
+---
+
+#### func RegDelHtmlH(str, typeH string, property ...string) string
+删除所有h标签
+
+---
+
+#### func RegDelHtmlTbody(str string, property ...string) string
+删除所有body标签
+
+---
+
+#### func IsNumber(str string) bool
+验证是否含有number
+```
+`^[0-9]*$`
+```
+
+---
+
+#### func IsNumber2Len(str string, l int) bool
+验证是否含有连续长度不超过长度l的number
+```
+`[0-9]{%d}`
+```
+
+---
+
+#### func IsNumber2Heard(str string, n int) bool
+验证是否含有n开头的number
+```
+`^(%d)[0-9]*$`
+```
+
+---
+
+#### func IsFloat(str string) bool
+验证是否是标准正负小数(123. 不是小数)
+```
+ `^(-?\d+\.\d+)?$`
+```
+
+---
+
+#### func IsFloat2Len(str string, l int) bool
+验证是否含有带不超过len个小数的小数
+```
+`^(-?\d+\.\d{%d})?$`
+```
+
+---
+
+#### func IsChineseAll(str string) bool
+验证是否是全汉字
+
+---
+
+#### func IsChinese(str string) bool
+验证是否含有汉字
+
+---
+
+#### func IsChineseN(str string, number int) bool
+验证是否含有number个汉字
+
+---
+
+#### func IsChineseNumber(str string) bool
+验证是否全是汉字数字
+
+---
+
+#### func IsChineseMoney(str string) bool
+验证是否是中文钱大写
+
+---
+
+#### func IsEngAll(str string) bool
+验证是否是全英文
+```
+`^[A-Za-z]*$`
+```
+
+---
+
+#### func IsEngLen(str string, l int) bool
+验证是否含不超过len个英文字符
+```
+`^[A-Za-z]{%d}$`
+```
+
+---
+
+#### func IsEngNumber(str string) bool
+验证是否是英文和数字
+```
+`^[A-Za-z0-9]*$`
+```
+
+---
+
+#### func IsAllCapital(str string) bool
+验证是否全大写
+
+---
+
+#### func IsHaveCapital(str string) bool
+验证是否有大写
+
+---
+
+#### func IsAllLower(str string) bool
+验证是否全小写
+
+---
+
+#### func IsHaveLower(str string) bool
+验证是否有小写
+
+---
+
+#### func IsLeastNumber(str string, n int) bool
+验证不低于n个数字
+```
+`[0-9]{%d,}?`
+```
+
+---
+
+#### func IsLeastCapital(str string, n int) bool
+验证不低于n个大写字母
+```
+`[A-Z]{%d,}?`
+```
+
+---
+
+#### func IsLeastLower(str string, n int) bool
+验证不低于n个小写字母
+```
+`[a-z]{%d,}?`
+```
+
+---
+
+#### func IsLeastSpecial(str string, n int) bool
+验证不低于n特殊字符
+```
+`[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\&\$\.\*\+\?\{\}\(\)\[\]\|\!\_\@\#\%\-\=]{%d,}?`
+```
+
+---
+
+#### func IsDomain(str string) bool
+验证域名
+```
+`[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?`
+```
+
+---
+
+#### func IsURL(str string) bool
+验证URL
+```
+`//([\w-]+\.)+[\w-]+(/[\w-./?%&=]*)?$`
+```
+
+---
+
+#### func IsPhone(str string) bool
+验证手机号码
+```
+`^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$`
+```
+
+---
+
+#### func IsLandline(str string) bool
+验证电话号码("XXX-XXXXXXX"、"XXXX-XXXXXXXX"、"XXX-XXXXXXX"、"XXX-XXXXXXXX"、"XXXXXXX"和"XXXXXXXX)
+```
+`^(\(\d{3,4}-)|\d{3.4}-)?\d{7,8}$`
+```
+
+---
+
+#### func IsIP(str string) bool
+IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))
+
+---
+
+#### func AccountRational(str string) bool
+帐号合理性验证
+```
+`^[a-zA-Z][a-zA-Z0-9_]{4,15}$`
+```
+
+---
+
+#### func IsXMLFile(str string) bool
+是否三xml文件
+```
+`^*+\\.[x|X][m|M][l|L]$`
+```
+
+---
+
+#### func IsUUID3(str string) bool
+是否是uuid
+```
+`^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$`
+```
+
+---
+
+#### func IsUUID4(str string) bool
+是否是uuid
+```
+`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`
+```
+
+---
+
+#### func IsUUID5(str string) bool
+是否是uuid
+```
+`^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`
+```
+
+---
+
+#### func IsRGB(str string) bool
+是否是 rgb
+```
+`^rgb\\(\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*\\)$`
+```
+
+---
+
+#### func IsFullWidth(str string) bool
+是否是全角字符
+```
+`[^\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]`
+```
+
+---
+
+#### func IsHalfWidth(str string) bool
+是否是半角字符
+```
+`[\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]`
+```
+
+---
+
+#### func IsBase64(str string) bool
+是否是base64
+```
+`^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{4})$`
+```
+
+---
+
+#### func IsLatitude(str string) bool
+是否是纬度
+```
+`^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$`
+```
+
+---
+
+#### func IsLongitude(str string) bool
+是否是经度
+```
+`^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$`
+```
+
+---
+
+#### func IsDNSName(str string) bool
+是否是dns 名称
+```
+`^([a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62}){1}(\.[a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62})*[\._]?$`
+```
+
+---
+
+#### func IsIPv4(str string) bool
+是否是ipv4
+```
+`([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))`
+```
+
+---
+
+#### func IsWindowsPath(str string) bool
+是否是windos路径
+```
+`^[a-zA-Z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*$`
+```
+
+---
+
+#### func IsUnixPath(str string) bool
+是否是unix路径
+```
+`^(/[^/\x00]*)+/?$`
+```
+
+---
+
+#### func RegTime(str string, property ...string) []string
+提取时间
+```
+`(?i)\d{1,2}:\d{2} ?(?:[ap]\.?m\.?)?|\d[ap]\.?m\.?`
+```
+
+---
+
+#### func RegLink(str string, property ...string) []string
+提取链接
+```
+`(?:(?:https?:\/\/)?(?:[a-z0-9.\-]+|www|[a-z0-9.\-])[.](?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s!()\[\]{};:\'".,<>?]))`
+```
+
+---
+
+#### func RegEmail(str string, property ...string) []string
+提取邮件
+```
+`(?i)([A-Za-z0-9!#$%&'*+\/=?^_{|.}~-]+@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)`
+```
+
+---
+
+#### func RegIPv4(str string, property ...string) []string
+提取ipv4
+```
+`(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)`
+```
+
+---
+
+#### func RegIPv6(str string, property ...string) []string
+提取ipv6
+```
+`(?:(?:(?:[0-9A-Fa-f]{1,4}:){7}(?:[0-9A-Fa-f]{1,4}|:))|(?:(?:[0-9A-Fa-f]{1,4}:){6}(?::[0-9A-Fa-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){5}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,2})|:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){4}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,3})|(?:(?::[0-9A-Fa-f]{1,4})?:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){3}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,4})|(?:(?::[0-9A-Fa-f]{1,4}){0,2}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){2}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,5})|(?:(?::[0-9A-Fa-f]{1,4}){0,3}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){1}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,6})|(?:(?::[0-9A-Fa-f]{1,4}){0,4}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?::(?:(?:(?::[0-9A-Fa-f]{1,4}){1,7})|(?:(?::[0-9A-Fa-f]{1,4}){0,5}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(?:%.+)?\s*`
+```
+
+---
+
+#### func RegIP(str string, property ...string) []string
+提取ip
+```
+`(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(?:(?:(?:[0-9A-Fa-f]{1,4}:){7}(?:[0-9A-Fa-f]{1,4}|:))|(?:(?:[0-9A-Fa-f]{1,4}:){6}(?::[0-9A-Fa-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){5}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,2})|:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(?:(?:[0-9A-Fa-f]{1,4}:){4}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,3})|(?:(?::[0-9A-Fa-f]{1,4})?:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){3}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,4})|(?:(?::[0-9A-Fa-f]{1,4}){0,2}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){2}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,5})|(?:(?::[0-9A-Fa-f]{1,4}){0,3}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?:(?:[0-9A-Fa-f]{1,4}:){1}(?:(?:(?::[0-9A-Fa-f]{1,4}){1,6})|(?:(?::[0-9A-Fa-f]{1,4}){0,4}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(?::(?:(?:(?::[0-9A-Fa-f]{1,4}){1,7})|(?:(?::[0-9A-Fa-f]{1,4}){0,5}:(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(?:%.+)?\s*`
+```
+
+---
+
+#### func RegMD5Hex(str string, property ...string) []string
+提取md5
+```
+`[0-9a-fA-F]{32}`
+```
+
+---
+
+#### func RegSHA1Hex(str string, property ...string) []string
+提取sha1
+```
+`[0-9a-fA-F]{40}`
+```
+
+---
+
+#### func RegSHA256Hex(str string, property ...string) []string
+提取sha256
+```
+`[0-9a-fA-F]{64}`
+```
+
+---
+
+#### func RegGUID(str string, property ...string) []string
+提取guid
+```
+`[0-9a-fA-F]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}`
+```
+
+---
+
+#### func RegMACAddress(str string, property ...string) []string
+提取MACAddress
+```
+`(([a-fA-F0-9]{2}[:-]){5}([a-fA-F0-9]{2}))`
+```
+
+---
+
+#### func RegEmail2(str string, property ...string) []string
+提取邮件
+```
+"^(((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$"
+```
+
+---
+
+#### func RegUUID3(str string, property ...string) []string
+提取uuid
+```
+"^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
+```
+
+---
+
+#### func RegUUID4(str string, property ...string) []string
+提取uuid
+```
+"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+```
+
+---
+
+#### func RegUUID5(str string, property ...string) []string
+提取uuid
+```
+"^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+```
+
+---
+
+#### func RegUUID(str string, property ...string) []string
+提取uuid
+```
+"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+```
+
+---
+
+#### func RegInt(str string, property ...string) []string
+提取整形
+```
+"^(?:[-+]?(?:0|[1-9][0-9]*))$"
+```
+
+---
+
+#### func RegFloat(str string, property ...string) []string
+提取浮点型
+```
+"^(?:[-+]?(?:[0-9]+))?(?:\\.[0-9]*)?(?:[eE][\\+\\-]?(?:[0-9]+))?$"
+```
+
+---
+
+#### func RegRGBColor(str string, property ...string) []string
+提取RGB值
+```
+"^rgb\\(\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*\\)$"
+```
+
+---
+
+#### func RegFullWidth(str string, property ...string) []string
+提取全角字符
+```
+"[^\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]"
+```
+
+---
+
+#### func RegHalfWidth(str string, property ...string) []string
+提取半角字符
+```
+"[\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]"
+```
+
+---
+
+#### func RegBase64(str string, property ...string) []string
+提取base64字符串
+```
+"^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{4})$"
+```
+
+---
+
+#### func RegLatitude(str string, property ...string) []string
+提取纬度
+```
+"^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$"
+```
+
+---
+
+#### func RegLongitude(str string, property ...string) []string
+提取经度
+```
+"^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$"
+```
+
+---
+
+#### func RegDNSName(str string, property ...string) []string
+提取dns
+```
+`^([a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62}){1}(\.[a-zA-Z0-9_]{1}[a-zA-Z0-9_-]{0,62})*[\._]?$`
+```
+
+---
+
+#### func RegFullURL(str string, property ...string) []string
+提取url
+```
+`^(?:ftp|tcp|udp|wss?|https?):\/\/[\w\.\/#=jQuery1124048736386703191026_1648193326187&]+$`
+```
+
+---
+
+#### func RegURLSchema(str string, property ...string) []string
+提取url schema
+```
+`((ftp|tcp|udp|wss?|https?):\/\/)`
+```
+
+---
+
+#### func RegURLUsername(str string, property ...string) []string
+提取url username
+```
+`(\S+(:\S*)?@)`
+```
+
+---
+
+#### func RegURLPath(str string, property ...string) []string
+提取url path
+```
+`((\/|\?|#)[^\s]*)`
+```
+
+---
+
+#### func RegURLPort(str string, property ...string) []string
+提取url port
+```
+`(:(\d{1,5}))`
+```
+
+---
+
+#### func RegURLIP(str string, property ...string) []string
+提取 url ip
+```
+`([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))`
+```
+
+---
+
+#### func RegURLSubdomain(str string, property ...string) []string
+提取 url sub domain
+```
+`((www\.)|([a-zA-Z0-9]+([-_\.]?[a-zA-Z0-9])*[a-zA-Z0-9]\.[a-zA-Z0-9]+))`
+```
+
+---
+
+#### func RegWinPath(str string, property ...string) []string
+提取 windows路径
+```
+`^[a-zA-Z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*$`
+```
+
+---
+
+#### func RegUnixPath(str string, property ...string) []string
+提取 unix路径
+
+```
+`^(/[^/\x00]*)+/?$`
+```
+
+---
+
+### 4.2 Html提取
+
+#### func GetPointHTML(htmlStr, label, attr, val string) ([]string, error) 
+获取指定位置的HTML， 用标签， 标签属性， 属性值来定位
+```go
+    date := "2022-07-05"
+	caseUrl := "http://futures.100ppi.com/qhb/day-%s.html"
+	ctx, _ := gt.Get(fmt.Sprintf(caseUrl, date))
+	//log.Println(ctx.Html)
+	// 数据提取
+	datas, _ := gt.GetPointHTML(ctx.Html, "div", "id", "domestic")
+```
+
+---
+#### func GetPointIDHTML(htmlStr, label, val string) ([]string, error)
+获取指定标签id属性的html
+
+---
+#### func GetPointClassHTML(htmlStr, label, val string) ([]string, error)
+获取指定标签class属性的html
+
+### 4.3 Json提取
+
+#### func JsonFind(jsonStr, find string) (interface{}, error)
+JsonFind 按路径寻找指定json值
+```
+用法参考  ./_examples/json/main.go
+@find : 寻找路径，与目录的url类似， 下面是一个例子：
+json:  {a:[{b:1},{b:2}]}
+find=/a/[0]  =>   {b:1}
+find=a/[0]/b  =>   1
+```
+
+
+实例：
+```
+txt := `{
+    "reason":"查询成功!",
+    "result":{
+        "city":"苏州",
+        "realtime":{
+            "temperature":"17",
+            "humidity":"69",
+            "info":"阴",
+            "wid":"02",
+            "direct":"东风",
+            "power":"2级",
+            "aqi":"30"
+        },
+        "future":[
+            {
+                "date":"2021-10-25",
+                "temperature":"12\/21℃",
+                "weather":"多云",
+                "wid":{
+                    "day":"01",
+                    "night":"01"
+                },
+                "direct":"东风"
+            },
+            {
+                "date":"2021-10-26",
+                "temperature":"13\/21℃",
+                "weather":"多云",
+                "wid":{
+                    "day":"01",
+                    "night":"01"
+                },
+                "direct":"东风转东北风"
+            },
+            {
+                "date":"2021-10-27",
+                "temperature":"13\/22℃",
+                "weather":"多云",
+                "wid":{
+                    "day":"01",
+                    "night":"01"
+                },
+                "direct":"东北风"
+            },
+            {
+                "date":"2021-10-28",
+                "temperature":"13\/21℃",
+                "weather":"多云转晴",
+                "wid":{
+                    "day":"01",
+                    "night":"00"
+                },
+                "direct":"东北风"
+            },
+            {
+                "date":"2021-10-29",
+                "temperature":"14\/21℃",
+                "weather":"多云转小雨",
+                "wid":{
+                    "day":"01",
+                    "night":"07"
+                },
+                "direct":"东北风"
+            }
+        ]
+    },
+    "error_code":0
+}`
+
+	jx1 := "/result/future/[0]/date"
+	jx2 := "/result/future/[0]"
+	jx3 := "/result/future"
+
+	log.Println(gt.JsonFind(txt, jx1))
+	log.Println(gt.JsonFind2Json(txt, jx2))
+	log.Println(gt.JsonFind2Json(txt, jx3))
+	log.Println(gt.JsonFind2Map(txt, jx2))
+	log.Println(gt.JsonFind2Arr(txt, jx3))
+```
+
+---
+#### func JsonFind2Json(jsonStr, find string) (string, error)
+寻找json,输出 json格式字符串
+
+---
+#### func JsonFind2Map(jsonStr, find string) (map[string]interface{}, error)
+寻找json,输出 map[string]interface{}
+
+---
+#### func JsonFind2Arr(jsonStr, find string) ([]interface{}, error)
+JsonFind2Arr 寻找json,输出 []interface{}
+
+---
+#### func IsJson(str string) bool
+IsJson 是否是json格式
+
+## 五、爬虫篇
+
+## 爬虫篇
+现在各个数据源日益月薪，变化非常快，爬虫程序无法做到固定，对端源一变化爬虫程序就要跟着变，有时候与其在原有基础上迭代还不如重新编写。重新编写就会出现一个问题，这个问题就是时间成本增加，为了降低时间成本所以我编写并开源了gathertool。
+gathertool作为一款轻量级爬虫框架，其解决核心问题是提高编写爬虫程序效率降低时间成本。gathertool主要使用请求部分+提取部分+数据处理部分+存储部分作为爬虫框架的方法集，使用者可以根据具体业务进行灵活使用，下面先通过一个例子来介绍：
+
+---
+
+### 5.1 例子
+已抓取 http://ip.bczs.net/country/CN ，将页面内容保存到数据为例
+```
+import gt "github.com/mangenotwork/gathertool"
+func main(){
+	db,err := gt.NewMysql("192.168.0.192", 3306,  "root", "root123", "test")  // 连接数据库
+	if err != nil { panic(err) }
+	ctx, err := gt.Get("http://ip.bczs.net/country/CN") // 请求数据
+	if err != nil { panic(err) }
+	for _, tbody := range gt.RegHtmlTbody(ctx.Html) { // 提取数据并保存
+		for _, tr := range gt.RegHtmlTr(tbody) {
+			td := gt.RegHtmlTdTxt(tr)
+			if len(td) < 3 {
+				gt.Error("异常数据 ： ", td)
+				continue
+			}
+			err := db.InsertAt("ip", map[string]interface{}{"start": td[0], "end": td[1], "num": td[2]})
+			if err != nil { panic(err) }
+		}
+	}
+}
+```
+
+抓取结果如图：
+
+![](http://mange1.oss-cn-beijing.aliyuncs.com/test/31d42875c8c6a41b6ee8f04d87f0deb5.png "")
+
+从上面例子就可以看到使用gathertool 18行代码就能完成请求，提取，存储到数据库的全过程; 编码时间只有1分钟。
+
+实例代码位置:  [ip地址信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/ip_bczs_cn)
+
+---
+
+### 5.2 并发抓取
+gathertool的请求对象是独立的实例，这样做的目的也是为了并发请求时都是独立的，不使用重复对象; gathertool的并发抓取采用本地队列+任务对象;下面将具体介绍:
+
+
+队列方法
+
+```
+type TodoQueue interface {
+	Add(task *Task) error  //向队列中添加元素
+	Poll()   *Task  //移除队列中最前面的元素
+	Clear()  bool   //清空队列
+	Size()  int     //获取队列的元素个数
+	IsEmpty() bool  //判断队列是否是空
+	Print() // 打印
+}
+```
+
+---
+ 队列
+
+```
+type Queue struct {
+	mux *sync.Mutex
+	list []*Task
+}
+```
+
+---
+#### func NewQueue() TodoQueue
+
+新建一个队列
+
+---
+#### func (q \*Queue) Add(task \*Task) error
+
+向队列中添加元素
+
+---
+#### func (q \*Queue) Poll() \*Task
+
+移除队列中最前面的额元素
+
+---
+#### func (q \*Queue) Clear() bool
+
+清空队列
+
+---
+#### func (q \*Queue) Size() int
+
+队列长度
+
+---
+#### func (q \*Queue) IsEmpty() bool
+
+队列是否空
+
+---
+#### func (q *Queue) Print()
+
+队列打印
+
+---
+#### type UploadQueue struct
+
+下载队列
+
+---
+#### func NewUploadQueue() TodoQueue
+
+新建一个下载队列
+
+---
+#### func (q *UploadQueue) Add(task *Task) error
+
+向队列中添加元素
+
+---
+#### func (q *UploadQueue) Poll() *Task
+
+移除队列中最前面的额元素
+
+---
+#### 任务对象
+
+```
+type Task struct {
+	Url string
+	JsonParam string
+	HeaderMap *http.Header
+	Data map[string]interface{} // 上下文传递的数据
+	Urls []*ReqUrl // 多步骤使用
+	Type string // "", "upload", "do"
+	SavePath string
+	SaveDir string
+	FileName string
+	once *sync.Once
+}
+```
+
+---
+#### func (task Task) GetDataStr(key string) string
+获取上下文数据
+
+---
+#### func (task Task) AddData(key string, value interface{}) Task
+添加上下问数据
+
+---
+#### func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task
+爬虫任务
+
+---
+#### func StartJob(jobNumber int, queue TodoQueue,f func(task *Task))
+启动并发
+
+---
+#### func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{})
+并发执行Get,直到队列任务为空;  jobNumber 并发数，queue 全局队列，
+
+---
+#### func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{})
+开始运行并发Post,直到队列任务为空;  jobNumber 并发数，queue 全局队列，
+
+---
+#### func CPUMax()
+启用多核执行
+
+---
+
+### 5.3 并发抓取列子
+已抓取 http://ip.bczs.net/country/CN ，并发抓取每个ip的二级页面数据并存入数据库
+```
+var (
+	// 全局声明抓取任务队列
+	queue = gt.NewQueue()
+	// 全局声明数据库客户端对象
+	host   = "192.168.0.192"
+	port    = 3306
+	user      = "root"
+	password  = "root123"
+	dbname = "test"
+	db,_ = gt.NewMysql(host, port, user, password, dbname)
+)
+
+func main(){
+	// 1.在页面 http://ip.bczs.net/country/CN 获取所有ip
+	_,_=gt.Get("http://ip.bczs.net/country/CN",gt.SucceedFunc(IPListSucceed))
+
+	// 2. 并发抓取详情数据, 20个并发
+	gt.StartJobGet(20,queue,
+		gt.SucceedFunc(GetIPSucceed),//请求成功后执行的方法
+		gt.RetryFunc(GetIPRetry),//遇到 502,403 等状态码重试前执行的方法，一般为添加休眠时间或更换代理
+		gt.FailedFunc(GetIPFailed),//请求失败后执行的方法
+	)
+}
+
+// 请求成功执行
+func IPListSucceed(ctx *gt.Context){
+	for _, tbody := range gt.RegHtmlTbody(ctx.RespBodyString()) {
+		for _, tr := range gt.RegHtmlTr(tbody) {
+			td := gt.RegHtmlTdTxt(tr)
+			log.Println(td)
+			if len(td) < 3 {
+				gt.Error("异常数据 ： ", td)
+				continue
+			}
+			startIp := gt.Any2String(gt.RegHtmlATxt(td[0])[0])// IP起始
+			endIP := td[1]// 结束
+			number := td[2]// 数量
+			// 创建队列 抓取详情信息
+			queue.Add(&gt.Task{
+				Url: "http://ip.bczs.net/"+startIp,
+				Data: map[string]interface{}{
+					"start_ip":startIp,
+					"end_ip":endIP,
+					"number":number,
+				},
+			})
+		}
+	}
+}
+
+
+// 获取详情信息成功的处理
+func GetIPSucceed(cxt *gt.Context){
+	// 使用goquery库提取数据
+	dom,err := goquery.NewDocumentFromReader(strings.NewReader(cxt.RespBodyString()))
+	if err != nil{
+		log.Println(err)
+		return
+	}
+	result, err := dom.Find("div[id=result] .well").Html()
+	if err != nil{
+		log.Println(err)
+	}
+	// 固定顺序map
+	gd := gt.NewGDMap().Add("start_ip", cxt.Task.GetDataStr("start_ip"))
+	gd.Add("end_ip", cxt.Task.GetDataStr("end_ip"))
+	gd.Add("number", cxt.Task.GetDataStr("number")).Add("result", result)
+
+	// 保存抓取数据
+	err = db.InsertAtGd("ip_result", gd)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// 获取详情信息重试的处理
+func GetIPRetry(c *gt.Context){
+	//更换代理
+	//c.SetProxy(uri)
+
+	// or
+	c.Client = &http.Client{
+		// 设置代理
+		//Transport: &http.Transport{
+		//	Proxy: http.ProxyURL(uri),
+		//},
+		Timeout: 5*time.Second,
+	}
+
+	log.Println("休息1s")
+	time.Sleep(1*time.Second)
+}
+
+// 获取详情信息失败执行返还给队列
+func GetIPFailed(c *gt.Context){
+	queue.Add(c.Task)//请求失败归还到队列
+}
+
+```
+
+抓取结果如图:
+
+![](http://mange1.oss-cn-beijing.aliyuncs.com/test/effd5a6d3e8b26ee994f3c4e76efebed.png "")
+
+---
+
+### 5.4 更多实例子  [见](https://github.com/mangenotwork/gathertool/tree/main/_examples/) 
+-  [阳光高考招生章程抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/get_yggk)
+-  [ip地址信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/ip_bczs_cn)
+-  [文件下载](https://github.com/mangenotwork/gathertool/tree/main/_examples/upload_file)
+-  [无登录微博抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/weibo)
+-  [百度题库抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baidu_tk)
+- ...
+
+
+## 六、Mysql存储篇
+gathertool 基于 "github.com/go-sql-driver/mysql" + "database/sql" 封装了数据操作的方法；
+
+### 6.1 例子
+```
+// =========================== 数据库初始化
+var (
+	host2   = "192.168.0.2"
+	host3   = "192.168.0.3"
+	port    = 3306
+	user2      = "root"
+	password2  = "root123"
+    user3      = "root3"
+	password3  = "root333"
+
+	db1  = "db1"
+	DB1,_ = gt.NewMysql(host2, port, user2, password2, db1)
+
+	db2  = "db2"
+	DB2,_ = gt.NewMysql(host2, port, user2, password2, db2)
+
+        db3  = "db3"
+	DB3,_ = gt.NewMysql(host3, port, user3, password3, db3)
+
+)
+
+// 不存在表table1 存入json key为字段，value为值， 非固定顺序字段
+jsonStr := `{"a":"a","b":"b"}`
+db1.InsertAtJson("table1", jsonStr)
+
+// 不存在表table2 存入非固定顺序字段的数据(map是无序的)
+data1 := map[string]interface{}{"a":"a", "b":1}
+db2.InsertAt("table2", data1)
+
+// 不存在表table3 存入固定顺序字段的数据  (a,b)
+gd := gt.NewGDMap().Add("a", 1).Add("b", 2)
+db3.InsertAt("table3", gd)
+
+// 存在表table2 存入数据
+db2.Insert("table2", data1)
+......
+```
+
+#### var MysqlDB
+全局mysql客户端对象
+
+---
+#### type Mysql struct
+mysql客户端结构体
+
+---
+#### func NewMysqlDB(host string, port int, user, password, database string) (err error)
+初始化mysql客户端对象并进行连接
+```
+gt.NewMysqlDB(host2, port, user2, password2, db1)
+gt.MysqlDB.Insert("table2", data1)
+```
+
+---
+#### func NewMysql(host string, port int, user, password, database string) (\*Mysql, error)
+创建一个mysql客户端对象
+
+---
+#### func GetMysqlDBConn() (\*Mysql,error)
+获取mysql 连接, 前置需要初始化 NewMysqlDB
+
+---
+#### func (m \*Mysql) CloseLog()
+关闭终端日志打印
+
+---
+#### func (m \*Mysql) SetMaxOpenConn(number int)
+设置最大连接数
+
+---
+#### func (m \*Mysql) SetMaxIdleConn(number int)
+最大等待连接中的数量
+
+---
+#### func (m \*Mysql) Conn() (err error)
+连接mysql
+
+---
+#### func (m \*Mysql) IsHaveTable(table string) bool
+表是否存在
+
+---
+#### type TableInfo struct
+表信息
+
+---
+#### func (m \*Mysql) Describe(table string) ( \*tableDescribe, error)
+查看表结构
+
+---
+#### func (m \*Mysql) Select(sql string) ([]map[string]string, error)
+查询语句 返回 map
+
+---
+#### func (m \*Mysql) NewTable(table string, fields map[string]string) error
+创建表; 字段顺序不固定;
+fields  字段:类型； name:varchar(10);
+
+---
+#### func (m \*Mysql) NewTableGd(table string, fields \*gDMap) error
+创建新的固定map顺序为字段的表(见下文固定map)
+
+---
+#### func (m \*Mysql) Insert(table string, fieldData map[string]interface{}) error
+新增数据; table是存在的
+
+---
+#### func (m \*Mysql) InsertAt(table string, fieldData map[string]interface{}) error
+新增数据; 如果没有表则先创建表; 字段顺序不是固定的;
+
+---
+#### func (m \*Mysql) InsertAtGd(table string, fieldData \*gDMap) error
+新增数据; 如果没有表则先创建表; 字段顺序是固定的;
+
+---
+#### func (m \*Mysql) InsertAtJson(table, jsonStr string) error
+json字符串存入数据库; 如果没有表则先创建表; 字段顺序不是固定的;
+
+---
+#### func (m \*Mysql) Update(sql string) error
+Update
+
+---
+#### func (m \*Mysql) Exec(sql string) error
+Exec
+
+---
+#### func (m \*Mysql) Query(sql string) ([]map[string]string, error)
+Query
+
+---
+#### func (m \*Mysql) Delete(sql string) error
+Delete
+
+---
+#### func (m \*Mysql) ToVarChar(data interface{}) string
+写入mysql 的字符类型
+
+---
+#### func (m \*Mysql) DeleteTable(tableName string) error
+删除表
+
+---
+#### func (m \*Mysql) HasTable(tableName string) bool
+判断表是否存
+
+---
+#### func (m \*Mysql) ToXls(sql, outPath string)
+查询数据导出到excel
+```
+db.ToXls("selecr * from tabe1", "table1.xls")
+```
+
+## 七、接口测试篇
+
+gathertool可以用于接口测试和压力测试，极大的提升了测试编码效率。
+
+#### type StressUrl struct
+
+压力测试一个url
+
+```
+type StressUrl struct {
+	Url string
+	Method string
+	Sum int64
+	Total int
+	TQueue TodoQueue
+
+	// 请求时间累加
+	sumReqTime int64
+
+	// 测试结果
+	avgReqTime time.Duration
+
+	// 接口传入的json
+	JsonData string
+
+	// 接口传入类型
+	ContentType string
+
+	stateCodeList []*stateCodeData
+	stateCodeListMux *sync.Mutex
+}
+```
+
+---
+#### func NewTestUrl(url, method string, sum int64, total int) \*StressUrl
+实例化一个新的url压测
+
+---
+#### func (s \*StressUrl) SetJson(str string)
+设置json数据
+
+---
+#### func (s \*StressUrl) Run(vs ...interface{})
+运行压测
+
+
+#### 例子：
+
+```
+import (
+	gt "github.com/mangenotwork/gathertool"
+	"log"
+)
+
+func main() {
+	gt.CPUMax()
+    // 普通 GET api压测
+	url := "http://192.168.0.9:8002/v1/health"
+	// 请求10000次 并发数 1000
+	test := gt.NewTestUrl(url,"Get",10000,1000)
+	test.Run()
+	test.Run(gt.SucceedFunc(func(ctx *gt.Context){
+		log.Println(ctx.JobNumber, "测试完成!!", ctx.Ms)
+	}))
+}
+```
+
+结果:
+```
+2022-03-28 16:17:09 |Info  | 执行次数 : 10000
+2022-03-28 16:17:09 |Info  | 状态码分布: map[200:10000]
+2022-03-28 16:17:09 |Info  | 平均用时: 35.555388957699996ms
+2022-03-28 16:17:09 |Info  | 最高用时: 235.268968ms
+2022-03-28 16:17:09 |Info  | 最低用时: 0.123935ms
+2022-03-28 16:17:09 |Info  | 执行完成！！！
+
+```
+
+其他例子，碎片话代码，仅供参考:
+```
+/// 设置 GET Header 的压测
+	////url2 := "http://192.168.0.9:18084/static_service/v1/auth/video/page"
+	//url2 := "http://192.168.0.9:18084/static_service/v1/auth/quality_article/list"
+	//token := &http.Header{}
+	//token.Add("token", tokenStr)
+	//token.Add("source", "2")
+	//test2 := gt.NewTestUrl(url2,"Get",10000,1000)
+	//test2.Run(token)
+
+
+//// Post
+	//url4 := "http://ggzyjy.sc.gov.cn/WebBuilder/frontAppAction.action?cmd=addPageView"
+	//test4 := gt.NewTestUrl(url4,"Post",100,10)
+	//test4.SetJson(`{
+	//			"viewGuid":"cms_002",
+	//			"siteGuid":"7eb5f7f1-9041-43ad-8e13-8fcb82ea831a"
+	//			}`)
+	//test4.Run(gt.SucceedFunc(func(c *gt.Context) {
+	//	log.Println(string(c.RespBody))
+	//	log.Println(c.Resp.Cookies())
+	//}))
+
+
+//点赞
+	//npplike := "http://192.168.0.9:8025/v2/like/add"
+	//npplike()
+
+	//caseurl := "https://www.jy863.com:18443/"
+	//caseurl := "https://www.uks678.com:10442/api/site/gdnotice/list"
+	//npptest1 := gt.NewTestUrl(caseurl,"Get",10000,1000)
+	//hd := &http.Header{}
+	//hd.Add("requested-device", "APP")
+	//hd.Add("requested-language", "CN")
+	//hd.Add("requested-site", "www.uks678.com:10442")
+	//npptest1.Run(hd)
+
+
+caseUrl := `http://192.168.0.9:8025/v2/topic/create`
+
+	gt.NewMysqlDB(host, port, user, password, database)
+	gt.MysqlDB.CloseLog()
+	conn,err := gt.GetMysqlDBConn()
+	if err != nil {
+		log.Panic("数据库初始化失败")
+	}
+	allUid, _ := conn.Select("select uid from tbl_user_ext limit 100,10000")
+	for _,v := range allUid{
+		token := GetToken(v["uid"])
+		h := &http.Header{}
+		h.Add("token", token)
+		data := `
+{
+	"uid": `+v["uid"]+`,
+	"qi": 2021315,
+	"fid": 1,
+	"source": 1,
+	"content": "我爱牛票票"
+}`
+		ctx,err := gt.PostJson(caseUrl, data, h)
+		log.Println(ctx.RespBodyString(), err)
+	}
+
+
+// 评论
+func nppComment() {
+	caseUrl := "http://192.168.0.9:8025/v1/comment/add"
+	gt.NewMysqlDB(host, port, user, password, database)
+	gt.MysqlDB.CloseLog()
+	conn,err := gt.GetMysqlDBConn()
+	if err != nil {
+		log.Panic("数据库初始化失败")
+	}
+	allUid, _ := conn.Select("select uid from tbl_user_ext")
+	allTid, _ := conn.Select("select tid from tbl_topic")
+	i:=0
+	for _,v := range allUid{
+		for _, t := range allTid {
+			token := GetToken(v["uid"])
+			h := &http.Header{}
+			h.Add("token", token)
+			i++
+			if i%3 == 0 {
+				continue
+			}
+			data := `
+{
+	"content":"我们都爱牛票票",
+	"tid": `+t["tid"]+`,
+	"cmtid":0,
+	"uid": `+v["uid"]+`,
+	"source":1
+}`
+			gt.PostJson(caseUrl, data, h)
+		}
+
+	}
+}
+
+```
+
+---
+
+## 八、加密解密篇
+
+加密解码相关封装方法
+
+```
+const (
+	CBC = "CBC"
+	ECB = "ECB"
+	CFB = "CFB"
+	CTR = "CTR"
+)
+```
+
+---
+#### type AES interface
+```
+type AES interface {
+	Encrypt(str, key []byte) ([]byte, error)
+	Decrypt(str, key []byte) ([]byte, error)
+}
+```
+
+---
+#### type DES interface
+```
+type DES interface {
+	Encrypt(str, key []byte) ([]byte, error)
+	Decrypt(str, key []byte) ([]byte, error)
+}
+```
+
+---
+#### func NewAES(typeName string, arg ...[]byte) AES
+use NewAES("cbc")
+typeName:
+- "cbc", "Cbc","CBC"
+- "ecb", "Ecb", ECB
+- "cfb", "Cfb", CFB
+- "ctr", "Ctr", CTR
+
+---
+#### func NewDES(typeName string, arg ...[]byte) DES
+use NewAES("cbc")
+typeName:
+- "cbc", "Cbc","CBC"
+- "ecb", "Ecb", ECB
+- "cfb", "Cfb", CFB
+- "ctr", "Ctr", CTR
+
+---
+#### func (cbc *cbcObj) Encrypt(str, key []byte) ([]byte, error)
+AES CBC Encrypt
+
+---
+#### func (cbc *cbcObj) Decrypt(str, key []byte) ([]byte, error)
+AES CBC Decrypt
+
+---
+#### func (ecb *ecbObj) Encrypt(str, key []byte) ([]byte, error)
+AES ECB Encrypt
+
+---
+#### func (ecb *ecbObj) Decrypt(str, key []byte) ([]byte, error)
+AES ECB Decrypt
+
+---
+#### func (cfb *cfbObj) Encrypt(str, key []byte) ([]byte, error)
+AES CFB Encrypt
+
+---
+#### func (cfb *cfbObj) Decrypt(str, key []byte) ([]byte, error)
+AES CFB Decrypt
+
+---
+#### func (ctr *ctrObj) Encrypt(str, key []byte) ([]byte, error)
+AES CTR Encrypt
+
+---
+#### func (ctr *ctrObj) Decrypt(str, key []byte) ([]byte, error)
+AES CTR Decrypt
+
+---
+#### func HmacMD5(str, key string) string
+HmacMD5
+
+---
+#### func HmacSHA1(str, key string) string
+HmacSHA1
+
+---
+#### func HmacSHA256(str, key string) string
+HmacSHA256
+
+---
+#### func HmacSHA512(str, key string) string
+HmacSHA512
+
+---
+#### func PBKDF2(str, salt []byte, iterations, keySize int) ([]byte)
+PBKDF2
+
+---
+#### func JwtEncrypt(data map[string]interface{}, secret, method string) (string, error)
+Jwt Encrypt
+
+---
+#### func JwtEncrypt256(data map[string]interface{}, secret string) (string, error)
+Jwt Encrypt 256
+
+---
+#### func JwtEncrypt384(data map[string]interface{}, secret string) (string, error)
+Jwt Encrypt 384
+
+---
+#### func JwtEncrypt512(data map[string]interface{}, secret string) (string, error)
+Jwt Encrypt 512
+
+---
+#### func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err error)
+Jwt Decrypt
+
+---
+
+## 九、Redis篇
+gathertool的redis方法是基于"github.com/garyburd/redigo/redis"再次封装的,再加上了ssh连接通道，实现了对云端redis的连接; 主要常用如：快速删除大量指定key等。
+
+### 9.1 连接
+
+#### type Rds struct
+
+```
+type Rds struct {
+	SSHUser string
+	SSHPassword string
+	SSHAddr string
+	RedisHost string
+	RedisPost string
+	RedisPassword string
+
+	// redis DB
+	RedisDB int
+
+	// 单个连接
+	Conn redis.Conn
+
+	//	最大闲置数，用于redis连接池
+	RedisMaxIdle int
+
+	//	最大连接数
+	RedisMaxActive int
+
+	//	单条连接Timeout
+	RedisIdleTimeoutSec int
+
+	// 连接池
+	Pool *redis.Pool
+}
+```
+
+---
+#### func (r \*Rds) RedisConn() (err error)
+redis连接
+
+---
+#### func (r \*Rds) RedisPool() error
+连接池连接, 返回redis连接池  *redis.Pool.Get() 获取redis连接
+
+---
+#### func (r \*Rds) GetConn() redis.Conn
+获取连接
+
+---
+#### func (r \*Rds) SelectDB(dbNumber int) error
+切换db
+
+---
+#### func NewSSHInfo( addr, user, password string) \*SSHConnInfo
+连接ssh
+
+---
+#### func NewRedis(host, port, password string, db int, vs ...interface{}) (\*Rds)
+实例化redis对象
+
+---
+#### func NewRedisPool(host, port, password string, db, maxIdle, maxActive, idleTimeoutSec int, vs ...interface{}) (\*Rds)
+实例化redis连接池对象
+
+---
+#### func RedisDELKeys(rds \*Rds, keys string, jobNumber int)
+并发删除key；keys 模糊key; jobNumber 并发数;
+```
+rds := gt.NewRedisPool(redis_host, redis_port, redis_password, dbnumber, 5, 10, 10,
+		gt.NewSSHInfo(ssh_addr, ssh_user, ssh_password))
+
+	gt.RedisDELKeys(rds, "user:*", 500)
+```
+
+### 9.2 keys
+
+### 9.3 string
+
+### 9.4 list
+
+### 9.5 hash
+
+### 9.6 set
+
+### 9.7 zset
+
+## 十、
+
+
+
+
+
+
+
+
+
+
+
 
 
 
