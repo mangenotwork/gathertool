@@ -1,8 +1,8 @@
 /*
 	Description : websocket的连接, 模拟websocket客户端
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -21,8 +21,8 @@ type WSClient interface {
 // WsClient websocket 客户端
 func WsClient(host, path string, isSSL bool) (WSClient, error) {
 	ws := &webSocketClient{
-		Host: host,
-		Path: path,
+		Host:  host,
+		Path:  path,
 		IsSSL: isSSL,
 	}
 	err := ws.conn()
@@ -30,9 +30,9 @@ func WsClient(host, path string, isSSL bool) (WSClient, error) {
 }
 
 type webSocketClient struct {
-	Host string
-	Path string
-	Ws *websocket.Conn
+	Host  string
+	Path  string
+	Ws    *websocket.Conn
 	IsSSL bool
 }
 
@@ -41,7 +41,7 @@ func (c *webSocketClient) conn() error {
 	u := c.Host + c.Path
 	if c.IsSSL {
 		c.Ws, err = websocket.Dial(u, "", "https://"+c.Host+"/")
-	}else {
+	} else {
 		c.Ws, err = websocket.Dial(u, "", "http://"+c.Host+"/")
 	}
 	return err
@@ -56,7 +56,7 @@ func (c *webSocketClient) Close() {
 	c.Ws.Close()
 }
 
-func (c *webSocketClient) Read(data []byte) error{
+func (c *webSocketClient) Read(data []byte) error {
 	_, err := c.Ws.Read(data)
 	return err
 }

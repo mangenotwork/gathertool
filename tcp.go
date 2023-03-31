@@ -1,8 +1,8 @@
 /*
 	Description : Tcp的连接 (Tcp客户端); 应用场景是模拟Tcp客户端;
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 
 // ===== Use
 func main(){
@@ -28,7 +28,7 @@ func f(client *gt.TcpClient){
 	}()
 }
 
- */
+*/
 
 package gathertool
 
@@ -45,9 +45,9 @@ type TcpClient struct {
 	Connection *net.TCPConn
 	HawkServer *net.TCPAddr
 	StopChan   chan struct{}
-	CmdChan chan string
-	Token string
-	RConn chan struct{}
+	CmdChan    chan string
+	Token      string
+	RConn      chan struct{}
 }
 
 func NewTcpClient() *TcpClient {
@@ -75,14 +75,14 @@ func (c *TcpClient) Addr() string {
 	return c.Connection.RemoteAddr().String()
 }
 
-func (c *TcpClient) Close(){
+func (c *TcpClient) Close() {
 	if c.Connection == nil {
 		return
 	}
 	_ = c.Connection.Close()
 }
 
-func (c *TcpClient) Stop(){
+func (c *TcpClient) Stop() {
 	c.StopChan <- struct{}{}
 }
 
@@ -118,12 +118,12 @@ Reconnection:
 	c.RConn = make(chan struct{})
 
 	//启动接收
-	go func(conn *TcpClient){
-		for{
+	go func(conn *TcpClient) {
+		for {
 			recv := make([]byte, 1024)
 			for {
 				n, err := conn.Connection.Read(recv)
-				if err != nil{
+				if err != nil {
 					if err == io.EOF {
 						log.Println(conn.Addr(), " 断开了连接!")
 					}
@@ -144,7 +144,7 @@ Reconnection:
 
 	for {
 		select {
-		case a := <- c.RConn:
+		case a := <-c.RConn:
 			log.Println("global.RConn = ", a)
 			goto Reconnection
 		case <-c.StopChan:
@@ -153,4 +153,3 @@ Reconnection:
 		}
 	}
 }
-

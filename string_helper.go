@@ -1,8 +1,8 @@
 /*
 	Description : 数据类型相关的操作
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -34,14 +34,11 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
-	jsoniter "github.com/json-iterator/go"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/ianaindex"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )
-
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // StringValue 任何类型返回值字符串形式
 func StringValue(i interface{}) string {

@@ -1,8 +1,8 @@
 /*
 	Description : redis 相关方法
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -10,11 +10,12 @@ package gathertool
 import (
 	"errors"
 	"fmt"
-	"github.com/garyburd/redigo/redis"
 	"net"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 // Rds Redis客户端

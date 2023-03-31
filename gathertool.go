@@ -8,8 +8,8 @@
 
 	Description : gathertool是golang脚本化开发库，目的是提高对应场景程序开发的效率；轻量级爬虫库，接口测试&压力测试库，DB操作库等。
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool

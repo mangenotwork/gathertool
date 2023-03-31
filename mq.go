@@ -9,11 +9,12 @@ package gathertool
 
 import (
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/Shopify/sarama"
 	"github.com/nsqio/go-nsq"
 	"github.com/streadway/amqp"
-	"sync"
-	"time"
 )
 
 // MQer 消息队列接口

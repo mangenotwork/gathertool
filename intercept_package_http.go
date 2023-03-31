@@ -1,8 +1,8 @@
 /*
 	Description : 启动一个HTTP&HTTPs代理并拦截HTTP的数据包
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool

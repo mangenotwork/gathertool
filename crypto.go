@@ -1,8 +1,8 @@
 /*
 	Description : 加密解码相关封装方法
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -21,10 +21,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/pbkdf2"
 	"hash"
 	"io"
+
+	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/pbkdf2"
 )
 
 const (

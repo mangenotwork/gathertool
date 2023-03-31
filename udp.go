@@ -1,9 +1,9 @@
 /*
 	Description : Udp的连接 (Udp客户端); 应用场景是模拟Udp客户端;
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
- */
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
+*/
 
 package gathertool
 
@@ -17,8 +17,8 @@ import (
 type UdpClient struct {
 	SrcAddr *net.UDPAddr
 	DstAddr *net.UDPAddr
-	Conn *net.UDPConn
-	Token string
+	Conn    *net.UDPConn
+	Token   string
 }
 
 func (u *UdpClient) Run(hostServer string, port int, r func(u *UdpClient, data []byte), w func(u *UdpClient)) {
@@ -35,7 +35,7 @@ func (u *UdpClient) Run(hostServer string, port int, r func(u *UdpClient, data [
 
 	go func() {
 		data := make([]byte, 1024)
-		for{
+		for {
 			n, remoteAddr, err := u.Conn.ReadFromUDP(data)
 			if err != nil {
 				log.Printf("error during read: %s", err)
@@ -72,7 +72,7 @@ func (u *UdpClient) Addr() string {
 	return u.DstAddr.String()
 }
 
-func (u *UdpClient) Close(){
+func (u *UdpClient) Close() {
 	if u.Conn == nil {
 		return
 	}

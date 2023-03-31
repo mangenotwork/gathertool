@@ -7,7 +7,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/garyburd/redigo v1.6.4
 	github.com/go-sql-driver/mysql v1.7.0
-	github.com/json-iterator/go v1.1.12
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/streadway/amqp v1.0.0
 	github.com/xuri/excelize/v2 v2.7.0

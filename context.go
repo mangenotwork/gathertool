@@ -1,8 +1,8 @@
 /*
 	Description : 请求上下文
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -168,14 +168,14 @@ func (c *Context) GetRetryTimes() int {
 
 // SetSleep 设置请求延迟时间，单位秒
 func (c *Context) SetSleep(i int) *Context {
-	c.sleep = Sleep(time.Duration(i)*time.Second)
+	c.sleep = Sleep(time.Duration(i) * time.Second)
 	return c
 }
 
 // SetSleepRand 设置延迟随机时间，单位秒
 func (c *Context) SetSleepRand(min, max int) *Context {
 	r := randEr.Intn(max) + min
-	c.sleep = Sleep(time.Duration(r)*time.Second)
+	c.sleep = Sleep(time.Duration(r) * time.Second)
 	return c
 }
 
@@ -183,12 +183,12 @@ func (c *Context) SetSleepRand(min, max int) *Context {
 func (c *Context) Do() func() {
 	var bodyBytes []byte
 
-	if c == nil{
+	if c == nil {
 		return nil
 	}
 
 	//执行 start
-	if c.times == 0 && c.StartFunc != nil{
+	if c.times == 0 && c.StartFunc != nil {
 		c.StartFunc(c)
 	}
 
@@ -199,10 +199,10 @@ func (c *Context) Do() func() {
 
 	//重试验证
 	c.times++
-	if c.times > c.MaxTimes{
-		Error( "【日志】 请求失败操过", c.MaxTimes, " 次了,结束重试操作！")
+	if c.times > c.MaxTimes {
+		Error("【日志】 请求失败操过", c.MaxTimes, " 次了,结束重试操作！")
 		// 超过了重试次数，就算失败，则执行失败方法
-		if c.FailedFunc != nil{
+		if c.FailedFunc != nil {
 			c.FailedFunc(c)
 		}
 		return nil
@@ -221,20 +221,19 @@ func (c *Context) Do() func() {
 
 	// 执行请求
 	before := time.Now()
-	c.Resp,c.Err = c.Client.Do(c.Req)
+	c.Resp, c.Err = c.Client.Do(c.Req)
 	c.Ms = time.Now().Sub(before)
 
 	// 是否超时
-	if c.Err != nil && (
-		strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") ||
+	if c.Err != nil && (strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") ||
 		strings.Contains(c.Err.Error(), ("Too Many Requests")) ||
 		strings.Contains(c.Err.Error(), ("To Many Requests")) ||
 		strings.Contains(c.Err.Error(), ("EOF")) ||
-		strings.Contains(c.Err.Error(), ("connection timed out")) ){
+		strings.Contains(c.Err.Error(), ("connection timed out"))) {
 
 		Error("【日志】 请求 超时 = ", c.Err)
 		if c.RetryFunc != nil && !c.isRetry {
-			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
@@ -247,34 +246,34 @@ func (c *Context) Do() func() {
 		Error("【日志】 请求 err = ", c.Err)
 		// 指定的失败都执行 retry
 		if c.err2retry && c.RetryFunc != nil && !c.isRetry {
-			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
 
-		if c.FailedFunc != nil{
+		if c.FailedFunc != nil {
 			c.FailedFunc(c)
 		}
 		return nil
 	}
 
-	defer func(c *Context){
+	defer func(c *Context) {
 		if c.Resp != nil {
-			_=c.Resp.Body.Close()
+			_ = c.Resp.Body.Close()
 		}
 	}(c)
 
 	if c.Resp.Header.Get("Content-Encoding") == "gzip" {
 		c.Resp.Body, _ = gzip.NewReader(c.Resp.Body)
 	}
-	InfoTimes( 3,"[日志] 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
+	InfoTimes(3, "[日志] 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
-	v,ok := StatusCodeMap[c.Resp.StatusCode]
+	v, ok := StatusCodeMap[c.Resp.StatusCode]
 	if !ok {
 		body, err := ioutil.ReadAll(c.Resp.Body)
-		if err != nil{
+		if err != nil {
 			Error(err)
 			return nil
 		}
@@ -284,7 +283,7 @@ func (c *Context) Do() func() {
 	switch v {
 	case "success":
 		body, err := ioutil.ReadAll(c.Resp.Body)
-		if err != nil{
+		if err != nil {
 			Error(err)
 			return nil
 		}
@@ -297,14 +296,14 @@ func (c *Context) Do() func() {
 	case "retry":
 		c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 		if c.RetryFunc != nil && !c.isRetry {
-			InfoTimes(4, "[日志] 执行 retry 事件： 第", c.times, "次， 总： ",  c.MaxTimes)
+			InfoTimes(4, "[日志] 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
 			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
 
 	case "fail":
-		if c.FailedFunc != nil{
+		if c.FailedFunc != nil {
 			InfoTimes(4, "[日志] 执行 failed 事件")
 			c.FailedFunc(c)
 		}
@@ -416,8 +415,8 @@ func (c *Context) CheckMd5() string {
 }
 
 // AddHeader 给请求添加Header
-func (c *Context) AddHeader(k,v string) *Context {
-	c.Req.Header.Add(k,v)
+func (c *Context) AddHeader(k, v string) *Context {
+	c.Req.Header.Add(k, v)
 	return c
 }
 
@@ -444,7 +443,7 @@ func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
 // SetProxyPool 给请求设置代理池
 func (c *Context) SetProxyPool(pool *ProxyPool) *Context {
 	ip, _ := pool.Get()
-	InfofTimes("[日志] 使用代理: %s",3, ip)
+	InfofTimes("[日志] 使用代理: %s", 3, ip)
 	proxy, _ := url.Parse(ip)
 	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
 	return c
@@ -452,21 +451,21 @@ func (c *Context) SetProxyPool(pool *ProxyPool) *Context {
 
 // ProxyIP 代理IP
 type ProxyIP struct {
-	IP string
-	Post int
-	User string
-	Pass string // 密码
-	IsTLS bool // 是否是 https
+	IP    string
+	Post  int
+	User  string
+	Pass  string // 密码
+	IsTLS bool   // 是否是 https
 }
 
 // NewProxyIP 实例化代理IP
 func NewProxyIP(ip string, port int, user, pass string, isTls bool) *ProxyIP {
 	return &ProxyIP{
-		IP : ip,
-		Post : port,
-		User : user,
-		Pass : pass,
-		IsTLS : isTls,
+		IP:    ip,
+		Post:  port,
+		User:  user,
+		Pass:  pass,
+		IsTLS: isTls,
 	}
 }
 
@@ -481,18 +480,18 @@ func (p *ProxyIP) String() string {
 
 // ProxyPool 代理池
 type ProxyPool struct {
-	ip []string
-	num int32
-	len int32
+	ip   []string
+	num  int32
+	len  int32
 	lock sync.Mutex
 }
 
 // NewProxyPool 实例化代理池
 func NewProxyPool() *ProxyPool {
 	return &ProxyPool{
-		ip : make([]string, 0),
-		num: 0,
-		len: 0,
+		ip:   make([]string, 0),
+		num:  0,
+		len:  0,
 		lock: sync.Mutex{},
 	}
 }
@@ -526,25 +525,25 @@ func (p *ProxyPool) Get() (string, int) {
 }
 
 // Upload 下载
-func (c *Context) Upload(filePath string) func(){
+func (c *Context) Upload(filePath string) func() {
 	//空验证
-	if c == nil{
+	if c == nil {
 		return nil
 	}
 
 	//重试验证
 	c.times++
-	if c.times > c.MaxTimes{
+	if c.times > c.MaxTimes {
 		Infof("请求失败操过", c.MaxTimes, "次了")
 		return nil
 	}
 
 	//执行请求
-	c.Resp,c.Err = c.Client.Do(c.Req)
+	c.Resp, c.Err = c.Client.Do(c.Req)
 
 	// 是否超时
 	// Go 1.6 以下
-	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)"){
+	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") {
 		if c.RetryFunc != nil {
 			c.RetryFunc(c)
 			return c.Do()
@@ -564,15 +563,15 @@ func (c *Context) Upload(filePath string) func(){
 	// 其他错误
 	if c.Err != nil {
 		Error(c.Err)
-		if c.FailedFunc != nil{
+		if c.FailedFunc != nil {
 			c.FailedFunc(c)
 		}
 		return nil
 	}
 
-	defer func(cxt *Context){
+	defer func(cxt *Context) {
 		if cxt.Resp != nil {
-			_=cxt.Resp.Body.Close()
+			_ = cxt.Resp.Body.Close()
 		}
 	}(c)
 
@@ -582,7 +581,7 @@ func (c *Context) Upload(filePath string) func(){
 		return nil
 	}
 
-	defer func(){
+	defer func() {
 		f.Close()
 	}()
 
@@ -594,33 +593,33 @@ func (c *Context) Upload(filePath string) func(){
 	for {
 		i++
 		n, err := c.Resp.Body.Read(buf)
-		sum=sum+int64(n)
-		_,_=f.Write(buf[:n])
-		if err != nil || n == 0{
+		sum = sum + int64(n)
+		_, _ = f.Write(buf[:n])
+		if err != nil || n == 0 {
 			break
 		}
-		if i%9 == 0{
-			log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum),"/", FileSizeFormat(int64(contentLength)),
-				" |\t ", math.Floor((float64(sum)/contentLength)*100),"%")
+		if i%9 == 0 {
+			log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum), "/", FileSizeFormat(int64(contentLength)),
+				" |\t ", math.Floor((float64(sum)/contentLength)*100), "%")
 		}
 	}
 	ct := time.Now().Sub(st)
-	log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum),"/", FileSizeFormat(int64(contentLength)),
-		" |\t ", math.Floor((float64(sum)/contentLength)*100), "%", "|\t ", ct )
+	log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum), "/", FileSizeFormat(int64(contentLength)),
+		" |\t ", math.Floor((float64(sum)/contentLength)*100), "%", "|\t ", ct)
 	//loger(" rep header ", c.Resp.ContentLength)
 	return nil
 }
 
 // CookieNext 使用上下文cookies
 func (c *Context) CookieNext() error {
-	if c.Resp == nil{
+	if c.Resp == nil {
 		return fmt.Errorf("response is nil.")
 	}
 	if c.Req == nil {
 		return fmt.Errorf("request is nil.")
 	}
 	// 上下文cookies
-	for _,cookie := range c.Resp.Cookies(){
+	for _, cookie := range c.Resp.Cookies() {
 		c.Req.AddCookie(cookie)
 	}
 	return nil
@@ -659,7 +658,7 @@ func (c *Context) DelParam(key string) {
 // CookiePool  cookie池
 type cookiePool struct {
 	cookie []*http.Cookie
-	mux sync.Mutex
+	mux    sync.Mutex
 }
 
 // CookiePool  Cookie池
@@ -670,14 +669,14 @@ var _cookiePoolOnce sync.Once
 func NewCookiePool() *cookiePool {
 	_cookiePoolOnce.Do(func() {
 		CookiePool = &cookiePool{
-			cookie : make([]*http.Cookie, 0),
+			cookie: make([]*http.Cookie, 0),
 		}
 	})
 	return CookiePool
 }
 
 // Add cookie池添加cookie
-func (c *cookiePool) Add(cookie *http.Cookie){
+func (c *cookiePool) Add(cookie *http.Cookie) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.cookie = append(c.cookie, cookie)

@@ -1,8 +1,8 @@
 /*
 	Description : mongoDB相关的操作
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -10,13 +10,14 @@ package gathertool
 import (
 	"context"
 	"fmt"
+	"log"
+	"reflect"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"log"
-	"reflect"
-	"time"
 )
 
 type Mongo struct {

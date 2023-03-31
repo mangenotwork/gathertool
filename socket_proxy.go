@@ -1,8 +1,8 @@
 /*
 	Description : 启动一个socket5代理
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -44,7 +44,7 @@ func handleClientRequest2(client net.Conn) {
 
 	}
 	defer client.Close()
-	var b [1024*100]byte
+	var b [1024 * 100]byte
 
 	n, err := client.Read(b[:])
 	if err != nil {
@@ -78,7 +78,7 @@ func handleClientRequest2(client net.Conn) {
 
 		}
 		defer server.Close()
-		_,_= client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //响应客户端连接成功
+		_, _ = client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //响应客户端连接成功
 
 		//进行转发
 		go io.Copy(server, client)

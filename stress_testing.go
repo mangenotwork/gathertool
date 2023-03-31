@@ -1,8 +1,8 @@
 /*
 	Description : 接口压力测试， 并输出结果
 	Author : ManGe
-			2912882908@qq.com
-			https://github.com/mangenotwork/gathertool
+	Mail : 2912882908@qq.com
+	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -17,16 +17,16 @@ import (
 )
 
 type stateCodeData struct {
-	Code int
+	Code    int
 	ReqTime int64
 }
 
 // StressUrl 压力测试一个url
 type StressUrl struct {
-	Url string
+	Url    string
 	Method string
-	Sum int64
-	Total int
+	Sum    int64
+	Total  int
 	TQueue TodoQueue
 
 	// 请求时间累加
@@ -41,20 +41,20 @@ type StressUrl struct {
 	// 接口传入类型
 	ContentType string
 
-	stateCodeList []*stateCodeData
+	stateCodeList    []*stateCodeData
 	stateCodeListMux *sync.Mutex
 }
 
 // NewTestUrl 实例化一个新的url压测
 func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 	return &StressUrl{
-		Url : url,
-		Method : method,
-		Sum : sum,
-		Total : total,
-		TQueue : NewQueue(),
-		sumReqTime: int64(0),
-		stateCodeList: make([]*stateCodeData,0),
+		Url:              url,
+		Method:           method,
+		Sum:              sum,
+		Total:            total,
+		TQueue:           NewQueue(),
+		sumReqTime:       int64(0),
+		stateCodeList:    make([]*stateCodeData, 0),
 		stateCodeListMux: &sync.Mutex{},
 	}
 }
@@ -65,15 +65,15 @@ func (s *StressUrl) SetJson(str string) {
 }
 
 // Run 运行压测
-func (s *StressUrl) Run(vs ...interface{}){
+func (s *StressUrl) Run(vs ...interface{}) {
 	//解析可变参
 	var (
-		succeedFunc SucceedFunc
-		n int64
-		wg sync.WaitGroup
-	    reqTimeout ReqTimeOut
+		succeedFunc  SucceedFunc
+		n            int64
+		wg           sync.WaitGroup
+		reqTimeout   ReqTimeOut
 		reqTimeoutms ReqTimeOutMs
-		header http.Header
+		header       http.Header
 	)
 	for _, v := range vs {
 		switch vv := v.(type) {
@@ -92,30 +92,30 @@ func (s *StressUrl) Run(vs ...interface{}){
 	}
 
 	//初始化队列
-	for n=0; n<s.Sum; n++{
+	for n = 0; n < s.Sum; n++ {
 		s.TQueue.Add(&Task{Url: s.Url})
 	}
 	log.Println("总执行次数： ", s.TQueue.Size())
 	var count int64 = 0
-	for job:=0; job<s.Total; job++{
+	for job := 0; job < s.Total; job++ {
 		wg.Add(1)
-		go func(i int){
+		go func(i int) {
 			defer wg.Done()
 			for {
 				var (
 					ctx = &Context{}
 				)
-				if s.TQueue.IsEmpty(){
+				if s.TQueue.IsEmpty() {
 					break
 				}
 				task := s.TQueue.Poll()
-				if task == nil{
+				if task == nil {
 					continue
 				}
 				// 定义适用于压力测试的client
 				t := http.DefaultTransport.(*http.Transport).Clone()
-				t.MaxIdleConns = s.Total*2
-				t.MaxIdleConnsPerHost = s.Total*2
+				t.MaxIdleConns = s.Total * 2
+				t.MaxIdleConnsPerHost = s.Total * 2
 				t.DisableKeepAlives = true
 				t.DialContext = (&net.Dialer{
 					Timeout:   10 * time.Second,
@@ -125,15 +125,15 @@ func (s *StressUrl) Run(vs ...interface{}){
 				t.ExpectContinueTimeout = 1 * time.Second
 				client := http.Client{
 					Transport: t,
-					Timeout: 5*time.Second,
+					Timeout:   5 * time.Second,
 				}
 				switch s.Method {
-					case "get","Get","GET":
-						ctx = NewGet(task.Url, client, succeedFunc, reqTimeout, reqTimeoutms, header)
-					case "post","Post","POST":
-						ctx = NewPost(task.Url, []byte(s.JsonData), s.ContentType, client, succeedFunc, reqTimeout, reqTimeoutms,header)
-					default:
-						log.Println("暂时不支持的 Method.")
+				case "get", "Get", "GET":
+					ctx = NewGet(task.Url, client, succeedFunc, reqTimeout, reqTimeoutms, header)
+				case "post", "Post", "POST":
+					ctx = NewPost(task.Url, []byte(s.JsonData), s.ContentType, client, succeedFunc, reqTimeout, reqTimeoutms, header)
+				default:
+					log.Println("暂时不支持的 Method.")
 				}
 				if ctx == nil {
 					continue
@@ -144,15 +144,15 @@ func (s *StressUrl) Run(vs ...interface{}){
 				atomic.AddInt64(&s.sumReqTime, int64(ctx.Ms))
 				atomic.AddInt64(&count, int64(1))
 				s.stateCodeListMux.Lock()
-				if ctx.Resp != nil{
+				if ctx.Resp != nil {
 					s.stateCodeList = append(s.stateCodeList, &stateCodeData{
-						Code: ctx.Resp.StatusCode,
+						Code:    ctx.Resp.StatusCode,
 						ReqTime: int64(ctx.Ms),
 					})
-				}else{
+				} else {
 					//请求错误
 					s.stateCodeList = append(s.stateCodeList, &stateCodeData{
-						Code: -1,
+						Code:    -1,
 						ReqTime: int64(ctx.Ms),
 					})
 				}
@@ -165,32 +165,32 @@ func (s *StressUrl) Run(vs ...interface{}){
 	Info("执行次数 : ", count)
 
 	var (
-		maxTime int64= 0
+		maxTime int64 = 0
 		minTime int64 = 9999999999
 	)
 
-	fb := make(map[int]int,0)
-	for _, v := range s.stateCodeList{
-		if v.ReqTime >= maxTime{
+	fb := make(map[int]int, 0)
+	for _, v := range s.stateCodeList {
+		if v.ReqTime >= maxTime {
 			maxTime = v.ReqTime
 		}
-		if v.ReqTime <= minTime{
+		if v.ReqTime <= minTime {
 			minTime = v.ReqTime
 		}
 
-		if _,ok := fb[v.Code]; ok{
+		if _, ok := fb[v.Code]; ok {
 			fb[v.Code]++
-		}else{
+		} else {
 			fb[v.Code] = 1
 		}
 		//s.sumReqTime = s.sumReqTime + v.ReqTime
 	}
 
 	Info("状态码分布: ", fb)
-	avg := float64(s.sumReqTime)/float64(s.Sum)
-	avg = avg/(1000*1000)
-	Info("平均用时： ", avg,"ms")
-	Info("最高用时: ", float64(maxTime)/(1000*1000),"ms")
-	Info("最低用时: ", float64(minTime)/(1000*1000),"ms")
+	avg := float64(s.sumReqTime) / float64(s.Sum)
+	avg = avg / (1000 * 1000)
+	Info("平均用时： ", avg, "ms")
+	Info("最高用时: ", float64(maxTime)/(1000*1000), "ms")
+	Info("最低用时: ", float64(minTime)/(1000*1000), "ms")
 	Info("执行完成！！！")
 }

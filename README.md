@@ -288,6 +288,16 @@ func main(){
 
 <a href="https://www.jetbrains.com/?from=gathertool" target="_blank"><img src="https://raw.githubusercontent.com/moonD4rk/staticfiles/master/picture/jetbrains-variant-4.png" width="256" align="middle"/></a>
 
+## 三方引用 感谢这些开源项目
+- github.com/Shopify/sarama
+- github.com/dgrijalva/jwt-go 
+- github.com/garyburd/redigo
+- github.com/nsqio/go-nsq 
+- github.com/streadway/amqp
+- github.com/xuri/excelize/v2
+- go.mongodb.org/mongo-driver
+- gopkg.in/yaml.v3 
+
 ## 里程碑
 
 #### v0.2.1 ~ v0.2.9
