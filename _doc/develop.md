@@ -10,7 +10,80 @@ Github : https://github.com/mangenotwork/gathertool
 
 [toc]
 
-[一、介绍](#一介绍)
+## 目录
+- [一、介绍](#一介绍)
+- [1.1 简介](#1.1 简介)
+- [1.2 使用](#1.2 使用)
+- [1.3 介绍](#1.3 介绍)
+- [1.4 使用场景](#1.4 使用场景)
+- [1.5 简单例子](#1.5 简单例子)
+- [1.6 实例](#1.6 实例)
+- [二、请求](#二、请求)
+- [2.1 请求事件](#2.1 请求事件)
+- [2.2 默认状态码事件](#2.2 默认状态码事件)
+- [2.3 事件转换](#2.3 事件转换)
+- [2.4 请求头](#2.4 请求头)
+- [2.5 重试](#2.5 重试)
+- [2.6 请求上下文 Context](#2.6 请求上下文 Context)
+- [2.7 Context 的成员](#2.7 Context 的成员)
+- [三、请求使用](#三、请求使用)
+- [3.1 Get](#3.1 Get)
+- [3.2 Post](#3.2 Post)
+- [3.3 Put](#3.3 Put)
+- [3.4 Delete](#3.4 Delete)
+- [3.5 Options](#3.5 Options)
+- [3.6 Upload](#3.6 Upload)
+- [3.7 代理](#3.7 代理)
+- [3.8 Cookie](#3.8 Cookie)
+- [3.9 Header](#3.9 Header)
+- [3.10 Body](#3.10 Body)
+- [3.11 日志](#3.11 日志)
+- [3.12 参数](#3.12 参数)
+- [3.14 其他](#3.14 其他)
+- [四、常用方法](#四、常用方法)
+- [4.1 类型转换](#4.1 类型转换)
+- [4.2 字符串相关](#4.2 字符串相关)
+- [4.3 其他](#4.3 其他)
+- [4.4 字符转码,编码解码](#4.4 字符转码,编码解码)
+- [4.5 集合](#4.5 集合)
+- [4.6 栈](#4.6 栈)
+- [4.7 Map](#4.7 Map)
+- [4.8 固定顺序Map](#4.8 固定顺序Map)
+- [4.9 Slice](#4.9 Slice)
+- [4.10 时间相关方法](#4.10 时间相关方法)
+- [五、数据提取](#五、数据提取)
+- [5.1 正则](#5.1 正则)
+- [5.2 Html提取](#5.2 Html提取)
+- [5.3 Json提取](#5.3 Json提取)
+- [六、爬虫篇](#六、爬虫篇)
+- [6.1 例子](#6.1 例子)
+- [6.2 并发抓取](#6.2 并发抓取)
+- [6.3 并发抓取列子](#6.3 并发抓取列子)
+- [6.4 更多实例子](#6.4 更多实例子)
+- [七、Mysql存储篇](#七、Mysql存储篇)
+- [7.1 方法](#7.1 方法)
+- [7.2 实例](#7.2 实例)
+- [八、接口测试篇](#八、接口测试篇)
+- [九、加密解密篇](#九、加密解密篇)
+- [十、Redis篇](#十、Redis篇)
+- [10.1 连接](#10.1 连接)
+- [10.2 keys](#10.2 keys)
+- [10.3 string](#10.3 string)
+- [10.4 list](#10.4 list)
+- [10.5 hash](#10.5 hash)
+- [10.6 set](#10.6 set)
+- [10.7 zset](#10.7 zset)
+- [十一、消息队列](#十一、消息队列)
+- [11.1 接口](#11.1 接口)
+- [11.2 nsq](#11.2 nsq)
+- [11.3 RabbitMq](#11.3 RabbitMq)
+- [11.4 KafKa](#11.4 KafKa)
+- [11.5 redis](#11.5 redis)
+- [十二、Mongo篇](#十二、Mongo篇)
+- [十三、WebSocket篇](#十三、WebSocket篇)
+- [十四、TCP/UDP篇](#十四、TCP/UDP篇)
+- [十五、SSH篇](#十五、SSH篇)
+- [未完待续...](#未完待续...)
 
 ## 一、介绍
 
@@ -861,7 +934,7 @@ type Context struct {
 }
 ```
 
-## 三、 请求使用
+## 三、请求使用
 
 ### 3.1 Get
 
@@ -1078,7 +1151,7 @@ GetRespHeader 获取Response的Header
 
 ---
 
-### 3.12 Body & Log & Arg
+### 3.10 Body
 
 #### func (c *Context) RespBodyString() string
 RespBodyString 请求到的Body转换为string类型
@@ -1108,10 +1181,91 @@ CheckReqMd5 本次请求的md5值， url+reqBodyBytes+method
 CheckMd5 本次请求上下文包含输出结果的md5值
 
 ---
+
+### 3.11 日志
+
 #### func (c *Context) CloseLog()
 CloseLog 关闭日志打印
 
 ---
+#### func CloseLog()
+CloseLog 关闭日志
+
+---
+#### func SetLogFile(name string)
+SetLogFile 设置日志输出到的指定文件
+
+---
+#### func (l *logger) Log(level Level, args string, times int)
+Log 日志
+
+---
+#### func Info(args ...interface{})
+Info 日志-信息
+
+---
+#### func Infof(format string, args ...interface{})
+Infof 日志-信息 模板输出
+
+---
+#### func InfoTimes(times int, args ...interface{})
+InfoTimes 日志-信息, 指定日志代码位置的定位调用层级
+
+---
+#### func InfofTimes(format string, times int, args ...interface{})
+InfofTimes 日志-信息 模板输出, 指定日志代码位置的定位调用层级
+
+---
+#### func Debug(args ...interface{})
+Debug 日志-调试
+
+---
+#### func Debugf(format string, args ...interface{})
+Debugf 日志-调试 模板输出
+
+---
+#### func DebugTimes(times int, args ...interface{})
+DebugTimes 日志-调试, 指定日志代码位置的定位调用层级
+
+---
+#### func DebugfTimes(format string, times int, args ...interface{})
+DebugfTimes 日志-调试 模板输出, 指定日志代码位置的定位调用层级
+
+---
+#### func Warn(args ...interface{})
+Warn 日志-警告
+
+---
+#### func Warnf(format string, args ...interface{})
+Warnf 日志-警告 模板输出
+
+---
+#### func WarnTimes(times int, args ...interface{})
+WarnTimes 日志-警告, 指定日志代码位置的定位调用层级
+
+---
+#### func WarnfTimes(format string, times int, args ...interface{})
+WarnfTimes 日志-警告 模板输出, 指定日志代码位置的定位调用层级
+
+---
+#### func Error(args ...interface{})
+Error 日志-错误
+
+---
+#### func Errorf(format string, args ...interface{})
+Errorf 日志-错误 模板输出
+
+---
+#### func ErrorTimes(times int, args ...interface{})
+ErrorTimes 日志-错误, 指定日志代码位置的定位调用层级
+
+---
+#### func ErrorfTimes(format string, times int, args ...interface{})
+ErrorfTimes 日志-错误 模板输出, 指定日志代码位置的定位调用层级
+
+---
+### 3.12 参数
+
 #### func (c *Context) GetParam(key string) interface{}
 GetParam 获取上下文参数
 
@@ -1125,21 +1279,86 @@ DelParam 删除上下文参数
 
 ---
 
-3.11 其他
+### 3.13 进度条
 
-### func (c *Context) OpenErr2Retry()
+#### type Bar struct
+Bar 终端显示的进度条
+
+---
+#### func (bar *Bar) NewOption(start, total int64)
+
+---
+#### func (bar *Bar) NewOptionWithGraph(start, total int64, graph string)
+
+---
+#### func (bar *Bar) Play(cur int64)
+
+---
+#### func (bar *Bar) Finish()
+
+---
+#### 实例
+```
+// ToXls 数据库查询输出到excel
+func (m *Mysql) ToXls(sql, outPath string) {
+	data, err := m.Select(sql)
+	if err != nil {
+		Error(err)
+		return
+	}
+	if len(data) < 1 {
+		Error("查询数据为空")
+		return
+	}
+	f := excelize.NewFile()
+	count := len(data)
+	var bar Bar
+	bar.NewOption(0, int64(count-1))
+
+	fields := make([]string, 0)
+	n := 1
+	for k, _ := range data[0] {
+		fields = append(fields, k)
+		_ = f.SetCellValue("Sheet1", toNumberSystem26(n)+"1", k)
+		n++
+	}
+	// 写入数据
+	for i := 0; i < count; i++ {
+		n := 1
+		for _, v := range fields {
+			_ = f.SetCellValue("Sheet1", fmt.Sprintf("%s%d", toNumberSystem26(n), i+2), data[i][v])
+			n++
+		}
+		bar.Play(int64(i))
+	}
+	bar.Finish()
+
+	if err := f.SaveAs(outPath); err != nil {
+		Error("[err] 导出失败: ", err)
+		return
+	}
+	workPath, _ := os.Getwd()
+	Info("[导出成功] 文件位置: ", workPath+"/"+outPath)
+}
+```
+
+---
+
+### 3.14 其他
+
+#### func (c *Context) OpenErr2Retry()
 OpenErr2Retry 开启请求失败都执行retry
 
 ---
-### func (c *Context) CloseRetry()
+#### func (c *Context) CloseRetry()
 CloseRetry 关闭重试
 
 ---
-### func SearchPort(ipStr string, vs ...interface{})
+#### func SearchPort(ipStr string, vs ...interface{})
 SearchPort 扫描ip的端口
 
 ---
-### func Ping(ip string)
+#### func Ping(ip string)
 Ping ping IP
 
 ---
@@ -1295,7 +1514,6 @@ float64 -> uint64
 #### func Struct2Map(obj interface{}, hasValue bool) (map[string]interface{}, error)
 Struct  ->  map
 
-
 ### 4.2 字符串相关
 
 #### func MD5(str string) string
@@ -1315,7 +1533,7 @@ MD5
 
 ---
 
-## 4.3 其他
+### 4.3 其他
 
 #### func OSLine() string
 系统对应换行符
@@ -1544,7 +1762,6 @@ HZGB2312To
 
 ---
 
-
 ### 4.7 Map
 
 
@@ -1558,7 +1775,6 @@ map 深copy
 ---
 #### func Map2Slice(data interface{}) []interface{}
 Map2Slice Eg: {"K1": "v1", "K2": "v2"} => ["K1", "v1", "K2", "v2"]
-
 
 ### 4.8 固定顺序Map
 
@@ -1736,7 +1952,7 @@ ShuffleInt 洗牌
 
 ---
 
-## 4.10 时间相关方法
+### 4.10 时间相关方法
 
 #### func Timestamp() string
 时间戳
@@ -2794,7 +3010,7 @@ IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01
 
 ---
 
-### 4.2 Html提取
+### 5.2 Html提取
 
 #### func GetPointHTML(htmlStr, label, attr, val string) ([]string, error) 
 获取指定位置的HTML， 用标签， 标签属性， 属性值来定位
@@ -2815,7 +3031,7 @@ IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01
 #### func GetPointClassHTML(htmlStr, label, val string) ([]string, error)
 获取指定标签class属性的html
 
-### 4.3 Json提取
+### 5.3 Json提取
 
 #### func JsonFind(jsonStr, find string) (interface{}, error)
 JsonFind 按路径寻找指定json值
@@ -2926,15 +3142,14 @@ JsonFind2Arr 寻找json,输出 []interface{}
 #### func IsJson(str string) bool
 IsJson 是否是json格式
 
-## 五、爬虫篇
+## 六、爬虫篇
 
-## 爬虫篇
 现在各个数据源日益月薪，变化非常快，爬虫程序无法做到固定，对端源一变化爬虫程序就要跟着变，有时候与其在原有基础上迭代还不如重新编写。重新编写就会出现一个问题，这个问题就是时间成本增加，为了降低时间成本所以我编写并开源了gathertool。
 gathertool作为一款轻量级爬虫框架，其解决核心问题是提高编写爬虫程序效率降低时间成本。gathertool主要使用请求部分+提取部分+数据处理部分+存储部分作为爬虫框架的方法集，使用者可以根据具体业务进行灵活使用，下面先通过一个例子来介绍：
 
 ---
 
-### 5.1 例子
+### 6.1 例子
 已抓取 http://ip.bczs.net/country/CN ，将页面内容保存到数据为例
 ```
 import gt "github.com/mangenotwork/gathertool"
@@ -2967,7 +3182,7 @@ func main(){
 
 ---
 
-### 5.2 并发抓取
+### 6.2 并发抓取
 gathertool的请求对象是独立的实例，这样做的目的也是为了并发请求时都是独立的，不使用重复对象; gathertool的并发抓取采用本地队列+任务对象;下面将具体介绍:
 
 
@@ -3097,7 +3312,7 @@ type Task struct {
 
 ---
 
-### 5.3 并发抓取列子
+### 6.3 并发抓取列子
 已抓取 http://ip.bczs.net/country/CN ，并发抓取每个ip的二级页面数据并存入数据库
 ```
 var (
@@ -3206,7 +3421,7 @@ func GetIPFailed(c *gt.Context){
 
 ---
 
-### 5.4 更多实例子  [见](https://github.com/mangenotwork/gathertool/tree/main/_examples/) 
+### 6.4 更多实例子  [见](https://github.com/mangenotwork/gathertool/tree/main/_examples/) 
 -  [阳光高考招生章程抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/get_yggk)
 -  [ip地址信息抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/ip_bczs_cn)
 -  [文件下载](https://github.com/mangenotwork/gathertool/tree/main/_examples/upload_file)
@@ -3214,49 +3429,10 @@ func GetIPFailed(c *gt.Context){
 -  [百度题库抓取](https://github.com/mangenotwork/gathertool/tree/main/_examples/baidu_tk)
 - ...
 
-
-## 六、Mysql存储篇
+## 七、Mysql存储篇
 gathertool 基于 "github.com/go-sql-driver/mysql" + "database/sql" 封装了数据操作的方法；
 
-### 6.1 例子
-```
-// =========================== 数据库初始化
-var (
-	host2   = "192.168.0.2"
-	host3   = "192.168.0.3"
-	port    = 3306
-	user2      = "root"
-	password2  = "root123"
-    user3      = "root3"
-	password3  = "root333"
-
-	db1  = "db1"
-	DB1,_ = gt.NewMysql(host2, port, user2, password2, db1)
-
-	db2  = "db2"
-	DB2,_ = gt.NewMysql(host2, port, user2, password2, db2)
-
-        db3  = "db3"
-	DB3,_ = gt.NewMysql(host3, port, user3, password3, db3)
-
-)
-
-// 不存在表table1 存入json key为字段，value为值， 非固定顺序字段
-jsonStr := `{"a":"a","b":"b"}`
-db1.InsertAtJson("table1", jsonStr)
-
-// 不存在表table2 存入非固定顺序字段的数据(map是无序的)
-data1 := map[string]interface{}{"a":"a", "b":1}
-db2.InsertAt("table2", data1)
-
-// 不存在表table3 存入固定顺序字段的数据  (a,b)
-gd := gt.NewGDMap().Add("a", 1).Add("b", 2)
-db3.InsertAt("table3", gd)
-
-// 存在表table2 存入数据
-db2.Insert("table2", data1)
-......
-```
+### 7.1 方法
 
 #### var MysqlDB
 全局mysql客户端对象
@@ -3373,7 +3549,51 @@ Delete
 db.ToXls("selecr * from tabe1", "table1.xls")
 ```
 
-## 七、接口测试篇
+---
+
+### 7.2 实例
+```
+// =========================== 数据库初始化
+var (
+	host2   = "192.168.0.2"
+	host3   = "192.168.0.3"
+	port    = 3306
+	user2      = "root"
+	password2  = "root123"
+    user3      = "root3"
+	password3  = "root333"
+
+	db1  = "db1"
+	DB1,_ = gt.NewMysql(host2, port, user2, password2, db1)
+
+	db2  = "db2"
+	DB2,_ = gt.NewMysql(host2, port, user2, password2, db2)
+
+        db3  = "db3"
+	DB3,_ = gt.NewMysql(host3, port, user3, password3, db3)
+
+)
+
+// 不存在表table1 存入json key为字段，value为值， 非固定顺序字段
+jsonStr := `{"a":"a","b":"b"}`
+db1.InsertAtJson("table1", jsonStr)
+
+// 不存在表table2 存入非固定顺序字段的数据(map是无序的)
+data1 := map[string]interface{}{"a":"a", "b":1}
+db2.InsertAt("table2", data1)
+
+// 不存在表table3 存入固定顺序字段的数据  (a,b)
+gd := gt.NewGDMap().Add("a", 1).Add("b", 2)
+db3.InsertAt("table3", gd)
+
+// 存在表table2 存入数据
+db2.Insert("table2", data1)
+......
+```
+
+---
+
+## 八、接口测试篇
 
 gathertool可以用于接口测试和压力测试，极大的提升了测试编码效率。
 
@@ -3555,7 +3775,7 @@ func nppComment() {
 
 ---
 
-## 八、加密解密篇
+## 九、加密解密篇
 
 加密解码相关封装方法
 
@@ -3678,10 +3898,10 @@ Jwt Decrypt
 
 ---
 
-## 九、Redis篇
+## 十、Redis篇
 gathertool的redis方法是基于"github.com/garyburd/redigo/redis"再次封装的,再加上了ssh连接通道，实现了对云端redis的连接; 主要常用如：快速删除大量指定key等。
 
-### 9.1 连接
+### 10.1 连接
 
 #### type Rds struct
 
@@ -3752,19 +3972,1175 @@ rds := gt.NewRedisPool(redis_host, redis_port, redis_password, dbnumber, 5, 10, 
 	gt.RedisDELKeys(rds, "user:*", 500)
 ```
 
-### 9.2 keys
+---
+#### func (r *Rds) MqProducer(mqName string, data interface{}) error
+Redis消息队列生产方
 
-### 9.3 string
+---
+#### func (r *Rds) MqConsumer(mqName string) (reply interface{}, err error)
+Redis消息队列消费方
 
-### 9.4 list
+---
+#### func (r *Rds) MqLen(mqName string) int64
+Redis消息队列消息数量
 
-### 9.5 hash
+---
+#### func (r *Rds) ToString(reply interface{}, err error) (string, error)
+Redis数据转为 string
 
-### 9.6 set
+---
+#### func (r *Rds) ToInt(reply interface{}, err error) (int, error)
+Redis数据转为 int
 
-### 9.7 zset
+---
+#### func (r *Rds) ToInt64(reply interface{}, err error) (int64, error)
+Redis数据转为 int64
 
-## 十、
+---
+#### func (r *Rds) ToBool(reply interface{}, err error) (bool, error)
+Redis数据转为 bool
+
+---
+#### func (r *Rds) ToBytes(reply interface{}, err error) ([]byte, error)
+Redis数据转为 []byte
+
+---
+#### func (r *Rds) ToByteSlices(reply interface{}, err error) ([][]byte, error)
+Redis数据转为 [][]byte
+
+---
+#### func (r *Rds) ToFloat64(reply interface{}, err error) (float64, error)
+Redis数据转为 float64
+
+---
+#### func (r *Rds) ToFloat64s(reply interface{}, err error) ([]float64, error)
+Redis数据转为 []float64
+
+---
+#### func (r *Rds) ToInt64Map(reply interface{}, err error) (map[string]int64, error)
+Redis数据转为 map[string]int64
+
+---
+#### func (r *Rds) ToInt64s(reply interface{}, err error) ([]int64, error)
+Redis数据转为 []int64
+
+---
+#### func (r *Rds) ToIntMap(reply interface{}, err error) (map[string]int, error)
+Redis数据转为 map[string]int
+
+---
+#### func (r *Rds) ToInts(reply interface{}, err error) ([]int, error)
+Redis数据转为 []int
+
+---
+#### func (r *Rds) ToStringMap(reply interface{}, err error) (map[string]string, error)
+Redis数据转为 map[string]string
+
+---
+#### func (r *Rds) ToStrings(reply interface{}, err error) ([]string, error)
+Redis数据转为 []string
+
+---
+
+### 10.2 keys
+
+#### func (c *RedisClient) GetALLKeys(match string) (ksyList map[string]int)
+GetALLKeys 获取所有的key
+
+---
+#### func (r *Rds) SearchKeys(match string) (ksyList map[string]int)
+SearchKeys  搜索key
+
+---
+#### func (r *Rds) Type(key string) string
+Type 获取key的类型
+
+---
+#### func (r *Rds) Ttl(key string) int64
+Ttl 获取key的过期时间
+
+---
+#### func (r *Rds) DUMP(key string) bool
+DUMP 检查给定 key 是否存在。
+
+---
+#### func (r *Rds) Rename(name, newName string) bool
+Rename 修改key名称
+
+---
+#### func (r *Rds) Expire(key string, ttl int64) bool
+Expire 更新key ttl
+
+---
+#### func (r *Rds) ExpireAt(key string, date int64) bool
+ExpireAt 指定key多久过期 接收的是unix时间戳
+
+---
+#### func (r *Rds) DelKey(key string) bool
+DelKey 删除key
+
+---
+
+### 10.3 string
+
+#### func (r *Rds) Get(key string) (string, error)
+Get GET 获取String value
+
+---
+#### func (r *Rds) Set(key string, value interface{}) error
+Set SET 新建String
+
+---
+#### func (r *Rds) SetEx(key string, ttl int64, value interface{}) error
+SetEx SETEX 新建String 含有时间
+
+---
+#### func (r *Rds) PSetEx(key string, ttl int64, value interface{}) error
+PSetEx PSETEX key milliseconds value
+
+这个命令和 SETEX 命令相似，但它以毫秒为单位设置 key 的生存时间，而不是像 SETEX 命令那样，以秒为单位。
+
+---
+#### func (r *Rds) SetNx(key string, value interface{}) error
+SetNx key value
+
+将 key 的值设为 value ，当且仅当 key 不存在。
+
+若给定的 key 已经存在，则 SETNX 不做任何动作。
+
+---
+#### func (r *Rds) SetRange(key string, offset int64, value interface{}) error
+SetRange SETRANGE key offset value
+
+用 value 参数覆写(overwrite)给定 key 所储存的字符串值，从偏移量 offset 开始。
+
+不存在的 key 当作空白字符串处理。
+
+---
+#### func (r *Rds) Append(key string, value interface{}) error
+Append APPEND key value
+
+如果 key 已经存在并且是一个字符串， APPEND 命令将 value 追加到 key 原来的值的末尾。
+
+如果 key 不存在， APPEND 就简单地将给定 key 设为 value ，就像执行 SET key value 一样。
+
+---
+#### func (r *Rds) Decr(key string) (int64, error)
+Decr key
+
+将 key 中储存的数字值减一。
+
+如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 DECR 操作。
+
+如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。
+
+---
+#### func (r *Rds) DecrBy(key, decrement string) (int64, error)
+DecrBy DECRBY key decrement
+
+将 key 所储存的值减去减量 decrement 。
+
+---
+#### func (r *Rds) GetRange(key string, start, end int64) (string, error)
+GetRange GETRANGE key start end
+
+返回 key 中字符串值的子字符串，字符串的截取范围由 start 和 end 两个偏移量决定(包括 start 和 end 在内)。
+
+---
+#### func (r *Rds) GetSet(key string, value interface{}) (string, error)
+GetSet GETSET key value
+
+将给定 key 的值设为 value ，并返回 key 的旧值(old value)。
+
+当 key 存在但不是字符串类型时，返回一个错误。
+
+---
+#### func (r *Rds) Incr(key string) (int64, error)
+Incr INCR key
+
+将 key 中储存的数字值增一。
+
+如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCR 操作。
+
+如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。
+
+---
+#### func (r *Rds) IncrBy(key, increment string) (int64, error)
+IncrBy INCRBY key increment
+
+将 key 所储存的值加上增量 increment 。
+
+---
+#### func (r *Rds) IncrByFloat(key, increment float64) (float64, error)
+IncrByFloat INCRBYFLOAT key increment
+
+为 key 中所储存的值加上浮点数增量 increment 。
+
+---
+#### func (r *Rds) MGet(key []interface{}) ([]string, error
+MGet MGET key [key ...]
+
+返回所有(一个或多个)给定 key 的值。
+
+如果给定的 key 里面，有某个 key 不存在，那么这个 key 返回特殊值 nil 。因此，该命令永不失败。
+
+---
+#### func (r *Rds) MSet(values []interface{}) error
+MSet MSET key value [key value ...]
+
+同时设置一个或多个 key-value 对。
+
+如果某个给定 key 已经存在，那么 MSET 会用新值覆盖原来的旧值，如果这不是你所希望的效果，
+
+请考虑使用 MSETNX 命令：它只会在所有给定 key 都不存在的情况下进行设置操作。
+
+MSET 是一个原子性(atomic)操作，所有给定 key 都会在同一时间内被设置，某些给定 key 被更新而另一些给定 key 没有改变的情况，不可能发生。
+
+---
+#### func (r *Rds) MSetNx(values []interface{}) error
+MSetNx MSETNX key value [key value ...]
+
+同时设置一个或多个 key-value 对，当且仅当所有给定 key 都不存在。
+
+即使只有一个给定 key 已存在， MSETNX 也会拒绝执行所有给定 key 的设置操作。
+
+MSETNX 是原子性的，因此它可以用作设置多个不同 key 表示不同字段(field)的唯一性逻辑对象(unique logic object)，
+
+所有字段要么全被设置，要么全不被设置。
+
+---
+
+### 10.4 list
+
+#### func (r *Rds) LRange(key string) ([]interface{}, error)
+LRange LRANGE 获取List value
+
+---
+#### func (r *Rds) LRangeST(key string, start, stop int64) ([]interface{}, error)
+LRangeST LRANGE key start stop
+
+返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定。
+
+---
+#### func (r *Rds) LPush(key string, values []interface{}) error
+LPush LPUSH 新创建list 将一个或多个值 value 插入到列表 key 的表头
+
+---
+#### func (r *Rds) RPush(key string, values []interface{}) error
+RPush RPUSH key value [value ...]
+
+将一个或多个值 value 插入到列表 key 的表尾(最右边)。
+
+如果有多个 value 值，那么各个 value 值按从左到右的顺序依次插入到表尾：比如对一个空列表 mylist 执行
+
+RPUSH mylist a b c ，得出的结果列表为 a b c ，等同于执行命令 RPUSH mylist a 、 RPUSH mylist b 、 RPUSH mylist c 。
+
+新创建List  将一个或多个值 value 插入到列表 key 的表尾(最右边)。
+
+---
+#### func (r *Rds) LIndex(key string, index int64) (string, error)
+LIndex LINDEX key index
+
+返回列表 key 中，下标为 index 的元素。
+
+---
+#### func (r *Rds) LInsert(direction bool, key, pivot, value string) error
+LInsert LINSERT key BEFORE|AFTER pivot value
+
+将值 value 插入到列表 key 当中，位于值 pivot 之前或之后。
+
+当 pivot 不存在于列表 key 时，不执行任何操作。
+
+当 key 不存在时， key 被视为空列表，不执行任何操作。
+
+如果 key 不是列表类型，返回一个错误。
+
+direction : 方向 bool true:BEFORE(前)    false: AFTER(后)
+
+---
+#### func (r *Rds) LLen(key string) (int64, error)
+LLen LLEN key
+
+返回列表 key 的长度。
+
+如果 key 不存在，则 key 被解释为一个空列表，返回 0 .
+
+---
+#### func (r *Rds) ListLPOP(key string) (string, error)
+ListLPOP LPOP key
+
+移除并返回列表 key 的头元素。
+
+---
+#### func (r *Rds) LPusHx(key string, value interface{}) error
+LPusHx LPUSHX key value
+
+将值 value 插入到列表 key 的表头，当且仅当 key 存在并且是一个列表。
+
+和 LPUSH 命令相反，当 key 不存在时， LPUSHX 命令什么也不做。
+
+---
+#### func (r *Rds) LRem(key string, count int64, value interface{}) error
+LRem LREM key count value
+
+根据参数 count 的值，移除列表中与参数 value 相等的元素。
+
+count 的值可以是以下几种：
+
+count > 0 : 从表头开始向表尾搜索，移除与 value 相等的元素，数量为 count 。
+
+count < 0 : 从表尾开始向表头搜索，移除与 value 相等的元素，数量为 count 的绝对值。
+
+count = 0 : 移除表中所有与 value 相等的值。
+
+---
+#### func (r *Rds) LSet(key string, index int64, value interface{}) error
+LSet LSET key index value
+
+将列表 key 下标为 index 的元素的值设置为 value 。
+
+当 index 参数超出范围，或对一个空列表( key 不存在)进行 LSET 时，返回一个错误。
+
+---
+#### func (r *Rds) LTrim(key string, start, stop int64) error
+LTrim LTRIM key start stop
+
+对一个列表进行修剪(trim)，就是说，让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除。
+
+举个例子，执行命令 LTRIM list 0 2 ，表示只保留列表 list 的前三个元素，其余元素全部删除。
+
+---
+#### func (r *Rds) RPop(key string) (string, error)
+RPop RPOP key
+
+移除并返回列表 key 的尾元素。
+
+---
+#### func (r *Rds) RPopLPush(key, destination string) (string, error)
+RPopLPush RPOPLPUSH source destination
+
+命令 RPOPLPUSH 在一个原子时间内，执行以下两个动作：
+
+将列表 source 中的最后一个元素(尾元素)弹出，并返回给客户端。
+
+将 source 弹出的元素插入到列表 destination ，作为 destination 列表的的头元素。
+
+举个例子，你有两个列表 source 和 destination ， source 列表有元素 a, b, c ， destination
+
+列表有元素 x, y, z ，执行 RPOPLPUSH source destination 之后， source 列表包含元素 a, b ，
+
+destination 列表包含元素 c, x, y, z ，并且元素 c 会被返回给客户端。
+
+如果 source 不存在，值 nil 被返回，并且不执行其他动作。
+
+如果 source 和 destination 相同，则列表中的表尾元素被移动到表头，并返回该元素，可以把这种特殊情况视作列表的旋转(rotation)操作。
+
+---
+#### func (r *Rds) RPushX(key string, value interface{}) error
+RPushX RPUSHX key value
+
+将值 value 插入到列表 key 的表尾，当且仅当 key 存在并且是一个列表。
+
+---
+
+### 10.5 hash
+
+#### func (r *Rds) HGetAll(key string) (map[string]string, error)
+HGetAll HGETALL 获取Hash value
+
+---
+#### func (r *Rds) HGetAllInt(key string) (map[string]int, error)
+HGetAllInt HGETALL 获取Hash value
+
+---
+#### func (r *Rds) HGetAllInt64(key string) (map[string]int64, error)
+HGetAllInt64 HGETALL 获取Hash value
+
+---
+#### func (r *Rds) HSet(key, field string, value interface{}) (int64, error)
+HSet HSET 新建Hash 单个field
+
+如果 key 不存在，一个新的哈希表被创建并进行 HSET 操作。
+
+如果域 field 已经存在于哈希表中，旧值将被覆盖。
+
+---
+#### func (r *Rds) HMSet(key string, values map[interface{}]interface{}) error
+HMSet HMSET 新建Hash 多个field
+
+HMSET key field value [field value ...]
+
+同时将多个 field-value (域-值)对设置到哈希表 key 中。
+
+此命令会覆盖哈希表中已存在的域。
+
+---
+#### func (r *Rds) HSetNx(key, field string, value interface{}) error
+HSetNx HSETNX key field value
+
+给hash追加field value
+
+将哈希表 key 中的域 field 的值设置为 value ，当且仅当域 field 不存在。
+
+---
+#### func (r *Rds) HDel(key string, fields []string) error
+HDel HDEL key field [field ...] 删除哈希表
+
+key 中的一个或多个指定域，不存在的域将被忽略。
+
+---
+#### func (r *Rds) HExIsTs(key, fields string) bool
+HExIsTs HEXISTS key field 查看哈希表
+
+key 中，给定域 field 是否存在。
+
+---
+#### func (r *Rds) HGet(key, fields string) (string, error)
+HGet HGET key field 返回哈希表
+
+key 中给定域 field 的值。
+
+---
+#### func (r *Rds) HIncrBy(key, field string, increment int64) (int64, error)
+HIncrBy HINCRBY key field increment
+
+为哈希表 key 中的域 field 的值加上增量 increment 。
+
+增量也可以为负数，相当于对给定域进行减法操作。
+
+如果 key 不存在，一个新的哈希表被创建并执行 HINCRBY 命令。
+
+如果域 field 不存在，那么在执行命令前，域的值被初始化为 0
+
+---
+#### func (r *Rds) HIncrByFloat(key, field string, increment float64) (float64, error)
+HIncrByFloat HINCRBYFLOAT key field increment
+
+为哈希表 key 中的域 field 加上浮点数增量 increment 。
+
+如果哈希表中没有域 field ，那么 HINCRBYFLOAT 会先将域 field 的值设为 0 ，然后再执行加法操作。
+
+如果键 key 不存在，那么 HINCRBYFLOAT 会先创建一个哈希表，再创建域 field ，最后再执行加法操作。
+
+---
+#### func (r *Rds) HKeys(key string) ([]string, error)
+HKeys HKEYS key 返回哈希表
+
+key 中的所有域。
+
+---
+#### func (r *Rds) HLen(key string) (int64, error)
+HLen HLEN key 返回哈希表
+
+key 中域的数量。
+
+---
+#### func (r *Rds) HMGet(key string, fields []string) ([]string, error)
+HMGet HMGET key field [field ...]
+
+返回哈希表 key 中，一个或多个给定域的值。
+
+如果给定的域不存在于哈希表，那么返回一个 nil 值。
+
+---
+#### func (r *Rds) HVaLs(key string) ([]string, error)
+HVaLs HVALS key
+
+返回哈希表 key 中所有域的值。
+
+---
+
+### 10.6 set
+
+#### func (r *Rds) SMemeRs(key string) ([]interface{}, error)
+SMemeRs SMEMBERS key
+
+返回集合 key 中的所有成员。
+
+获取Set value 返回集合 key 中的所有成员。
+
+---
+#### func (r *Rds) SAdd(key string, values []interface{}) error
+SAdd SADD 新创建Set  将一个或多个 member 元素加入到集合 key 当中，已经存在于集合的 member 元素将被忽略。
+
+---
+#### func (r *Rds) SCard(key string) error
+SCard SCARD key
+
+返回集合 key 的基数(集合中元素的数量)。
+
+---
+#### func (r *Rds) SDiff(keys []string) ([]interface{}, error)
+SDiff SDIFF key [key ...]
+
+返回一个集合的全部成员，该集合是所有给定集合之间的差集。
+
+不存在的 key 被视为空集。
+
+---
+#### func (r *Rds) SDiffStore(key string, keys []string) ([]interface{}, error)
+SDiffStore SDIFFSTORE destination key [key ...]
+
+这个命令的作用和 SDIFF 类似，但它将结果保存到 destination 集合，而不是简单地返回结果集。
+
+如果 destination 集合已经存在，则将其覆盖。
+
+destination 可以是 key 本身。
+
+---
+#### func (r *Rds) SInter(keys []string) ([]interface{}, error)
+SInter SINTER key [key ...]
+
+返回一个集合的全部成员，该集合是所有给定集合的交集。
+
+不存在的 key 被视为空集。
+
+---
+#### func (r *Rds) SInterStore(key string, keys []string) ([]interface{}, error)
+SInterStore SINTERSTORE destination key [key ...]
+
+这个命令类似于 SINTER 命令，但它将结果保存到 destination 集合，而不是简单地返回结果集。
+
+如果 destination 集合已经存在，则将其覆盖。
+
+destination 可以是 key 本身。
+
+---
+#### func (r *Rds) SIsMember(key string, value interface{}) (resBool bool, err error)
+SIsMember SISMEMBER key member
+
+判断 member 元素是否集合 key 的成员。
+
+返回值:
+
+如果 member 元素是集合的成员，返回 1 。
+
+如果 member 元素不是集合的成员，或 key 不存在，返回 0 。
+
+---
+#### func (r *Rds) SMove(key, destination string, member interface{}) (resBool bool, err error)
+SMove SMOVE source destination member
+
+将 member 元素从 source 集合移动到 destination 集合。
+
+SMOVE 是原子性操作。
+
+如果 source 集合不存在或不包含指定的 member 元素，则 SMOVE 命令不执行任何操作，仅返回 0 。否则，
+
+member 元素从 source 集合中被移除，并添加到 destination 集合中去。
+
+当 destination 集合已经包含 member 元素时， SMOVE 命令只是简单地将 source 集合中的 member 元素删除。
+
+当 source 或 destination 不是集合类型时，返回一个错误。
+
+返回值: 成功移除，返回 1 。失败0
+
+---
+#### func (r *Rds) SPop(key string) (string, error)
+SPop SPOP key
+
+移除并返回集合中的一个随机元素。
+
+---
+#### func (r *Rds) SRandMember(key string, count int64) ([]interface{}, error)
+SRandMember SRANDMEMBER key [count]
+
+如果命令执行时，只提供了 key 参数，那么返回集合中的一个随机元素。
+
+如果 count 为正数，且小于集合基数，那么命令返回一个包含 count 个元素的数组，数组中的元素各不相同。
+
+如果 count 大于等于集合基数，那么返回整个集合。
+
+如果 count 为负数，那么命令返回一个数组，数组中的元素可能会重复出现多次，而数组的长度为 count 的绝对值。
+
+---
+#### func (r *Rds) SRem(key string, member []interface{}) error
+SRem SREM key member [member ...]
+
+移除集合 key 中的一个或多个 member 元素，不存在的 member 元素会被忽略。
+
+---
+#### func (r *Rds) SUnion(keys []string) ([]interface{}, error)
+SUnion SUNION key [key ...]
+
+返回一个集合的全部成员，该集合是所有给定集合的并集。
+
+---
+#### func (r *Rds) SUnionStore(key string, keys []string) ([]interface{}, error)
+SUnionStore SUNIONSTORE destination key [key ...]
+
+这个命令类似于 SUNION 命令，但它将结果保存到 destination 集合，而不是简单地返回结果集。
+
+---
+
+### 10.7 zset
+
+#### func (r *Rds) ZRange(key string) ([]interface{}, error)
+ZRange ZRANGE 获取ZSet value 返回集合 有序集成员的列表。
+
+---
+#### func (r *Rds) ZRangeST(key string, start, stop int64) ([]interface{}, error)
+ZRangeST ZRANGE key start stop [WITHSCORES]
+
+返回有序集 key 中，指定区间内的成员。
+
+其中成员的位置按 score 值递增(从小到大)来排序。
+
+---
+#### func (r *Rds) ZRevRange(key string, start, stop int64) ([]interface{}, error)
+ZRevRange ZREVRANGE key start stop [WITHSCORES]
+
+返回有序集 key 中，指定区间内的成员。
+
+其中成员的位置按 score 值递减(从大到小)来排列。
+
+具有相同 score 值的成员按字典序的逆序(reverse lexicographical order)排列。
+
+---
+#### func (r *Rds) ZAdd(key string, values []interface{}) error
+ZAdd ZADD 新创建ZSet 将一个或多个 member 元素及其 score 值加入到有序集 key 当中。
+
+---
+#### func (r *Rds) ZCard(key string) (int64, error)
+ZCard ZCARD key
+
+返回有序集 key 的基数。
+
+---
+#### func (r *Rds) ZCount(key string, min, max int64) (int64, error)
+ZCount ZCOUNT key min max
+
+返回有序集 key 中， score 值在 min 和 max 之间(默认包括 score 值等于 min 或 max )的成员的数量。
+
+---
+#### func (r *Rds) ZIncrBy(key, member string, increment int64) (string, error)
+ZIncrBy ZINCRBY key increment member
+
+为有序集 key 的成员 member 的 score 值加上增量 increment 。
+
+可以通过传递一个负数值 increment ，让 score 减去相应的值，比如 ZINCRBY key -5 member ，就是让 member 的 score 值减去 5 。
+
+当 key 不存在，或 member 不是 key 的成员时， ZINCRBY key increment member 等同于 ZADD key increment member 。
+
+---
+#### func (r *Rds) ZRangeByScore(key string, min, max, offset, count int64) ([]interface{}, error)
+ZRangeByScore ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]
+
+返回有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。有序集成员按 score 值递增(从小到大)次序排列。
+
+具有相同 score 值的成员按字典序(lexicographical order)来排列(该属性是有序集提供的，不需要额外的计算)。
+
+可选的 LIMIT 参数指定返回结果的数量及区间(就像SQL中的 SELECT LIMIT offset, count )，注意当 offset 很大时，
+
+定位 offset 的操作可能需要遍历整个有序集，此过程最坏复杂度为 O(N) 时间。
+
+可选的 WITHSCORES 参数决定结果集是单单返回有序集的成员，还是将有序集成员及其 score 值一起返回。
+
+区间及无限 min 和 max 可以是 -inf 和 +inf ，这样一来，你就可以在不知道有序集的最低和最高 score 值的情况下，使用 ZRANGEBYSCORE 这类命令。
+
+默认情况下，区间的取值使用闭区间 (小于等于或大于等于)，你也可以通过给参数前增加 ( 符号来使用可选的开区间 (小于或大于)。
+
+---
+#### func (r *Rds) ZRangeByScoreAll(key string) ([]interface{}, error)
+ZRangeByScoreAll 获取所有
+
+---
+#### func (r *Rds) ZRevRangeByScore(key string, min, max, offset, count int64) ([]interface{}, error)
+ZRevRangeByScore key max min [WITHSCORES] [LIMIT offset count]
+
+返回有序集 key 中， score 值介于 max 和 min 之间(默认包括等于 max 或 min )的所有的成员。有序集成员按 score 值递减(从大到小)的次序排列。
+
+具有相同 score 值的成员按字典序的逆序(reverse lexicographical order )排列。
+
+---
+#### func (r *Rds) ZRevRangeByScoreAll(key string) ([]interface{}, error)
+ZRevRangeByScoreAll 获取所有
+
+---
+#### func (r *Rds) ZRank(key string, member interface{}) (int64, error)
+ZRank ZRANK key member
+
+返回有序集 key 中成员 member 的排名。其中有序集成员按 score 值递增(从小到大)顺序排列。
+
+排名以 0 为底，也就是说， score 值最小的成员排名为 0 。
+
+---
+#### func (r *Rds) ZRem(key string, member []interface{}) error
+ZRem ZREM key member [member ...]
+
+移除有序集 key 中的一个或多个成员，不存在的成员将被忽略。
+
+---
+#### func (r *Rds) ZRemRangeByRank(key string, start, stop int64) error
+ZRemRangeByRank ZREMRANGEBYRANK key start stop
+
+移除有序集 key 中，指定排名(rank)区间内的所有成员。
+
+区间分别以下标参数 start 和 stop 指出，包含 start 和 stop 在内。
+
+---
+#### func (r *Rds) ZRemRangeByScore(key string, min, max int64) error
+ZRemRangeByScore ZREMRANGEBYSCORE key min max
+
+移除有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。
+
+---
+#### func (r *Rds) ZRevRank(key string, member interface{}) (int64, error)
+ZRevRank ZREVRANK key member
+
+返回有序集 key 中成员 member 的排名。其中有序集成员按 score 值递减(从大到小)排序。
+
+排名以 0 为底，也就是说， score 值最大的成员排名为 0 。
+
+使用 ZRANK 命令可以获得成员按 score 值递增(从小到大)排列的排名。
+
+---
+#### func (r *Rds) ZScore(key string, member interface{}) (string, error)
+ZScore ZSCORE key member
+
+返回有序集 key 中，成员 member 的 score
+
+---
+
+## 十一、消息队列
+
+### 11.1 接口
+```
+// MQer 消息队列接口
+type MQer interface {
+	Producer(topic string, data []byte)
+	Consumer(topic string) []byte
+}
+```
+
+---
+
+### 11.2 nsq
+
+#### func NewNsq(server string, port ...int) MQer
+NewNsq port 依次是 ProducerPort, ConsumerPort
+
+---
+#### func (m *MQNsqService) Producer(topic string, data []byte)
+Producer 生产者
+
+---
+#### func (m *MQNsqService) Consumer(topic string) []byte
+Consumer 消费者
+
+---
+#### 实例
+```go
+func NsqProducer() {
+	mq := gt.NewNsq("127.0.0.1")
+	topic := "test"
+	data := []byte("data")
+	mq.Producer(topic, data)
+}
+
+func NsqConsumer() {
+	topic := "test"
+	mq := gt.NewNsq("127.0.0.1")
+	for {
+		data := mq.Consumer(topic)
+		gt.Info(string(data))
+	}
+
+}
+```
+
+---
+
+### 11.3 RabbitMq
+
+#### func NewRabbit(amqpUrl string) MQer
+
+---
+#### func (m *MQNsqService) Producer(topic string, data []byte)
+Producer 生产者
+
+---
+#### func (m *MQNsqService) Consumer(topic string) []byte
+Consumer 消费者
+
+---
+#### 实例
+```
+func RabbitProducer() {
+	mq := gt.NewRabbit("amqp://admin:123456@127.0.0.1:5672")
+	topic := "test"
+	data := []byte("data")
+	mq.Producer(topic, data)
+}
+
+func RabbitConsumer() {
+	topic := "test"
+	mq := gt.NewRabbit("amqp://admin:123456@127.0.0.1:5672")
+	data := mq.Consumer(topic)
+	gt.Info(string(data))
+}
+```
+
+----
+
+### 11.4 KafKa
+
+#### func NewKafka(server []string) MQer
+
+---
+#### func (m *MQNsqService) Producer(topic string, data []byte)
+Producer 生产者
+
+---
+#### func (m *MQNsqService) Consumer(topic string) []byte
+Consumer 消费者
+
+---
+#### 实例
+```go
+func KafkaProducer() {
+	mq := gt.NewKafka([]string{"192.168.4.12:9092"})
+	topic := "test"
+	data := []byte("data")
+	mq.Producer(topic, data)
+}
+
+func KafkaConsumer() {
+	topic := "test"
+	mq := gt.NewKafka([]string{"192.168.4.12:9092"})
+	data := mq.Consumer(topic)
+	gt.Info(string(data))
+}
+```
+---
+
+### 11.5 redis
+
+#### func (r *Rds) MqProducer(mqName string, data interface{}) error
+MqProducer Redis消息队列生产方
+
+---
+#### func (r *Rds) MqConsumer(mqName string) (reply interface{}, err error)
+MqConsumer Redis消息队列消费方
+
+----
+#### func (r *Rds) MqLen(mqName string) int64
+MqLen Redis消息队列消息数量
+
+---
+
+## 十二、Mongo篇
+
+gathertool的mongo方法是基于”go.mongodb.org/mongo-driver”再次封装
+
+#### type Mongo struct
+
+```
+type Mongo struct {
+	User string
+	Password string
+	Host string
+	Port string
+	Conn *mongo.Client
+	Database *mongo.Database
+	Collection *mongo.Collection
+	MaxPoolSize int
+	TimeOut time.Duration
+}
+```
+
+---
+#### func NewMongo(user, password, host, port string) (*Mongo, error)
+实例化mongo对象
+
+---
+#### func (m *Mongo) GetConn() (err error)
+建立mongodb 连接
+
+---
+#### func (m *Mongo) GetDB(dbname string)
+连接mongodb 的db
+
+---
+#### func (m *Mongo) GetCollection(dbname, name string)
+连接mongodb 的db的集合
+
+---
+#### func (m *Mongo) Insert(document interface{}) error
+插入数据
+
+---
+
+#### TODO....
+
+---
+
+## 十三、WebSocket篇
+websocket的连接, 模拟websocket客户端;
+
+#### type WSClient interface
+
+```
+type WSClient interface {
+	Send(body []byte) error
+	Read(data []byte) error
+	Close()
+}
+```
+
+---
+#### func WsClient(host, path string, isSSL bool) (WSClient, error)
+新建ws客户端
+
+---
+#### func (c \*webSocketClient) Send(body []byte) error
+发送数据
+
+---
+#### func (c \*webSocketClient) Close()
+关闭连接
+
+---
+#### func (c \*webSocketClient) Read(data []byte) error
+读取数据
+
+---
+
+## 十四、TCP/UDP篇
+
+Tcp的连接 (Tcp客户端); 应用场景是模拟Tcp客户端;
+
+Udp的连接 (Udp客户端); 应用场景是模拟Udp客户端;
+
+
+#### type TcpClient struct
+
+```
+type TcpClient struct {
+	Connection *net.TCPConn
+	HawkServer *net.TCPAddr
+	StopChan   chan struct{}
+	CmdChan chan string
+	Token string
+	RConn chan struct{}
+}
+```
+
+---
+#### func NewTcpClient() *TcpClient
+实例化Tcp Client 对象
+
+---
+#### func (c *TcpClient) Send(b []byte) (int, error)
+发送
+
+---
+#### func (c *TcpClient) Read(b []byte) (int, error)
+接收
+
+---
+#### func (c *TcpClient) Addr() string
+获取ip:port
+
+---
+#### func (c *TcpClient) Close()
+关闭连接
+
+---
+#### func (c *TcpClient) Stop()
+停止客户端
+
+---
+#### func (c *TcpClient) ReConn()
+重连
+
+---
+#### func (c *TcpClient) Run(serverHost string, r func(c *TcpClient, data []byte), w func(c *TcpClient))
+启动客户端
+
+---
+#### 实例
+
+```
+func main(){
+	client := gt.NewTcpClient()
+	client.Run("192.168.0.9:29123", r, w)
+}
+
+func w(client *gt.TcpClient){
+	go func() {
+		// 发送登录请求
+		_,err := client.Send([]byte(`{
+			"cmd":"Auth",
+			"data":{
+				"account":"a10",
+				"password":"123456",
+				"device":"1",
+				"source":"windows"
+			}
+		}`))
+		if err != nil {
+			log.Println("err = ", err)
+		}
+	}()
+}
+
+func r(client *gt.TcpClient) {
+    go func() {
+        for{
+			recv := make([]byte, 1024)
+			for {
+				n, err := client.Read(recv)
+				if err != nil{
+					if err == io.EOF {
+						log.Println(conn.Addr(), " 断开了连接!")
+						conn.Close()
+						return
+					}
+				}
+				if n > 0 && n < 1025 {
+					//conn.CmdChan <- string(recv[:n])
+					log.Println(string(recv[:n]))
+				}
+			}
+		}
+    }()
+}
+
+```
+
+---
+> type UdpClient struct
+
+```
+type UdpClient struct {
+	SrcAddr *net.UDPAddr
+	DstAddr *net.UDPAddr
+	Conn *net.UDPConn
+	Token string
+}
+```
+
+---
+#### func NewUdpClient() *UdpClient
+实例化udp客户端对象
+
+---
+#### func (u *UdpClient) Send(b []byte) (int, error)
+发送数据
+
+---
+#### func (u *UdpClient) Read(b []byte) (int, *net.UDPAddr, error)
+读取数据
+
+---
+#### func (u *UdpClient) Addr() string
+获取地址
+
+---
+#### func (u *UdpClient) Close()
+关闭连接
+
+---
+#### func (u *UdpClient) Run(hostServer string, port int, r func(u *UdpClient, data []byte), w func(u *UdpClient))
+启动udp客户端
+
+---
+
+实例: TODO....
+
+---
+
+## 十五、SSH篇
+
+#### func SSHClient(user string, pass string, addr string) (*ssh.Client, error)
+
+返回 ssh连接
+
+addr : 主机地址, 如: 127.0.0.1:22
+
+user : 用户
+
+pass : 密码
+
+----
+
+## 十六、代理&Socket5
+
+#### func SocketProxy(addr string)
+SocketProxy 启动一个socket5代理
+
+```go
+func main(){
+	gt.SockerProxy(":8111")
+}
+```
+
+----
+#### type Intercept struct
+Intercept http/s 代理与抓包
+
+---
+#### func (ipt *Intercept) RunServer()
+RunServer 启动 http/s 代理与抓包服务
+
+---
+#### func (ipt *Intercept) RunHttpIntercept()
+RunHttpIntercept 启动 http/s 代理与抓包服务
+
+---
+#### type HttpPackage struct
+HttpPackage 代理服务抓取到的HTTP的包
+
+---
+#### func (pack *HttpPackage) Img2Base64() string
+Img2Base64 如果数据类型是image 就转换成base64的图片输出
+
+---
+#### func (pack *HttpPackage) Html() string
+Html 数据类型是html
+
+---
+#### func (pack *HttpPackage) SaveImage(path string) error
+SaveImage 如果数据类型是image 就保存图片
+
+---
+#### func (pack *HttpPackage) Json() string
+Json 数据类型是json
+
+---
+#### func (pack *HttpPackage) Txt() string
+Txt 数据类型是txt
+
+---
+#### func (pack *HttpPackage) ToFile(path string) error
+ToFile 抓取到的数据类型保存到文件
+
+---
+#### 实例
+```go
+func main(){
+	ipt := &gt.Intercept{
+		Ip : "0.0.0.0:8111",
+		HttpPackageFunc: func(pack *gt.HttpPackage){
+			// 查看 ContentType
+			log.Println("ContentType = ", pack.ContentType)
+			// 获取数据包数据为 http,json等 TXT格式的数据
+			log.Println("Txt = ", pack.Html())
+			// 获取数据包为图片，将图片转为 base64
+			log.Println("img base64 = ", pack.Img2Base64())
+			// 获取数据包为图片，存储图片
+			log.Println(pack.SaveImage(""))
+		},
+	}
+	// 启动服务
+	ipt.RunServer()
+}
+```
+
+## TODO...
+## 未完待续...
+
 
 
 
