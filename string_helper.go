@@ -17,6 +17,7 @@ import (
 	"encoding/binary"
 	"encoding/gob"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -146,7 +147,7 @@ func OSLine() string {
 	return "\n"
 }
 
-// MD5
+// MD5 MD5
 func MD5(str string) string {
 	h := md5.New()
 	h.Write([]byte(str))
