@@ -268,7 +268,7 @@ func (c *Context) Do() func() {
 	if c.Resp.Header.Get("Content-Encoding") == "gzip" {
 		c.Resp.Body, _ = gzip.NewReader(c.Resp.Body)
 	}
-	InfoTimes(3, "[日志] 请求状态码：", c.Resp.StatusCode, " | 用时 ： ", c.Ms)
+	HTTPTimes(4, "[", c.Req.Method, "] ", c.Req.URL.String(), " \t| s: ", c.Resp.StatusCode, "| t: ", c.Ms)
 
 	// 根据状态码配置的事件了类型进行该事件的方法
 	v, ok := StatusCodeMap[c.Resp.StatusCode]
@@ -290,7 +290,7 @@ func (c *Context) Do() func() {
 		}
 		c.RespBody = body
 		if c.SucceedFunc != nil {
-			InfoTimes(3, "[日志] 执行 success 事件")
+			// InfoTimes(3, "[日志] 执行 success 事件")
 			c.SucceedFunc(c)
 		}
 

@@ -50,6 +50,7 @@ var LevelMap = map[Level]string{
 	2: "[Debug] ",
 	3: "[Warn]  ",
 	4: "[Error] ",
+	5: "[HTTP/s]",
 }
 
 // Log 日志
@@ -152,12 +153,17 @@ func Errorf(format string, args ...interface{}) {
 
 // ErrorTimes 日志-错误, 指定日志代码位置的定位调用层级
 func ErrorTimes(times int, args ...interface{}) {
-	std.Log(1, fmt.Sprint(args...), times)
+	std.Log(4, fmt.Sprint(args...), times)
 }
 
 // ErrorfTimes 日志-错误, 指定日志代码位置的定位调用层级
 func ErrorfTimes(format string, times int, args ...interface{}) {
-	std.Log(1, fmt.Sprintf(format, args...), times)
+	std.Log(4, fmt.Sprintf(format, args...), times)
+}
+
+// HTTPTimes 日志-信息, 指定日志代码位置的定位调用层级
+func HTTPTimes(times int, args ...interface{}) {
+	std.Log(5, fmt.Sprint(args...), times)
 }
 
 // Bar 终端显示的进度条
