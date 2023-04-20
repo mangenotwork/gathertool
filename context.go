@@ -136,6 +136,8 @@ type Context struct {
 
 	// 请求上下文参数
 	Param map[string]interface{}
+
+	StateCode int
 }
 
 // SetSucceedFunc 设置成功后执行的方法
@@ -224,7 +226,9 @@ func (c *Context) Do() func() {
 	before := time.Now()
 	c.Resp, c.Err = c.Client.Do(c.Req)
 	c.Ms = time.Now().Sub(before)
-
+	if c.Resp != nil {
+		c.StateCode = c.Resp.StatusCode
+	}
 	// 是否超时
 	if c.Err != nil && (strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") ||
 		strings.Contains(c.Err.Error(), ("Too Many Requests")) ||
