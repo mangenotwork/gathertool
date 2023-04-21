@@ -97,7 +97,7 @@ func InfoTimes(times int, args ...interface{}) {
 }
 
 // InfofTimes 日志-信息, 指定日志代码位置的定位调用层级
-func InfofTimes(format string, times int, args ...interface{}) {
+func InfofTimes(times int, format string, args ...interface{}) {
 	std.Log(1, fmt.Sprintf(format, args...), times)
 }
 

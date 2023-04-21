@@ -363,6 +363,8 @@ func (r *Rds) ToStrings(reply interface{}, err error) ([]string, error) {
 	return redis.Strings(reply, err)
 }
 
+// Keys ===============================================================================================================
+
 // GetAllKeys 获取所有的key
 func (r *Rds) GetAllKeys(match string) (ksyList map[string]int) {
 	//初始化拆分值
@@ -478,7 +480,7 @@ func (r *Rds) addSearchKey(ksyList map[string]int, cursor, match string) (map[st
 
 // Type 获取key的类型
 func (r *Rds) Type(key string) string {
-	InfoTimes(3, "[Redis Log] execute :", "TYPE ", key)
+	InfofTimes(3, "[Redis Log] execute : TYPE %s", key)
 	res, err := redis.String(r.Conn.Do("TYPE", key))
 	if err != nil {
 		ErrorTimes(3, "GET error", err.Error())
@@ -488,7 +490,7 @@ func (r *Rds) Type(key string) string {
 
 // Ttl 获取key的过期时间
 func (r *Rds) Ttl(key string) int64 {
-	InfoTimes(3, "[Redis Log] execute :", "TTL", key)
+	InfofTimes(3, "[Redis Log] execute : TTL %s", key)
 	res, err := redis.Int64(r.Conn.Do("TTL", key))
 	if err != nil {
 		ErrorTimes(3, "GET error", err.Error())
@@ -498,7 +500,7 @@ func (r *Rds) Ttl(key string) int64 {
 
 // DUMP 检查给定 key 是否存在。
 func (r *Rds) DUMP(key string) bool {
-	InfoTimes(3, "[Redis Log] execute :", "DUMP", key)
+	InfofTimes(3, "[Redis Log] execute : DUMP %s", key)
 	data, err := redis.String(r.Conn.Do("DUMP", key))
 	if err != nil || data == "0" {
 		ErrorTimes(3, "GET error", err.Error())
@@ -509,8 +511,9 @@ func (r *Rds) DUMP(key string) bool {
 
 // Rename 修改key名称
 func (r *Rds) Rename(name, newName string) bool {
-	InfoTimes(3, "[Redis Log] execute :", "RENAME", name, newName)
-	_, err := r.Conn.Do("RENAME", name, newName)
+	arg := redis.Args{}.Add(name).Add(newName)
+	InfofTimes(3, "[Redis Log] execute : RENAME %s %v", name, newName)
+	_, err := r.Conn.Do("RENAME", arg...)
 	if err != nil {
 		ErrorTimes(3, "GET error", err.Error())
 		return false
@@ -520,8 +523,9 @@ func (r *Rds) Rename(name, newName string) bool {
 
 // Expire 更新key ttl
 func (r *Rds) Expire(key string, ttl int64) bool {
-	InfoTimes(3, "[Redis Log] execute :", "EXPIRE", key, ttl)
-	_, err := r.Conn.Do("EXPIRE", key, ttl)
+	arg := redis.Args{}.Add(key).Add(ttl)
+	InfofTimes(3, "[Redis Log] execute : EXPIRE %s %v", key, ttl)
+	_, err := r.Conn.Do("EXPIRE", arg...)
 	if err != nil {
 		ErrorTimes(3, err.Error())
 		return false
@@ -531,8 +535,9 @@ func (r *Rds) Expire(key string, ttl int64) bool {
 
 // ExpireAt 指定key多久过期 接收的是unix时间戳
 func (r *Rds) ExpireAt(key string, date int64) bool {
-	InfoTimes(3, "[Redis Log] execute :", "EXPIREAT", key, date)
-	_, err := r.Conn.Do("EXPIREAT", key, date)
+	arg := redis.Args{}.Add(key).Add(date)
+	InfofTimes(3, "[Redis Log] execute : EXPIREAT %s %v", key, date)
+	_, err := r.Conn.Do("EXPIREAT", arg...)
 	if err != nil {
 		ErrorTimes(3, err.Error())
 		return false
@@ -542,7 +547,7 @@ func (r *Rds) ExpireAt(key string, date int64) bool {
 
 // DelKey 删除key
 func (r *Rds) DelKey(key string) bool {
-	InfoTimes(3, "[Redis Log] execute :", "DEL", key)
+	InfofTimes(3, "[Redis Log] execute : DEL %s", key)
 	_, err := r.Conn.Do("DEL", key)
 	if err != nil {
 		ErrorTimes(3, err.Error())
@@ -553,22 +558,25 @@ func (r *Rds) DelKey(key string) bool {
 
 var RdsNotConnError = fmt.Errorf("未连接redis")
 
+// String =============================================================================================================
+
 // Get GET 获取String value
 func (r *Rds) Get(key string) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "GET ", key)
+	InfofTimes(3, "[Redis Log] execute : GET %s", key)
 	return redis.String(r.Conn.Do("GET", key))
 }
 
-// Set SET 新建String
+// Set SET新建String
 func (r *Rds) Set(key string, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SET ", key, " ", value)
-	_, err := r.Conn.Do("SET", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	InfofTimes(3, "[Redis Log] execute : SET %s %v", key, value)
+	_, err := r.Conn.Do("SET", arg...)
 	return err
 }
 
@@ -577,8 +585,9 @@ func (r *Rds) SetEx(key string, ttl int64, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SETEX ", key, " ", ttl, " ", value)
-	_, err := r.Conn.Do("SETEX", key, ttl, value)
+	arg := redis.Args{}.Add(key).Add(ttl).Add(value)
+	InfofTimes(3, "[Redis Log] execute : SETEX  %s %v %v", key, ttl, value)
+	_, err := r.Conn.Do("SETEX", arg...)
 	return err
 }
 
@@ -588,8 +597,9 @@ func (r *Rds) PSetEx(key string, ttl int64, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "PSETEX ", key, " ", ttl, " ", value)
-	_, err := r.Conn.Do("PSETEX", key, ttl, value)
+	arg := redis.Args{}.Add(key).Add(ttl).Add(value)
+	InfofTimes(3, "[Redis Log] execute : PSETEX %s %v %v", key, ttl, value)
+	_, err := r.Conn.Do("PSETEX", arg...)
 	return err
 }
 
@@ -600,8 +610,9 @@ func (r *Rds) SetNx(key string, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SETNX ", key, " ", value)
-	_, err := r.Conn.Do("SETNX", key, value)
+	InfofTimes(3, "[Redis Log] execute : SETNX %s %v", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	_, err := r.Conn.Do("SETNX", arg...)
 	return err
 }
 
@@ -612,8 +623,9 @@ func (r *Rds) SetRange(key string, offset int64, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SETRANGE ", key, " ", offset, " ", value)
-	_, err := r.Conn.Do("SETRANGE", key, offset, value)
+	arg := redis.Args{}.Add(key).Add(offset).Add(value)
+	InfofTimes(3, "[Redis Log] execute : SETRANGE %s %v %v", key, offset, value)
+	_, err := r.Conn.Do("SETRANGE", arg...)
 	return err
 }
 
@@ -624,22 +636,47 @@ func (r *Rds) Append(key string, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "APPEND", key, value)
-	_, err := redis.String(r.Conn.Do("APPEND", key, value))
+	arg := redis.Args{}.Add(key).Add(value)
+	InfofTimes(3, "[Redis Log] execute : APPEND %s %v", key, value)
+	_, err := redis.String(r.Conn.Do("APPEND", arg...))
 	return err
 }
 
-// TODO StringSETBIT SETBIT key offset value
+// SetBit SETBIT key offset value
 // 对 key 所储存的字符串值，设置或清除指定偏移量上的位(bit)。
 // value : 位的设置或清除取决于 value 参数，可以是 0 也可以是 1 。
 // 注意 offset 不能太大，越大key越大
+func (r *Rds) SetBit(key string, offset, value int64) error {
+	if r.Conn == nil {
+		return RdsNotConnError
+	}
+	arg := redis.Args{}.Add(key).Add(offset).Add(value)
+	InfofTimes(3, "[Redis Log] execute : SETBIT %s %d %d", key, offset, value)
+	_, err := r.Conn.Do("SETBIT", arg...)
+	return err
+}
 
-// TODO StringBITCOUNT BITCOUNT key [start] [end]
+// BitCount BITCOUNT key [start] [end]
 // 计算给定字符串中，被设置为 1 的比特位的数量。
+func (r *Rds) BitCount(key string) (int64, error) {
+	if r.Conn == nil {
+		return 0, RdsNotConnError
+	}
+	InfofTimes(3, "[Redis Log] execute : BITCOUNT %s", key)
+	return redis.Int64(r.Conn.Do("BITCOUNT", key))
+}
 
-// TODO StringGETBIT GETBIT key offset
+// GetBit GETBIT key offset
 // 对 key 所储存的字符串值，获取指定偏移量上的位(bit)。
 // 当 offset 比字符串值的长度大，或者 key 不存在时，返回 0 。
+func (r *Rds) GetBit(key string, offset int64) (int64, error) {
+	if r.Conn == nil {
+		return 0, RdsNotConnError
+	}
+	arg := redis.Args{}.Add(key).Add(offset)
+	InfofTimes(3, "[Redis Log] execute : GETBIT %s %d", key, offset)
+	return redis.Int64(r.Conn.Do("GETBIT", arg...))
+}
 
 // TODO StringBITOP BITOP operation destkey key [key ...]
 // 对一个或多个保存二进制位的字符串 key 进行位元操作，并将结果保存到 destkey 上。
@@ -656,7 +693,7 @@ func (r *Rds) Decr(key string) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "DECR ", key)
+	InfofTimes(3, "[Redis Log] execute : DECR %s", key)
 	return redis.Int64(r.Conn.Do("DECR", key))
 }
 
@@ -666,8 +703,9 @@ func (r *Rds) DecrBy(key, decrement string) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "DECRBY ", key, " ", decrement)
-	return redis.Int64(r.Conn.Do("DECRBY", key, decrement))
+	arg := redis.Args{}.Add(key).Add(decrement)
+	InfofTimes(3, "[Redis Log] execute : DECRBY %s %v", key, decrement)
+	return redis.Int64(r.Conn.Do("DECRBY", arg...))
 }
 
 // GetRange GETRANGE key start end
@@ -676,8 +714,9 @@ func (r *Rds) GetRange(key string, start, end int64) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "GETRANGE", key, " ", start, " ", end)
-	return redis.String(r.Conn.Do("GETRANGE", key, start, end))
+	arg := redis.Args{}.Add(key).Add(start).Add(end)
+	InfofTimes(3, "[Redis Log] execute : GETRANGE %s %v %v", key, start, end)
+	return redis.String(r.Conn.Do("GETRANGE", arg...))
 }
 
 // GetSet GETSET key value
@@ -687,8 +726,9 @@ func (r *Rds) GetSet(key string, value interface{}) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "GETSET", key, value)
-	return redis.String(r.Conn.Do("GETSET", key, value))
+	arg := redis.Args{}.Add(key).Add(value)
+	InfofTimes(3, "[Redis Log] execute : GETSET %s %v", key, value)
+	return redis.String(r.Conn.Do("GETSET", arg...))
 }
 
 // Incr INCR key
@@ -699,7 +739,7 @@ func (r *Rds) Incr(key string) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "INCR ", key)
+	InfofTimes(3, "[Redis Log] execute : INCR %s", key)
 	return redis.Int64(r.Conn.Do("INCR", key))
 }
 
@@ -709,8 +749,9 @@ func (r *Rds) IncrBy(key, increment string) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "INCRBY ", key, " ", increment)
-	return redis.Int64(r.Conn.Do("INCRBY", key, increment))
+	arg := redis.Args{}.Add(key).Add(increment)
+	InfofTimes(3, "[Redis Log] execute : INCRBY %s %v", key, increment)
+	return redis.Int64(r.Conn.Do("INCRBY", arg...))
 }
 
 // IncrByFloat INCRBYFLOAT key increment
@@ -719,8 +760,9 @@ func (r *Rds) IncrByFloat(key, increment float64) (float64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "INCRBYFLOAT ", key, " ", increment)
-	return redis.Float64(r.Conn.Do("INCRBYFLOAT", key, increment))
+	arg := redis.Args{}.Add(key).Add(increment)
+	InfofTimes(3, "[Redis Log] execute : INCRBYFLOAT %s %v", key, increment)
+	return redis.Float64(r.Conn.Do("INCRBYFLOAT", arg...))
 }
 
 // MGet MGET key [key ...]
@@ -734,8 +776,8 @@ func (r *Rds) MGet(key []interface{}) ([]string, error) {
 	for _, value := range key {
 		args = args.Add(value)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "MGET ", strings.Join(Any2Strings(key), " "))
-	return redis.Strings(r.Conn.Do("MGET", args))
+	InfofTimes(3, "[Redis Log] execute : MGET %s %s", key, strings.Join(Any2Strings(key), " "))
+	return redis.Strings(r.Conn.Do("MGET", args...))
 }
 
 // MSet MSET key value [key value ...]
@@ -751,8 +793,8 @@ func (r *Rds) MSet(values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "MSET ", strings.Join(Any2Strings(values), " "))
-	_, err := r.Conn.Do("MSET", args)
+	InfofTimes(3, "[Redis Log] execute : MSET %s", strings.Join(Any2Strings(values), " "))
+	_, err := r.Conn.Do("MSET", args...)
 	return err
 }
 
@@ -769,8 +811,8 @@ func (r *Rds) MSetNx(values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "MSETNX ", strings.Join(Any2Strings(values), " "))
-	_, err := r.Conn.Do("MSETNX", args)
+	InfofTimes(3, "[Redis Log] execute : MSETNX %s", strings.Join(Any2Strings(values), " "))
+	_, err := r.Conn.Do("MSETNX", args...)
 	return err
 }
 
@@ -778,12 +820,14 @@ func (r *Rds) MSetNx(values []interface{}) error {
 // 返回 key 所储存的字符串值的长度。
 // 当 key 储存的不是字符串值时，返回一个错误。
 
+// List ===============================================================================================================
+
 // LRange LRANGE 获取List value
 func (r *Rds) LRange(key string) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LRANGE ", key, " ", 0, " ", -1)
+	InfofTimes(3, "[Redis Log] execute : LRANGE %s 0 -1", key)
 	return redis.Values(r.Conn.Do("LRANGE", key, 0, -1))
 }
 
@@ -793,8 +837,9 @@ func (r *Rds) LRangeST(key string, start, stop int64) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LRANGE ", key, " ", start, " ", stop)
-	return redis.Values(r.Conn.Do("LRANGE", key, start, stop))
+	arg := redis.Args{}.Add(key).Add(start).Add(stop)
+	InfofTimes(3, "[Redis Log] execute : LRANGE %s %v %v", key, start, stop)
+	return redis.Values(r.Conn.Do("LRANGE", arg...))
 }
 
 // LPush LPUSH 新创建list 将一个或多个值 value 插入到列表 key 的表头
@@ -806,7 +851,7 @@ func (r *Rds) LPush(key string, values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LPUSH ", strings.Join(Any2Strings(values), " "))
+	InfofTimes(3, "[Redis Log] execute : LPUSH %s %s", key, strings.Join(Any2Strings(values), " "))
 	_, err := r.Conn.Do("LPUSH", args...)
 	return err
 }
@@ -824,8 +869,8 @@ func (r *Rds) RPush(key string, values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "RPUSH ", strings.Join(Any2Strings(values), " "))
-	_, err := r.Conn.Do("RPUSH", args)
+	InfofTimes(3, "[Redis Log] execute : RPUSH %s %s", key, strings.Join(Any2Strings(values), " "))
+	_, err := r.Conn.Do("RPUSH", args...)
 	return err
 }
 
@@ -847,8 +892,9 @@ func (r *Rds) LIndex(key string, index int64) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LINDEX ", key, " ", index)
-	return redis.String(r.Conn.Do("LINDEX", key, index))
+	arg := redis.Args{}.Add(key).Add(index)
+	InfofTimes(3, "[Redis Log] execute : LINDEX %s %v", key, index)
+	return redis.String(r.Conn.Do("LINDEX", arg...))
 }
 
 // LInsert LINSERT key BEFORE|AFTER pivot value
@@ -865,8 +911,9 @@ func (r *Rds) LInsert(direction bool, key, pivot, value string) error {
 	if direction {
 		directionStr = "BEFORE"
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LINSERT ", key, " ", directionStr, " ", pivot, " ", value)
-	_, err := r.Conn.Do("LINSERT", key, directionStr, pivot, value)
+	arg := redis.Args{}.Add(key).Add(directionStr).Add(pivot).Add(value)
+	InfofTimes(3, "[Redis Log] execute : LINSERT %s %v %v %v", key, directionStr, pivot, value)
+	_, err := r.Conn.Do("LINSERT", arg...)
 	return err
 }
 
@@ -877,7 +924,7 @@ func (r *Rds) LLen(key string) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LLEN ", key)
+	InfofTimes(3, "[Redis Log] execute : LLEN %s", key)
 	return redis.Int64(r.Conn.Do("LLEN", key))
 }
 
@@ -887,7 +934,7 @@ func (r *Rds) ListLPOP(key string) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LPOP ", key)
+	InfofTimes(3, "[Redis Log] execute : LPOP %s", key)
 	return redis.String(r.Conn.Do("LPOP", key))
 }
 
@@ -898,8 +945,9 @@ func (r *Rds) LPusHx(key string, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LPUSHX ", key, " ", value)
-	_, err := r.Conn.Do("LPUSHX", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	InfofTimes(3, "[Redis Log] execute : LPUSHX %s %v", key, value)
+	_, err := r.Conn.Do("LPUSHX", arg...)
 	return err
 }
 
@@ -913,8 +961,9 @@ func (r *Rds) LRem(key string, count int64, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LREM ", key, " ", count, " ", value)
-	_, err := r.Conn.Do("LREM", key, count, value)
+	arg := redis.Args{}.Add(key).Add(count).Add(value)
+	InfofTimes(3, "[Redis Log] execute : LREM %s %v %v", key, count, value)
+	_, err := r.Conn.Do("LREM", arg...)
 	return err
 }
 
@@ -925,8 +974,9 @@ func (r *Rds) LSet(key string, index int64, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LSET ", key, " ", index, " ", value)
-	_, err := r.Conn.Do("LSET", key, index, value)
+	arg := redis.Args{}.Add(key).Add(index).Add(value)
+	InfofTimes(3, "[Redis Log] execute : LSET %s %v %v", key, index, value)
+	_, err := r.Conn.Do("LSET", arg...)
 	return err
 }
 
@@ -937,8 +987,9 @@ func (r *Rds) LTrim(key string, start, stop int64) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "LTRIM ", key, " ", start, " ", stop)
-	_, err := r.Conn.Do("LTRIM", key, start, stop)
+	arg := redis.Args{}.Add(key).Add(start).Add(stop)
+	InfofTimes(3, "[Redis Log] execute : LTRIM %s %v %v", key, start, stop)
+	_, err := r.Conn.Do("LTRIM", arg...)
 	return err
 }
 
@@ -948,7 +999,7 @@ func (r *Rds) RPop(key string) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "RPOP ", key)
+	InfofTimes(3, "[Redis Log] execute : RPOP %s", key)
 	return redis.String(r.Conn.Do("RPOP", key))
 }
 
@@ -965,8 +1016,9 @@ func (r *Rds) RPopLPush(key, destination string) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "RPOPLPUSH ", key, " ", destination)
-	return redis.String(r.Conn.Do("RPOPLPUSH", key, destination))
+	arg := redis.Args{}.Add(key).Add(destination)
+	InfofTimes(3, "[Redis Log] execute : RPOPLPUSH %s %v", key, destination)
+	return redis.String(r.Conn.Do("RPOPLPUSH", arg...))
 }
 
 // RPushX RPUSHX key value
@@ -975,17 +1027,20 @@ func (r *Rds) RPushX(key string, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "RPUSHX ", key, " ", value)
-	_, err := r.Conn.Do("RPUSHX", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	InfofTimes(3, "[Redis Log] execute : RPUSHX %s %v", key, value)
+	_, err := r.Conn.Do("RPUSHX", arg...)
 	return err
 }
+
+// Hash ===============================================================================================================
 
 // HGetAll HGETALL 获取Hash value
 func (r *Rds) HGetAll(key string) (map[string]string, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HGETALL ", key)
+	InfofTimes(3, "[Redis Log] execute : HGETALL %s", key)
 	return redis.StringMap(r.Conn.Do("HGETALL", key))
 }
 
@@ -994,7 +1049,7 @@ func (r *Rds) HGetAllInt(key string) (map[string]int, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HGETALL ", key)
+	InfofTimes(3, "[Redis Log] execute : HGETALL %s", key)
 	return redis.IntMap(r.Conn.Do("HGETALL", key))
 }
 
@@ -1003,7 +1058,7 @@ func (r *Rds) HGetAllInt64(key string) (map[string]int64, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HGETALL ", key)
+	InfofTimes(3, "[Redis Log] execute : HGETALL %s", key)
 	return redis.Int64Map(r.Conn.Do("HGETALL", key))
 }
 
@@ -1014,8 +1069,9 @@ func (r *Rds) HSet(key, field string, value interface{}) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HSET ", key, " ", field, " ", value)
-	return redis.Int64(r.Conn.Do("HSET", key, field, value))
+	arg := redis.Args{}.Add(key).Add(field).Add(value)
+	InfofTimes(3, "[Redis Log] execute : HSET %s %v %v", key, field, value)
+	return redis.Int64(r.Conn.Do("HSET", arg...))
 }
 
 // HMSet HMSET 新建Hash 多个field
@@ -1031,7 +1087,7 @@ func (r *Rds) HMSet(key string, values map[interface{}]interface{}) error {
 		args = args.Add(k)
 		args = args.Add(v)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HMSET ", strings.Join(Any2Strings(values), " "))
+	InfofTimes(3, "[Redis Log] execute : HMSET %s %s ", key, strings.Join(Any2Strings(values), " "))
 	_, err := r.Conn.Do("HMSET", args...)
 	return err
 }
@@ -1043,8 +1099,9 @@ func (r *Rds) HSetNx(key, field string, value interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HSETNX ", key, " ", field, " ", value)
-	_, err := r.Conn.Do("HSETNX", key, field, value)
+	arg := redis.Args{}.Add(key).Add(field).Add(value)
+	InfofTimes(3, "[Redis Log] execute : HSETNX %s %v %v", key, field, value)
+	_, err := r.Conn.Do("HSETNX", arg...)
 	return err
 }
 
@@ -1058,8 +1115,8 @@ func (r *Rds) HDel(key string, fields []string) error {
 	for _, v := range fields {
 		args = args.Add(v)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HDEL ", strings.Join(fields, " "))
-	_, err := r.Conn.Do("HDEL", args)
+	InfofTimes(3, "[Redis Log] execute : HDEL %s %s", key, strings.Join(fields, " "))
+	_, err := r.Conn.Do("HDEL", args...)
 	return err
 }
 
@@ -1070,8 +1127,9 @@ func (r *Rds) HExIsTs(key, fields string) bool {
 		ErrorTimes(3, "[Redis Log] error :", RdsNotConnError)
 		return false
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HEXISTS ", key, " ", fields)
-	res, err := redis.Int(r.Conn.Do("HEXISTS", key, fields))
+	arg := redis.Args{}.Add(key).Add(fields)
+	InfofTimes(3, "[Redis Log] execute : HEXISTS %s %s", key, fields)
+	res, err := redis.Int(r.Conn.Do("HEXISTS", arg...))
 	if err != nil {
 		ErrorTimes(3, "[Redis Log] error :", err)
 		return false
@@ -1088,8 +1146,9 @@ func (r *Rds) HGet(key, fields string) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HGET ", key, " ", fields)
-	return redis.String(r.Conn.Do("HGET", key, fields))
+	arg := redis.Args{}.Add(key).Add(fields)
+	InfofTimes(3, "[Redis Log] execute : HGET %s %s", key, fields)
+	return redis.String(r.Conn.Do("HGET", arg...))
 }
 
 // HIncrBy HINCRBY key field increment
@@ -1101,8 +1160,9 @@ func (r *Rds) HIncrBy(key, field string, increment int64) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HINCRBY ", key, " ", field, " ", increment)
-	return redis.Int64(r.Conn.Do("HINCRBY", key, field, increment))
+	arg := redis.Args{}.Add(key).Add(field).Add(increment)
+	InfofTimes(3, "[Redis Log] execute : HINCRBY %s %v %v", key, field, increment)
+	return redis.Int64(r.Conn.Do("HINCRBY", arg...))
 }
 
 // HIncrByFloat HINCRBYFLOAT key field increment
@@ -1113,8 +1173,9 @@ func (r *Rds) HIncrByFloat(key, field string, increment float64) (float64, error
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HINCRBYFLOAT ", key, " ", field, " ", increment)
-	return redis.Float64(r.Conn.Do("HINCRBYFLOAT", key, field, increment))
+	arg := redis.Args{}.Add(key).Add(field).Add(increment)
+	InfofTimes(3, "[Redis Log] execute : HINCRBYFLOAT %s %v %v", key, field, increment)
+	return redis.Float64(r.Conn.Do("HINCRBYFLOAT", arg...))
 }
 
 // HKeys HKEYS key 返回哈希表
@@ -1123,7 +1184,7 @@ func (r *Rds) HKeys(key string) ([]string, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HKEYS ", key)
+	InfofTimes(3, "[Redis Log] execute : HKEYS %s", key)
 	return redis.Strings(r.Conn.Do("HKEYS", key))
 }
 
@@ -1133,7 +1194,7 @@ func (r *Rds) HLen(key string) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HLEN ", key)
+	InfofTimes(3, "[Redis Log] execute : HLEN %s", key)
 	return redis.Int64(r.Conn.Do("HLEN", key))
 }
 
@@ -1148,8 +1209,8 @@ func (r *Rds) HMGet(key string, fields []string) ([]string, error) {
 	for _, v := range fields {
 		args = args.Add(v)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HMGET", strings.Join(fields, " "))
-	return redis.Strings(r.Conn.Do("HMGET", args))
+	InfofTimes(3, "[Redis Log] execute : HMGET %s %s", key, strings.Join(fields, " "))
+	return redis.Strings(r.Conn.Do("HMGET", args...))
 }
 
 // HVaLs HVALS key
@@ -1158,12 +1219,14 @@ func (r *Rds) HVaLs(key string) ([]string, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "HVALS", key)
+	InfofTimes(3, "[Redis Log] execute : HVALS %s", key)
 	return redis.Strings(r.Conn.Do("HVALS", key))
 }
 
 // TODO HSCAN
 // 搜索value hscan test4 0 match *b*
+
+// Set ================================================================================================================
 
 // SMemeRs SMEMBERS key
 // 返回集合 key 中的所有成员。
@@ -1172,7 +1235,7 @@ func (r *Rds) SMemeRs(key string) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SMEMBERS ", key)
+	InfofTimes(3, "[Redis Log] execute : SMEMBERS %s", key)
 	return redis.Values(r.Conn.Do("SMEMBERS", key))
 }
 
@@ -1185,7 +1248,7 @@ func (r *Rds) SAdd(key string, values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SADD ", strings.Join(Any2Strings(values), " "))
+	InfofTimes(3, "[Redis Log] execute : SADD %s %s", key, strings.Join(Any2Strings(values), " "))
 	_, err := r.Conn.Do("SADD", args...)
 	return err
 }
@@ -1196,7 +1259,7 @@ func (r *Rds) SCard(key string) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SCARD ", key)
+	InfofTimes(3, "[Redis Log] execute : SCARD %s", key)
 	_, err := redis.Int64(r.Conn.Do("SCARD ", key))
 	return err
 }
@@ -1212,8 +1275,8 @@ func (r *Rds) SDiff(keys []string) ([]interface{}, error) {
 	for _, key := range keys {
 		args = args.Add(key)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SDIFF ", strings.Join(keys, " "))
-	return redis.Values(r.Conn.Do("SDIFF", args))
+	InfofTimes(3, "[Redis Log] execute : SDIFF %s", strings.Join(keys, " "))
+	return redis.Values(r.Conn.Do("SDIFF", args...))
 }
 
 // SDiffStore SDIFFSTORE destination key [key ...]
@@ -1225,11 +1288,11 @@ func (r *Rds) SDiffStore(key string, keys []string) ([]interface{}, error) {
 		return nil, RdsNotConnError
 	}
 	args := redis.Args{}.Add(key)
-	for _, key := range keys {
-		args = args.Add(key)
+	for _, k := range keys {
+		args = args.Add(k)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SDIFFSTORE ", key, " ", strings.Join(keys, " "))
-	return redis.Values(r.Conn.Do("SDIFFSTORE", args))
+	InfofTimes(3, "[Redis Log] execute : SDIFFSTORE %s %s", key, strings.Join(keys, " "))
+	return redis.Values(r.Conn.Do("SDIFFSTORE", args...))
 }
 
 // SInter SINTER key [key ...]
@@ -1243,8 +1306,8 @@ func (r *Rds) SInter(keys []string) ([]interface{}, error) {
 	for _, key := range keys {
 		args = args.Add(key)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SINTER ", strings.Join(keys, " "))
-	return redis.Values(r.Conn.Do("SINTER", args))
+	InfofTimes(3, "[Redis Log] execute : SINTER %s", strings.Join(keys, " "))
+	return redis.Values(r.Conn.Do("SINTER", args...))
 }
 
 // SInterStore SINTERSTORE destination key [key ...]
@@ -1259,8 +1322,8 @@ func (r *Rds) SInterStore(key string, keys []string) ([]interface{}, error) {
 	for _, k := range keys {
 		args = args.Add(k)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SINTERSTORE ", key, " ", strings.Join(keys, " "))
-	return redis.Values(r.Conn.Do("SINTERSTORE", args))
+	InfofTimes(3, "[Redis Log] execute : SINTERSTORE %s %s", key, strings.Join(keys, " "))
+	return redis.Values(r.Conn.Do("SINTERSTORE", args...))
 }
 
 // SIsMember SISMEMBER key member
@@ -1272,9 +1335,10 @@ func (r *Rds) SIsMember(key string, value interface{}) (resBool bool, err error)
 	if r.Conn == nil {
 		return false, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SISMEMBER ", key, " ", value)
 	resBool = false
-	res, err := redis.Int64(r.Conn.Do("SISMEMBER", key, value))
+	arg := redis.Args{}.Add(key).Add(value)
+	InfofTimes(3, "[Redis Log] execute : SISMEMBER %s %v", key, value)
+	res, err := redis.Int64(r.Conn.Do("SISMEMBER", arg...))
 	if err != nil {
 		return
 	}
@@ -1297,9 +1361,10 @@ func (r *Rds) SMove(key, destination string, member interface{}) (resBool bool, 
 	if r.Conn == nil {
 		return false, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SMOVE ", key, " ", destination, " ", member)
 	resBool = false
-	res, err := redis.Int64(r.Conn.Do("SMOVE", key, destination, member))
+	arg := redis.Args{}.Add(key).Add(destination).Add(member)
+	InfofTimes(3, "[Redis Log] execute : SMOVE %s %v %v", key, destination, member)
+	res, err := redis.Int64(r.Conn.Do("SMOVE", arg...))
 	if err != nil {
 		return
 	}
@@ -1316,7 +1381,7 @@ func (r *Rds) SPop(key string) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SPOP", " ", key)
+	InfofTimes(3, "[Redis Log] execute : SPOP %s", key)
 	return redis.String(r.Conn.Do("SPOP", key))
 }
 
@@ -1329,8 +1394,9 @@ func (r *Rds) SRandMember(key string, count int64) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SRANDMEMBER ", key, " ", count)
-	return redis.Values(r.Conn.Do("SRANDMEMBER", key, count))
+	arg := redis.Args{}.Add(key).Add(count)
+	InfofTimes(3, "[Redis Log] execute : SRANDMEMBER %s %v", key, count)
+	return redis.Values(r.Conn.Do("SRANDMEMBER", arg...))
 }
 
 // SRem SREM key member [member ...]
@@ -1343,9 +1409,8 @@ func (r *Rds) SRem(key string, member []interface{}) error {
 	for _, v := range member {
 		args = args.Add(v)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SREM ", key,
-		strings.Join(Any2Strings(member), " "))
-	_, err := r.Conn.Do("SREM", args)
+	InfofTimes(3, "[Redis Log] execute : SREM %s %s", key, strings.Join(Any2Strings(member), " "))
+	_, err := r.Conn.Do("SREM", args...)
 	return err
 }
 
@@ -1359,8 +1424,8 @@ func (r *Rds) SUnion(keys []string) ([]interface{}, error) {
 	for _, v := range keys {
 		args = args.Add(v)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SUNION ", strings.Join(keys, " "))
-	return redis.Values(r.Conn.Do("SUNION", args))
+	InfofTimes(3, "[Redis Log] execute : SUNION %s", strings.Join(keys, " "))
+	return redis.Values(r.Conn.Do("SUNION", args...))
 }
 
 // SUnionStore SUNIONSTORE destination key [key ...]
@@ -1373,19 +1438,22 @@ func (r *Rds) SUnionStore(key string, keys []string) ([]interface{}, error) {
 	for _, v := range keys {
 		args = args.Add(v)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "SUNIONSTORE", key, " ", strings.Join(keys, " "))
-	return redis.Values(r.Conn.Do("SUNIONSTORE", args))
+	InfofTimes(3, "[Redis Log] execute : SUNIONSTORE %s %s", key, strings.Join(keys, " "))
+	return redis.Values(r.Conn.Do("SUNIONSTORE", args...))
 }
 
 // TODO 搜索值  SSCAN key cursor [MATCH pattern] [COUNT count]
+
+// ZSet ===============================================================================================================
 
 // ZRange ZRANGE 获取ZSet value 返回集合 有序集成员的列表。
 func (r *Rds) ZRange(key string) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZRANGE ", key, " ", 0, " ", -1, " ", "WITHSCORES")
-	return redis.Values(r.Conn.Do("ZRANGE", key, 0, -1, "WITHSCORES"))
+	arg := redis.Args{}.Add(key).Add(0).Add(-1).Add("WITHSCORES")
+	InfofTimes(3, "[Redis Log] execute : ZRANGE %s 0 -1 ", "ZRANGE WITHSCORES", key)
+	return redis.Values(r.Conn.Do("ZRANGE", arg...))
 }
 
 // ZRangeST ZRANGE key start stop [WITHSCORES]
@@ -1395,8 +1463,9 @@ func (r *Rds) ZRangeST(key string, start, stop int64) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZRANGE ", key, " ", start, " ", stop, " ", "WITHSCORES")
-	return redis.Values(r.Conn.Do("ZRANGE", key, start, stop, "WITHSCORES"))
+	arg := redis.Args{}.Add(key).Add(start).Add(stop).Add("WITHSCORES")
+	InfofTimes(3, "[Redis Log] execute : ZRANGE %s %v %v WITHSCORES", key, start, stop)
+	return redis.Values(r.Conn.Do("ZRANGE", arg...))
 }
 
 // ZRevRange ZREVRANGE key start stop [WITHSCORES]
@@ -1407,25 +1476,18 @@ func (r *Rds) ZRevRange(key string, start, stop int64) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZREVRANGE", key, " ", start, " ", stop, " ", "WITHSCORES")
-	return redis.Values(r.Conn.Do("ZREVRANGE", key, start, stop, "WITHSCORES"))
+	arg := redis.Args{}.Add(key).Add(start).Add(stop).Add("WITHSCORES")
+	InfofTimes(3, "[Redis Log] execute : ZREVRANGE %s %v %v WITHSCORES", key, start, stop)
+	return redis.Values(r.Conn.Do("ZREVRANGE", arg...))
 }
 
 // ZAdd ZADD 新创建ZSet 将一个或多个 member 元素及其 score 值加入到有序集 key 当中。
-func (r *Rds) ZAdd(key string, values []interface{}) error {
+func (r *Rds) ZAdd(key string, weight interface{}, field interface{}) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	args := redis.Args{}.Add(key)
-	for _, value := range values {
-		fmt.Println(value)
-		for k, v := range value.(map[string]interface{}) {
-			args = args.Add(v)
-			args = args.Add(k)
-		}
-	}
-	InfoTimes(3, "[Redis Log] execute :", "ZADD", key, " ",
-		strings.Join(Any2Strings(args), " "))
+	args := redis.Args{}.Add(key).Add(weight).Add(field)
+	InfofTimes(3, "[Redis Log] execute : ZADD %s %v %v", key, weight, field)
 	_, err := r.Conn.Do("ZADD", args...)
 	return err
 }
@@ -1436,7 +1498,7 @@ func (r *Rds) ZCard(key string) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZCARD", key)
+	InfofTimes(3, "[Redis Log] execute : ZCARD %s", key)
 	return redis.Int64(r.Conn.Do("ZCARD", key))
 }
 
@@ -1446,8 +1508,9 @@ func (r *Rds) ZCount(key string, min, max int64) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZCOUNT ", key, " ", min, " ", max)
-	return redis.Int64(r.Conn.Do("ZCOUNT", key, min, max))
+	arg := redis.Args{}.Add(key).Add(min).Add(max)
+	InfofTimes(3, "[Redis Log] execute : ZCOUNT %s %v %v", key, min, max)
+	return redis.Int64(r.Conn.Do("ZCOUNT", arg...))
 }
 
 // ZIncrBy ZINCRBY key increment member
@@ -1458,8 +1521,9 @@ func (r *Rds) ZIncrBy(key, member string, increment int64) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZINCRBY", key, increment, member)
-	return redis.String(r.Conn.Do("ZINCRBY", key, increment, member))
+	arg := redis.Args{}.Add(key).Add(increment).Add(member)
+	InfofTimes(3, "[Redis Log] execute : ZINCRBY %s %v %v", key, increment, member)
+	return redis.String(r.Conn.Do("ZINCRBY", arg...))
 }
 
 // ZRangeByScore ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]
@@ -1475,9 +1539,9 @@ func (r *Rds) ZRangeByScore(key string, min, max, offset, count int64) ([]interf
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZRANGEBYSCORE ", key, " ", min, " ", max, " ",
-		offset, " ", count)
-	return redis.Values(r.Conn.Do("ZRANGEBYSCORE", key, min, max, offset, count))
+	arg := redis.Args{}.Add(key).Add(min).Add(max).Add(offset).Add(count)
+	InfofTimes(3, "[Redis Log] execute : ZRANGEBYSCORE %s %v %v %v %v", key, min, max, offset, count)
+	return redis.Values(r.Conn.Do("ZRANGEBYSCORE", arg...))
 }
 
 // ZRangeByScoreAll 获取所有
@@ -1485,8 +1549,9 @@ func (r *Rds) ZRangeByScoreAll(key string) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZRANGEBYSCORE ", key, " -inf ", "+inf")
-	return redis.Values(r.Conn.Do("ZRANGEBYSCORE", key, "-inf", "+inf"))
+	arg := redis.Args{}.Add(key).Add("-inf").Add("+inf")
+	InfofTimes(3, "[Redis Log] execute : ZRANGEBYSCORE %s -inf +inf", key)
+	return redis.Values(r.Conn.Do("ZRANGEBYSCORE", arg...))
 }
 
 // ZRevRangeByScore key max min [WITHSCORES] [LIMIT offset count]
@@ -1496,9 +1561,9 @@ func (r *Rds) ZRevRangeByScore(key string, min, max, offset, count int64) ([]int
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZREVRANGEBYSCORE ", key, " ", min, " ", max, " ",
-		offset, " ", count)
-	return redis.Values(r.Conn.Do("ZREVRANGEBYSCORE", key, min, max, offset, count))
+	arg := redis.Args{}.Add(key).Add(min).Add(max).Add(offset).Add(count)
+	InfofTimes(3, "[Redis Log] execute : ZREVRANGEBYSCORE %s %v %v %v %v", key, min, max, offset, count)
+	return redis.Values(r.Conn.Do("ZREVRANGEBYSCORE", arg...))
 }
 
 // ZRevRangeByScoreAll 获取所有
@@ -1506,8 +1571,9 @@ func (r *Rds) ZRevRangeByScoreAll(key string) ([]interface{}, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZREVRANGEBYSCORE ", key, " -inf ", "+inf")
-	return redis.Values(r.Conn.Do("ZREVRANGEBYSCORE", key, "-inf", "+inf"))
+	arg := redis.Args{}.Add(key).Add("-inf").Add("+inf")
+	InfofTimes(3, "[Redis Log] execute : ZREVRANGEBYSCORE %s -inf +inf", key)
+	return redis.Values(r.Conn.Do("ZREVRANGEBYSCORE", arg...))
 }
 
 // ZRank ZRANK key member
@@ -1517,8 +1583,9 @@ func (r *Rds) ZRank(key string, member interface{}) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZRANK", key, member)
-	return redis.Int64(r.Conn.Do("ZRANK", key, member))
+	arg := redis.Args{}.Add(key).Add(member)
+	InfofTimes(3, "[Redis Log] execute : ZRANK %s %v", key, member)
+	return redis.Int64(r.Conn.Do("ZRANK", arg...))
 }
 
 // ZRem ZREM key member [member ...]
@@ -1531,7 +1598,7 @@ func (r *Rds) ZRem(key string, member []interface{}) error {
 	for _, v := range member {
 		args = args.Add(v)
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZREM ", key, strings.Join(Any2Strings(member), " "))
+	InfofTimes(3, "[Redis Log] execute : ZREM %s %s", key, strings.Join(Any2Strings(member), " "))
 	_, err := r.Conn.Do("ZREM", args...)
 	return err
 }
@@ -1543,8 +1610,9 @@ func (r *Rds) ZRemRangeByRank(key string, start, stop int64) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZREMRANGEBYRANK ", key, " ", start, " ", stop)
-	_, err := redis.Int64(r.Conn.Do("ZREMRANGEBYRANK", key, start, stop))
+	arg := redis.Args{}.Add(key).Add(start).Add(stop)
+	InfofTimes(3, "[Redis Log] execute : ZREMRANGEBYRANK %s %v %v", key, start, stop)
+	_, err := redis.Int64(r.Conn.Do("ZREMRANGEBYRANK", arg...))
 	return err
 }
 
@@ -1554,8 +1622,9 @@ func (r *Rds) ZRemRangeByScore(key string, min, max int64) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZREMRANGEBYSCORE ", key, " ", min, " ", max)
-	_, err := r.Conn.Do("ZREMRANGEBYSCORE", key, min, max)
+	arg := redis.Args{}.Add(key).Add(min).Add(max)
+	InfofTimes(3, "[Redis Log] execute : ZREMRANGEBYSCORE %s %v %v", key, min, max)
+	_, err := r.Conn.Do("ZREMRANGEBYSCORE", arg...)
 	return err
 }
 
@@ -1567,8 +1636,9 @@ func (r *Rds) ZRevRank(key string, member interface{}) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZREVRANK ", key, " ", member)
-	return redis.Int64(r.Conn.Do("ZREVRANK", key, member))
+	arg := redis.Args{}.Add(key).Add(member)
+	InfofTimes(3, "[Redis Log] execute : ZREVRANK %s %v", key, member)
+	return redis.Int64(r.Conn.Do("ZREVRANK", arg...))
 }
 
 // ZScore ZSCORE key member
@@ -1577,8 +1647,9 @@ func (r *Rds) ZScore(key string, member interface{}) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
-	InfoTimes(3, "[Redis Log] execute :", "ZSCORE ", key, " ", member)
-	return redis.String(r.Conn.Do("ZSCORE", key, member))
+	arg := redis.Args{}.Add(key).Add(member)
+	InfofTimes(3, "[Redis Log] execute : ZSCORE %s %v", key, member)
+	return redis.String(r.Conn.Do("ZSCORE", arg...))
 }
 
 // TODO ZSetZUNIONSTORE ZUNIONSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE SUM|MIN|MAX]
