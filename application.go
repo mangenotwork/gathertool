@@ -209,7 +209,7 @@ func (scan *HostScanBadLink) do(caseUrl string, df int) {
 }
 
 // HostPageSpeedCheck =================================================================================================
-// TODO Host站点下 HTML Get 测速 应用函数
+// Host站点下 HTML Get 测速 应用函数
 type HostPageSpeedCheck struct {
 	Host      string
 	Depth     int // 页面深度

@@ -84,7 +84,7 @@ Github : https://github.com/mangenotwork/gathertool
 - [十三、WebSocket篇](#十三websocket篇)
 - [十四、TCP/UDP篇](#十四tcpudp篇)
 - [十五、SSH篇](#十五ssh篇)
-- [未完待续...](#未完待续...)
+- [十六、应用篇](#十六应用篇)
 
 ## 一、介绍
 
@@ -5176,6 +5176,48 @@ func main(){
 	ipt.RunServer()
 }
 ```
+
+## 十六、应用篇
+
+---
+#### func NewHostScanUrl(host string, depth int) *HostScanUrl
+Host站点下 A标签 Url扫描， 从更目录开始扫描指定深度 get Url 应用函数
+
+#### func (scan *HostScanUrl) Run() ([]string, int
+
+---
+#### func NewHostScanExtLinks(host string) *HostScanExtLinks
+Host站点下的外链采集 应用函数
+
+#### func (scan *HostScanExtLinks) Run() ([]string, int)
+
+---
+#### func NewHostScanBadLink(host string, depth int) *HostScanBadLink
+Host站点下 HTML Get Url 死链接扫描 应用函数
+
+#### func (scan *HostScanBadLink) Run() ([]string, int)
+
+#### func (scan *HostScanBadLink) Report() map[string]int
+
+---
+#### func NewHostPageSpeedCheck(host string, depth int) *HostPageSpeedCheck
+Host站点下 HTML Get 测速 应用函数
+
+#### func (scan *HostPageSpeedCheck) Run() ([]string, int)
+
+#### func (scan *HostPageSpeedCheck) Result() map[string]time.Duration
+
+#### func (scan *HostPageSpeedCheck) AverageSpeed() float64
+
+#### func (scan *HostPageSpeedCheck) MaxSpeed() int64
+
+#### func (scan *HostPageSpeedCheck) MinSpeed() int64
+
+#### func (scan *HostPageSpeedCheck) Report() map[string]string
+
+----
+
+
 
 ## TODO...
 ## 未完待续...
