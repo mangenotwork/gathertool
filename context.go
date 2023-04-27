@@ -448,7 +448,7 @@ func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
 // SetProxyPool 给请求设置代理池
 func (c *Context) SetProxyPool(pool *ProxyPool) *Context {
 	ip, _ := pool.Get()
-	InfofTimes("[日志] 使用代理: %s", 3, ip)
+	InfofTimes(3, "[日志] 使用代理: %s", ip)
 	proxy, _ := url.Parse(ip)
 	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
 	return c
