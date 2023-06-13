@@ -172,3 +172,97 @@ func main2() {
 		}
 	}
 }
+
+// ---------------------------------------------------  ip属地实例
+// 思路, 将所有ip转10进制  ip >= 属地IP段启始ip && ip <=  属地IP段结束ip 或得地址
+
+// 数据库对象
+var (
+	host192  = "192.168.3.2"
+	port     = 3306
+	user     = "root"
+	password = "admin"
+	dbName   = "niu_pp"
+	DB, _    = gt.NewMysql(host192, port, user, password, dbName)
+	Host     = "http://www.100ppi.com/mprice/"
+)
+
+func Run() {
+	// 1.在页面 http://ip.bczs.net/country/CN 获取所有ip
+	ctx, _ := gt.Get("http://ip.bczs.net/country/MO")
+	for _, tbody := range gt.RegHtmlTbody(ctx.RespBodyString()) {
+		for _, tr := range gt.RegHtmlTr(tbody) {
+			td := gt.RegHtmlTdTxt(tr)
+			log.Println(td)
+			if len(td) < 3 {
+				gt.Error("异常数据 ： ", td)
+				continue
+			}
+			startIp := gt.Any2String(gt.RegHtmlATxt(td[0])[0]) // IP起始
+			GetIPInfo(startIp)
+			time.Sleep(600 * time.Millisecond)
+		}
+	}
+}
+
+func NewTable() {
+	fields := map[string]string{
+		"rse":       "varchar(200)",
+		"start":     "varchar(50)",
+		"start_int": "bigint",
+		"end":       "varchar(50)",
+		"end_int":   "bigint",
+		"sd1":       "varchar(50)",
+		"sd2":       "varchar(50)",
+		"created":   "int(11)",
+	}
+	err := DB.NewTable("ip_set", fields)
+	log.Println(err)
+}
+
+func GetIPInfo(startIp string) {
+	caseUrl := "http://ip.bczs.net/" + startIp
+	log.Println("caseUrl = ", caseUrl)
+	ctx, _ := gt.Get(caseUrl, gt.RetryFunc(GetIPRetry))
+	htmlData := ctx.Html
+	//log.Println(htmlData)
+	well, err := gt.GetPointClassHTML(htmlData, "div", "well")
+	log.Println(well, err)
+
+	data1 := gt.RegFindAll(`(?is:IP数据：.*?<br/>)`, well[0])
+	log.Println(data1)
+	rse := data1[0][0]
+	rse = strings.Replace(rse, "IP数据：", "", -1)
+	rse = strings.Replace(rse, "<br/>", "", -1)
+	log.Println("rse = ", rse)
+	rseList := strings.Split(rse, " ")
+	log.Println("rseList = ", rseList)
+	ipArang := rseList[0]
+	ipList := strings.Split(ipArang, "-")
+	ipStart := ipList[0]
+	ipStartInt := gt.IP2Int64(ipStart)
+	ipEnd := ipList[1]
+	ipEndInt := gt.IP2Int64(ipEnd)
+	log.Println("ipStart = ", ipStart, ipStartInt)
+	log.Println("ipEnd = ", ipEnd, ipEndInt)
+	ipSD := rseList[1]
+	ipSDList := strings.Split(ipSD, "\t")
+	ipSD1, ipSD2 := "中国", "中国"
+	if len(ipSDList) > 2 {
+		ipSD1 = ipSDList[0]
+		ipSD2 = ipSDList[1]
+	}
+
+	data := map[string]interface{}{
+		"rse":       rse,
+		"start":     ipStart,
+		"start_int": ipStartInt,
+		"end":       ipEnd,
+		"end_int":   ipEndInt,
+		"sd1":       ipSD1,
+		"sd2":       ipSD2,
+		"created":   time.Now().Unix(),
+	}
+	err = DB.InsertAt("ip_set", data)
+	log.Println(err)
+}

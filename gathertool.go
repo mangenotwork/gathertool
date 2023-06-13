@@ -16,6 +16,7 @@ package gathertool
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -35,7 +36,11 @@ func Get(url string, vs ...interface{}) (*Context, error) {
 func NewGet(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(GET, urlStr(url), nil)
 	if err != nil {
-		panic(err)
+		Error(err)
+		return &Context{
+			Err:       fmt.Errorf(url, " 请求错误， err: ", err.Error()),
+			StateCode: 404,
+		}
 	}
 	return Req(request, vs...)
 }
@@ -51,7 +56,11 @@ func Post(url string, data []byte, contentType string, vs ...interface{}) (*Cont
 func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
-		panic(err)
+		Error(err)
+		return &Context{
+			Err:       fmt.Errorf(url, " 请求错误， err: ", err.Error()),
+			StateCode: 404,
+		}
 	}
 	if contentType == "" {
 		request.Header.Set("Content-Type", "application/json;")
@@ -96,7 +105,11 @@ func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context {
 func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 	f, err := os.Open(filePath)
 	if err != nil {
-		panic(err)
+		Error(err)
+		return &Context{
+			Err:       fmt.Errorf(url, " 请求错误， err: ", err.Error()),
+			StateCode: 404,
+		}
 	}
 	defer func() { _ = f.Close() }()
 
@@ -110,7 +123,7 @@ func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 
 	_, err = io.Copy(fWriter, f)
 	if err != nil {
-		panic(err)
+		Error(err)
 	}
 
 	fieldMap := map[string]string{
@@ -123,7 +136,7 @@ func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 
 	err = writer.Close()
 	if err != nil {
-		panic(err)
+		Error(err)
 	}
 
 	request, err := http.NewRequest(POST, urlStr(url), uploadBody)
@@ -146,7 +159,11 @@ func Put(url string, data []byte, contentType string, vs ...interface{}) (*Conte
 func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
-		panic(err)
+		Error(err)
+		return &Context{
+			Err:       fmt.Errorf(url, " 请求错误， err: ", err.Error()),
+			StateCode: 404,
+		}
 	}
 	request.Header.Set("Content-Type", contentType)
 	return Req(request, vs...)
@@ -163,7 +180,11 @@ func Delete(url string, vs ...interface{}) (*Context, error) {
 func NewDelete(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(DELETE, urlStr(url), nil)
 	if err != nil {
-		panic(err)
+		Error(err)
+		return &Context{
+			Err:       fmt.Errorf(url, " 请求错误， err: ", err.Error()),
+			StateCode: 404,
+		}
 	}
 	return Req(request, vs...)
 }
@@ -179,7 +200,11 @@ func Options(url string, vs ...interface{}) (*Context, error) {
 func NewOptions(url string, vs ...interface{}) *Context {
 	request, err := http.NewRequest(OPTIONS, urlStr(url), nil)
 	if err != nil {
-		panic(err)
+		Error(err)
+		return &Context{
+			Err:       fmt.Errorf(url, " 请求错误， err: ", err.Error()),
+			StateCode: 404,
+		}
 	}
 	return Req(request, vs...)
 }

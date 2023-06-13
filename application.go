@@ -180,17 +180,18 @@ func (scan *HostScanBadLink) do(caseUrl string, df int) {
 	if df > scan.Depth {
 		return
 	}
+	if len(caseUrl) < 1 {
+		return
+	}
 	if string(caseUrl[0]) == "/" {
 		caseUrl = scan.Host + caseUrl
 	}
-
 	if _, ok := scan.UrlSet[caseUrl]; ok {
 		return
 	}
 	ctx, err := Get(caseUrl)
 	if err != nil {
-		Error(err)
-		return
+		ctx.StateCode = 404
 	}
 	fmt.Print(".")
 	df++

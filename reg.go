@@ -35,60 +35,64 @@ func RegFindAllTxt(regStr, rest string) (dataList []string) {
 }
 
 var regMap = map[string]string{
-	"RegHtmlA":         `(?is:<a.*?</a>)`,
-	"RegHtmlTitle":     `(?is:<title.*?</title>)`,
-	"RegHtmlTr":        `(?is:<tr.*?</tr>)`,
-	"RegHtmlInput":     `(?is:<input.*?>)`,
-	"RegHtmlTd":        `(?is:<td.*?</td>)`,
-	"RegHtmlP":         `(?is:<p.*?</p>)`,
-	"RegHtmlSpan":      `(?is:<span.*?</span>)`,
-	"RegHtmlSrc":       `(?is:src=\".*?\")`,
-	"RegHtmlHref":      `(?is:href=\".*?\")`,
-	"RegHtmlH1":        `(?is:<h1.*?</h1>)`,
-	"RegHtmlH2":        `(?is:<h2.*?</h2>)`,
-	"RegHtmlH3":        `(?is:<h3.*?</h3>)`,
-	"RegHtmlH4":        `(?is:<h4.*?</h4>)`,
-	"RegHtmlH5":        `(?is:<h5.*?</h5>)`,
-	"RegHtmlH6":        `(?is:<h6.*?</h6>)`,
-	"RegHtmlTbody":     `(?is:<tbody.*?</tbody>)`,
-	"RegHtmlVideo":     `(?is:<video.*?</video>)`,
-	"RegHtmlCanvas":    `(?is:<canvas.*?</canvas>)`,
-	"RegHtmlCode":      `(?is:<code.*?</code>)`,
-	"RegHtmlImg":       `(?is:<img.*?/>)`,
-	"RegHtmlUl":        `(?is:<ul.*?</ul>)`,
-	"RegHtmlLi":        `(?is:<li.*?</li>)`,
-	"RegHtmlMeta":      `(?is:<meta.*?>)`,
-	"RegHtmlSelect":    `(?is:<select.*?</select>)`,
-	"RegHtmlTable":     `(?is:<table.*?</table>)`,
-	"RegHtmlButton":    `(?is:<button.*?</button>)`,
-	"RegHtmlTableOlny": `(?is:<table>.*?</table>)`,
-	"RegHtmlDiv":       `(?is:<div.*?</div>)`,
-	"RegHtmlOption":    `(?is:<option.*?</option>)`,
+	"RegHtmlA":           `(?is:<a.*?</a>)`,
+	"RegHtmlTitle":       `(?is:<title.*?</title>)`,
+	"RegHtmlKeyword":     `(?is:<meta name="keywords".*?>)`,
+	"RegHtmlDescription": `(?is:<meta name="description".*?>)`,
+	"RegHtmlTr":          `(?is:<tr.*?</tr>)`,
+	"RegHtmlInput":       `(?is:<input.*?>)`,
+	"RegHtmlTd":          `(?is:<td.*?</td>)`,
+	"RegHtmlP":           `(?is:<p.*?</p>)`,
+	"RegHtmlSpan":        `(?is:<span.*?</span>)`,
+	"RegHtmlSrc":         `(?is:src=\".*?\")`,
+	"RegHtmlHref":        `(?is:href=\".*?\")`,
+	"RegHtmlH1":          `(?is:<h1.*?</h1>)`,
+	"RegHtmlH2":          `(?is:<h2.*?</h2>)`,
+	"RegHtmlH3":          `(?is:<h3.*?</h3>)`,
+	"RegHtmlH4":          `(?is:<h4.*?</h4>)`,
+	"RegHtmlH5":          `(?is:<h5.*?</h5>)`,
+	"RegHtmlH6":          `(?is:<h6.*?</h6>)`,
+	"RegHtmlTbody":       `(?is:<tbody.*?</tbody>)`,
+	"RegHtmlVideo":       `(?is:<video.*?</video>)`,
+	"RegHtmlCanvas":      `(?is:<canvas.*?</canvas>)`,
+	"RegHtmlCode":        `(?is:<code.*?</code>)`,
+	"RegHtmlImg":         `(?is:<img.*?/>)`,
+	"RegHtmlUl":          `(?is:<ul.*?</ul>)`,
+	"RegHtmlLi":          `(?is:<li.*?</li>)`,
+	"RegHtmlMeta":        `(?is:<meta.*?>)`,
+	"RegHtmlSelect":      `(?is:<select.*?</select>)`,
+	"RegHtmlTable":       `(?is:<table.*?</table>)`,
+	"RegHtmlButton":      `(?is:<button.*?</button>)`,
+	"RegHtmlTableOlny":   `(?is:<table>.*?</table>)`,
+	"RegHtmlDiv":         `(?is:<div.*?</div>)`,
+	"RegHtmlOption":      `(?is:<option.*?</option>)`,
 
 	// 取标签内容
-	"RegHtmlATxt":      `(?is:<a.*?>(.*?)</a>)`,
-	"RegHtmlTitleTxt":  `(?is:<title.*?>(.*?)</title>)`,
-	"RegHtmlTrTxt":     `(?is:<tr.*?>(.*?)</tr>)`,
-	"RegHtmlTdTxt":     `(?is:<td.*?>(.*?)</td>)`,
-	"RegHtmlPTxt":      `(?is:<p.*?>(.*?)</p>)`,
-	"RegHtmlSpanTxt":   `(?is:<span.*?>(.*?)</span>)`,
-	"RegHtmlSrcTxt":    `(?is:src=\"(.*?)\")`,
-	"RegHtmlHrefTxt":   `(?is:href=\"(.*?)\")`,
-	"RegHtmlHTxt1":     `(?is:<h1.*?>(.*?)</h1>)`,
-	"RegHtmlHTxt2":     `(?is:<h2.*?>(.*?)</h2>)`,
-	"RegHtmlHTxt3":     `(?is:<h3.*?>(.*?)</h3>)`,
-	"RegHtmlHTxt4":     `(?is:<h4.*?>(.*?)</h4>)`,
-	"RegHtmlHTxt5":     `(?is:<h5.*?>(.*?)</h5>)`,
-	"RegHtmlHTxt6":     `(?is:<h6.*?>(.*?)</h6>)`,
-	"RegHtmlCodeTxt":   `(?is:<code.*?>(.*?)</code>)`,
-	"RegHtmlUlTxt":     `(?is:<ul.*?>(.*?)</ul>)`,
-	"RegHtmlLiTxt":     `(?is:<li.*?>(.*?)</li>)`,
-	"RegHtmlSelectTxt": `(?is:<select.*?>(.*?)</select>)`,
-	"RegHtmlTableTxt":  `(?is:<table.*?>(.*?)</table>)`,
-	"RegHtmlButtonTxt": `(?is:<button.*?>(.*?)</button>)`,
-	"RegHtmlDivTxt":    `(?is:<div.*?>(.*?)</div>)`,
-	"RegHtmlOptionTxt": `(?is:<option.*?>(.*?)</option>)`,
-	"RegValue":         `(?is:value=\"(.*?)\")`,
+	"RegHtmlATxt":           `(?is:<a.*?>(.*?)</a>)`,
+	"RegHtmlTitleTxt":       `(?is:<title.*?>(.*?)</title>)`,
+	"RegHtmlKeywordTxt":     `(?is:<meta name="keywords".*?content="(.*?)".*?>)`,
+	"RegHtmlDescriptionTxt": `(?is:<meta name="description".*?content="(.*?)".*?.*?>)`,
+	"RegHtmlTrTxt":          `(?is:<tr.*?>(.*?)</tr>)`,
+	"RegHtmlTdTxt":          `(?is:<td.*?>(.*?)</td>)`,
+	"RegHtmlPTxt":           `(?is:<p.*?>(.*?)</p>)`,
+	"RegHtmlSpanTxt":        `(?is:<span.*?>(.*?)</span>)`,
+	"RegHtmlSrcTxt":         `(?is:src=\"(.*?)\")`,
+	"RegHtmlHrefTxt":        `(?is:href=\"(.*?)\")`,
+	"RegHtmlHTxt1":          `(?is:<h1.*?>(.*?)</h1>)`,
+	"RegHtmlHTxt2":          `(?is:<h2.*?>(.*?)</h2>)`,
+	"RegHtmlHTxt3":          `(?is:<h3.*?>(.*?)</h3>)`,
+	"RegHtmlHTxt4":          `(?is:<h4.*?>(.*?)</h4>)`,
+	"RegHtmlHTxt5":          `(?is:<h5.*?>(.*?)</h5>)`,
+	"RegHtmlHTxt6":          `(?is:<h6.*?>(.*?)</h6>)`,
+	"RegHtmlCodeTxt":        `(?is:<code.*?>(.*?)</code>)`,
+	"RegHtmlUlTxt":          `(?is:<ul.*?>(.*?)</ul>)`,
+	"RegHtmlLiTxt":          `(?is:<li.*?>(.*?)</li>)`,
+	"RegHtmlSelectTxt":      `(?is:<select.*?>(.*?)</select>)`,
+	"RegHtmlTableTxt":       `(?is:<table.*?>(.*?)</table>)`,
+	"RegHtmlButtonTxt":      `(?is:<button.*?>(.*?)</button>)`,
+	"RegHtmlDivTxt":         `(?is:<div.*?>(.*?)</div>)`,
+	"RegHtmlOptionTxt":      `(?is:<option.*?>(.*?)</option>)`,
+	"RegValue":              `(?is:value=\"(.*?)\")`,
 
 	// 删除
 	"RegDelHtml":   `\<[\S\s]+?\>`,
@@ -213,6 +217,14 @@ func RegHtmlTitle(str string, property ...string) []string {
 	return regFind(runFuncName(), str, property...)
 }
 
+func RegHtmlKeyword(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
+}
+
+func RegHtmlDescription(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
+}
+
 func RegHtmlTr(str string, property ...string) []string {
 	return regFind(runFuncName(), str, property...)
 }
@@ -326,6 +338,14 @@ func RegHtmlATxt(str string, property ...string) []string {
 }
 
 func RegHtmlTitleTxt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
+}
+
+func RegHtmlKeywordTxt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
+}
+
+func RegHtmlDescriptionTxt(str string, property ...string) []string {
 	return regFindTxt(runFuncName(), str, property...)
 }
 
