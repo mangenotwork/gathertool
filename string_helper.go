@@ -78,6 +78,7 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
+	Info("v.Kind() = ", v.Kind())
 	switch v.Kind() {
 	case reflect.Struct:
 		buf.WriteString("{\n")
@@ -130,6 +131,19 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 		}
 		buf.WriteString("\n" + strings.Repeat(" ", indent) + "}")
 
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		buf.WriteString(strconv.FormatUint(v.Uint(), 10))
+
+	case reflect.Float32, reflect.Float64:
+		result := fmt.Sprintf("%f", v.Float())
+		// 去除result末尾的0
+		for strings.HasSuffix(result, "0") {
+			result = strings.TrimSuffix(result, "0")
+		}
+		if strings.HasSuffix(result, ".") {
+			result = strings.TrimSuffix(result, ".")
+		}
+		buf.WriteString(result)
 	default:
 		format := "%v"
 		switch v.Interface().(type) {
@@ -1966,11 +1980,25 @@ func IDMd5() string {
 
 // IP2Int64 IP str ==> int64
 func IP2Int64(ip string) int64 {
+	address := net.ParseIP(ip)
+	if address == nil {
+		Error("ip地址不正确")
+		return 0
+	}
 	bits := strings.Split(ip, ".")
-	b0, _ := strconv.Atoi(bits[0])
-	b1, _ := strconv.Atoi(bits[1])
-	b2, _ := strconv.Atoi(bits[2])
-	b3, _ := strconv.Atoi(bits[3])
+	b0, b1, b2, b3 := 0, 0, 0, 0
+	if len(bits) >= 1 {
+		b0, _ = strconv.Atoi(bits[0])
+	}
+	if len(bits) >= 2 {
+		b1, _ = strconv.Atoi(bits[1])
+	}
+	if len(bits) >= 3 {
+		b2, _ = strconv.Atoi(bits[2])
+	}
+	if len(bits) >= 4 {
+		b3, _ = strconv.Atoi(bits[3])
+	}
 	var sum int64
 	sum += int64(b0) << 24
 	sum += int64(b1) << 16
