@@ -78,7 +78,6 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
-	Info("v.Kind() = ", v.Kind())
 	switch v.Kind() {
 	case reflect.Struct:
 		buf.WriteString("{\n")
@@ -144,6 +143,7 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 			result = strings.TrimSuffix(result, ".")
 		}
 		buf.WriteString(result)
+
 	default:
 		format := "%v"
 		switch v.Interface().(type) {

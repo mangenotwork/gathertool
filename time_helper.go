@@ -337,3 +337,16 @@ func Timestamp2WeekXinQi(timestamp int64) string {
 	}
 	return "星期一"
 }
+
+// LatestDate 最近好多天
+func LatestDate(date int) []string {
+	outList := make([]string, 0)
+	now := time.Now()
+	outList = append(outList, now.Format("2006-01-02"))
+	nowInt := now.Unix()
+	for i := 0; i < date; i++ {
+		nowInt -= 86400
+		outList = append(outList, time.Unix(nowInt, 0).Format("2006-01-02"))
+	}
+	return outList
+}

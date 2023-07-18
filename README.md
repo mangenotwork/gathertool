@@ -288,6 +288,16 @@ func main(){
 
 <a href="https://www.jetbrains.com/?from=gathertool" target="_blank"><img src="https://raw.githubusercontent.com/moonD4rk/staticfiles/master/picture/jetbrains-variant-4.png" width="256" align="middle"/></a>
 
+
+## 使用注意&不足之处
+1. Mysql相关方法封装使用的字符串拼接，如抓取无需关心Sql注入这类场景放心使用，生产环境使用会出现安全风险；
+2. 变量类型转换使用映射，性能方面会差一些，追求性能请使用其他；
+
+
+## TODO
+- Redis连接方法改为连接池
+
+
 ## 三方引用 感谢这些开源项目
 - github.com/Shopify/sarama
 - github.com/dgrijalva/jwt-go 
