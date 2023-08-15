@@ -9,6 +9,7 @@ package gathertool
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"errors"
 	"log"
@@ -243,24 +244,30 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 	if task == nil {
 		task = NewTask()
 	}
+
 	// 如果使用方未传入Client，  初始化 Client
 	if client == nil {
 		client = &http.Client{
-			Timeout: 60 * time.Second,
+			Timeout: 30 * time.Second,
 		}
 		// Transport 设置
 		client.Transport = &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:       30 * time.Second,
-				KeepAlive:     30 * time.Second,
-				FallbackDelay: -1 * time.Nanosecond,
-			}).DialContext,
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				n := &net.Dialer{
+					Timeout:       30 * time.Second,
+					KeepAlive:     30 * time.Second,
+					FallbackDelay: -1 * time.Nanosecond,
+				}
+				conn, err := n.DialContext(ctx, network, addr)
+				request.RemoteAddr = conn.RemoteAddr().String()
+				return conn, err
+			},
 			ForceAttemptHTTP2: true,
 			// gathertool默认每个请求实例都创建一个独立的client，
 			// 不复用client，这样设计是在高并发中，每个请求都是独立的
 			MaxIdleConns:          10,
 			MaxIdleConnsPerHost:   5, // 默认是 2
-			IdleConnTimeout:       90 * time.Second,
+			IdleConnTimeout:       60 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
 			DisableKeepAlives:     true, //DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
