@@ -12,7 +12,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"log"
+	"fmt"
 	"math/rand"
 	"net"
 	"net/http"
@@ -86,7 +86,7 @@ func urlStr(url string) string {
 	if l > 8 && (url[:7] == "http://" || url[:8] == "https://") {
 		return url
 	}
-	return "http://" + url
+	return "https://" + url
 }
 
 // SetSleep 设置请求随机休眠时间， 单位秒
@@ -259,7 +259,9 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 					FallbackDelay: -1 * time.Nanosecond,
 				}
 				conn, err := n.DialContext(ctx, network, addr)
-				request.RemoteAddr = conn.RemoteAddr().String()
+				if err == nil && conn != nil {
+					request.RemoteAddr = conn.RemoteAddr().String()
+				}
 				return conn, err
 			},
 			ForceAttemptHTTP2: true,
@@ -382,20 +384,23 @@ func SearchPort(ipStr string, vs ...interface{}) {
 	Info("执行完成！！！")
 }
 
+var pingTerminalPrint = true
+
+func ClosePingTerminalPrint() {
+	pingTerminalPrint = false
+}
+
 // Ping ping IP
-func Ping(ip string) {
+func Ping(ip string) (time.Duration, error) {
 	before := time.Now()
-	defer func(tStart time.Time) {
-		dur := time.Now().Sub(before)
-		Info("来自 ", ip, " 的回复: 时间 = ", dur)
-	}(before)
 	c, err := net.Dial("ip4:icmp", ip)
 	if err != nil {
-		return
+		return time.Duration(0), err
 	}
-	Info(c)
-	c.SetDeadline(time.Now().Add(1 * time.Second))
-	defer c.Close()
+	_ = c.SetDeadline(time.Now().Add(1 * time.Second))
+	defer func() {
+		_ = c.Close()
+	}()
 	var msg [512]byte
 	msg[0] = 8
 	msg[1] = 0
@@ -410,31 +415,44 @@ func Ping(ip string) {
 	check := checkSum(msg[0:l])
 	msg[2] = byte(check >> 8)
 	msg[3] = byte(check & 0xff)
-	Info(msg[0:l])
 	_, err = c.Write(msg[0:l])
 	if err != nil {
-		log.Println(ip, " -> ping err : ", err)
-		return
+		if pingTerminalPrint {
+			Info(ip, " -> ping err : ", err)
+		}
+		return time.Duration(0), err
 	}
-	c.Write(msg[0:l])
+	_, _ = c.Write(msg[0:l])
 	_, err = c.Read(msg[0:])
 	if err != nil {
-		log.Println(ip, " -> ping err : ", err)
-		return
+		if pingTerminalPrint {
+			Info(ip, " -> ping err : ", err)
+		}
+		return time.Duration(0), err
 	}
 	if msg[20+5] != 13 {
-		Error(ip, " -> ping err : Identifier not matches")
-		return
+		if pingTerminalPrint {
+			Error(ip, " -> ping err : Identifier not matches")
+		}
+		return time.Duration(0), fmt.Errorf(ip, " -> ping err : Identifier not matches")
 	}
 	if msg[20+7] != 37 {
-		Error(ip, " -> ping err : Sequence not matches")
-		return
+		if pingTerminalPrint {
+			Error(ip, " -> ping err : Sequence not matches")
+		}
+		return time.Duration(0), fmt.Errorf(ip, " -> ping err : Sequence not matches")
 	}
 	if msg[20+8] != 99 {
-		Error(ip, " -> ping err : Custom data not matches")
-		return
+		if pingTerminalPrint {
+			Error(ip, " -> ping err : Custom data not matches")
+		}
+		return time.Duration(0), fmt.Errorf(ip, " -> ping err : Custom data not matches")
 	}
-	Info("ping ok : ", ip)
+	dur := time.Now().Sub(before)
+	if pingTerminalPrint {
+		Info("来自 ", ip, " 的回复: 时间 = ", dur)
+	}
+	return dur, nil
 }
 
 func checkSum(msg []byte) uint16 {

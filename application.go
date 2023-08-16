@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+var ApplicationTerminalOut = true
+
 // HostToolEr TODO HostToolEr
 type HostToolEr interface {
 	Run() ([]string, int)
@@ -43,9 +45,11 @@ func (scan *HostScanUrl) Run() ([]string, int) {
 	scan.do(scan.Host, 0)
 	urls := make([]string, 0)
 	for k, _ := range scan.UrlSet {
-		urls = append(urls, k)
+		urls = append(urls, urlStr(k))
 	}
-	fmt.Printf("\n")
+	if ApplicationTerminalOut {
+		fmt.Printf("\n")
+	}
 	return urls, scan.Count
 }
 
@@ -70,7 +74,9 @@ G:
 		Error(err)
 		return
 	}
-	fmt.Print(".")
+	if ApplicationTerminalOut {
+		fmt.Print(".")
+	}
 	df++
 	scan.UrlSet[caseUrl] = struct{}{}
 	scan.Count++
@@ -158,7 +164,9 @@ func (scan *HostScanBadLink) Run() ([]string, int) {
 			badUrls = append(badUrls, k)
 		}
 	}
-	fmt.Printf("\n")
+	if ApplicationTerminalOut {
+		fmt.Printf("\n")
+	}
 	return badUrls, len(badUrls)
 }
 
@@ -193,7 +201,9 @@ func (scan *HostScanBadLink) do(caseUrl string, df int) {
 	if err != nil {
 		ctx.StateCode = 404
 	}
-	fmt.Print(".")
+	if ApplicationTerminalOut {
+		fmt.Print(".")
+	}
 	df++
 	scan.UrlSet[caseUrl] = struct{}{}
 	scan.PageState[caseUrl] = ctx.StateCode
@@ -235,7 +245,9 @@ func (scan *HostPageSpeedCheck) Run() ([]string, int) {
 	for k, v := range scan.PageSpeed {
 		urls = append(urls, fmt.Sprintf("%s:%v", k, v))
 	}
-	fmt.Printf("\n")
+	if ApplicationTerminalOut {
+		fmt.Printf("\n")
+	}
 	return urls, len(urls)
 }
 
@@ -261,7 +273,9 @@ func (scan *HostPageSpeedCheck) do(caseUrl string, df int) {
 		Error(err)
 		return
 	}
-	fmt.Print(".")
+	if ApplicationTerminalOut {
+		fmt.Print(".")
+	}
 	df++
 	scan.UrlSet[caseUrl] = struct{}{}
 	scan.PageSpeed[caseUrl] = ctx.Ms
@@ -280,7 +294,7 @@ func (scan *HostPageSpeedCheck) do(caseUrl string, df int) {
 // AverageSpeed 平均时间
 func (scan *HostPageSpeedCheck) AverageSpeed() float64 {
 	var (
-		n int   = 0
+		n int64 = 0
 		t int64 = 0
 	)
 	for _, v := range scan.PageSpeed {
