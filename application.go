@@ -54,6 +54,9 @@ func (scan *HostScanUrl) Run() ([]string, int) {
 }
 
 func (scan *HostScanUrl) do(caseUrl string, df int) {
+	if len(caseUrl) < 1 {
+		return
+	}
 	if df > scan.Depth {
 		return
 	}
@@ -256,6 +259,9 @@ func (scan *HostPageSpeedCheck) Result() map[string]time.Duration {
 }
 
 func (scan *HostPageSpeedCheck) do(caseUrl string, df int) {
+	if len(caseUrl) < 1 {
+		return
+	}
 	if df > scan.Depth {
 		return
 	}
