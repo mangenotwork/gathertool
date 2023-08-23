@@ -251,8 +251,8 @@ func Any2Int(data interface{}) int {
 	return t2
 }
 
-// Any2int64 interface{} -> int64
-func Any2int64(data interface{}) int64 {
+// Any2Int64 interface{} -> int64
+func Any2Int64(data interface{}) int64 {
 	return int64(Any2Int(data))
 }
 
@@ -1551,6 +1551,33 @@ func JsonFind2Arr(jsonStr, find string) ([]interface{}, error) {
 		return nil, err
 	}
 	return Any2Arr(value), nil
+}
+
+// JsonFind2Str 寻找json,输出字符串
+func JsonFind2Str(jsonStr, find string) (string, error) {
+	value, err := JsonFind(jsonStr, find)
+	if err != nil {
+		return "", err
+	}
+	return Any2String(value), nil
+}
+
+// JsonFind2Int 寻找json,输出int
+func JsonFind2Int(jsonStr, find string) (int, error) {
+	value, err := JsonFind(jsonStr, find)
+	if err != nil {
+		return 0, err
+	}
+	return Any2Int(value), nil
+}
+
+// JsonFind2Int64 寻找json,输出int64
+func JsonFind2Int64(jsonStr, find string) (int64, error) {
+	value, err := JsonFind(jsonStr, find)
+	if err != nil {
+		return 0, err
+	}
+	return Any2Int64(value), nil
 }
 
 // IsJson 是否是json格式
