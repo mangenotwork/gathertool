@@ -269,7 +269,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 			// 不复用client，这样设计是在高并发中，每个请求都是独立的
 			MaxIdleConns:          10,
 			MaxIdleConnsPerHost:   5, // 默认是 2
-			IdleConnTimeout:       60 * time.Second,
+			IdleConnTimeout:       30 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
 			DisableKeepAlives:     true, //DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
