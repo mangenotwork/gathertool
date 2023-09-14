@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -19,6 +20,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -87,6 +89,14 @@ func urlStr(url string) string {
 		return url
 	}
 	return "https://" + url
+}
+
+func IsUrl(url string) bool {
+	return isUrl(url)
+}
+
+func UrlStr(url string) string {
+	return urlStr(url)
 }
 
 // SetSleep 设置请求随机休眠时间， 单位秒
@@ -477,4 +487,78 @@ func defaultRetry(ctx *Context) {
 
 func defaultSucceed(ctx *Context) {
 	//Info("请求成功")
+}
+
+type SSLCertificateInfo struct {
+	Url                   string `json:"Url"`                   // url
+	EffectiveTime         string `json:"EffectiveTime"`         // 有效时间
+	NotBefore             int64  `json:"NotBefore"`             // 起始
+	NotAfter              int64  `json:"NotAfter"`              // 结束
+	DNSName               string `json:"DNSName"`               // DNSName
+	OCSPServer            string `json:"OCSPServer"`            // OCSPServer
+	CRLDistributionPoints string `json:"CRLDistributionPoints"` // CRL分发点
+	Issuer                string `json:"Issuer"`                // 颁发者
+	IssuingCertificateURL string `json:"IssuingCertificateURL"` // 颁发证书URL
+	PublicKeyAlgorithm    string `json:"PublicKeyAlgorithm"`    // 公钥算法
+	Subject               string `json:"Subject"`               // 颁发对象
+	Version               string `json:"Version"`               // 版本
+	SignatureAlgorithm    string `json:"SignatureAlgorithm"`    // 证书算法
+}
+
+func (s SSLCertificateInfo) Echo() {
+	txt := `
+Url: %s 
+有效时间: %s 
+颁发对象: %s 
+颁发者: %s 
+颁发证书URL: %s 
+公钥算法: %s 
+证书算法: %s 
+版本: %s 
+DNSName: %s 
+CRL分发点: %s 
+OCSPServer: %s `
+	Info(fmt.Sprintf(txt, s.Url, s.EffectiveTime, s.Subject, s.Issuer, s.IssuingCertificateURL, s.PublicKeyAlgorithm,
+		s.SignatureAlgorithm, s.Version, s.DNSName, s.CRLDistributionPoints, s.OCSPServer))
+}
+func (s SSLCertificateInfo) Expire() int64 {
+	return s.NotAfter - time.Now().Unix()
+}
+
+// GetCertificateInfo 获取SSL证书信息
+func GetCertificateInfo(caseUrl string) (SSLCertificateInfo, bool) {
+	var info = SSLCertificateInfo{
+		Url: caseUrl,
+	}
+	var cert *x509.Certificate
+	var err error
+	client := http.Client{}
+	client.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+				if len(rawCerts) < 1 {
+					return nil
+				}
+				cert, err = x509.ParseCertificate(rawCerts[0])
+				return err
+			},
+		},
+	}
+	_, err = client.Get(caseUrl)
+	if err != nil || cert == nil {
+		return info, false
+	}
+	info.NotBefore = cert.NotBefore.Unix()
+	info.NotAfter = cert.NotAfter.Unix()
+	info.EffectiveTime = fmt.Sprintf("%s 到 %s", Timestamp2Date(info.NotBefore), Timestamp2Date(info.NotAfter))
+	info.DNSName = strings.Join(cert.DNSNames, ";")
+	info.OCSPServer = strings.Join(cert.OCSPServer, ";")
+	info.CRLDistributionPoints = strings.Join(cert.CRLDistributionPoints, ";")
+	info.Issuer = cert.Issuer.String()
+	info.IssuingCertificateURL = strings.Join(cert.IssuingCertificateURL, ";")
+	info.PublicKeyAlgorithm = cert.PublicKeyAlgorithm.String()
+	info.Subject = cert.Subject.String()
+	info.Version = strconv.Itoa(cert.Version)
+	info.SignatureAlgorithm = cert.SignatureAlgorithm.String()
+	return info, true
 }
