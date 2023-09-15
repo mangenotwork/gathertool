@@ -37,6 +37,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -152,4 +153,45 @@ Reconnection:
 
 		}
 	}
+}
+
+// Whois 查询
+
+// 根服务器
+var RootWhoisServers = "whois.iana.org:43"
+
+type WhoisInfo struct {
+	Root string
+	Rse  string
+}
+
+func Whois(host string) *WhoisInfo {
+	hostList := strings.Split(host, ".")
+	host = strings.Join(hostList[len(hostList)-2:len(hostList)], ".")
+	info := &WhoisInfo{}
+	rootRse := whois(RootWhoisServers, host)
+	info.Root = rootRse
+	referList := regFindTxt(`(?is:refer:(.*?)\n)`, rootRse)
+	if len(referList) > 0 {
+		refer := StrDeleteSpace(referList[0])
+		rse := whois(refer+":43", host)
+		info.Rse = rse
+	}
+	return info
+}
+
+func whois(server, host string) string {
+	conn, _ := net.Dial("tcp", server)
+	conn.Write([]byte(host + " \r\n"))
+	buf := make([]byte, 1024*10)
+	n, err := conn.Read(buf)
+	if err != nil && err != io.EOF {
+		Error(err)
+		return ""
+	}
+	rse := string(buf[:n])
+	defer func() {
+		conn.Close()
+	}()
+	return rse
 }
