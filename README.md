@@ -98,7 +98,7 @@ func baiduSucceed(ctx *gt.Context){
 ```
 
 #### post请求
-```
+```go
     // FormData
     postData := gt.FormData{
         "aa":"aa",	
@@ -128,7 +128,7 @@ func baiduSucceed(ctx *gt.Context){
 ```
 
 #### 数据存储到mysql
-```
+```go
 var (
     host   = "192.168.0.100"
     port      = 3306
@@ -152,7 +152,7 @@ db.Spider2022DB.InsertAt(tableName, inputdata)
 ```
 
 #### HTML数据提取
-```
+```go
 func main(){
 	date := "2022-07-05"
 	caseUrl := "***"
@@ -202,7 +202,7 @@ func Data(datas []string, date, typeName, note string) {
 ```
 
 #### Json数据提取
-```
+```go
 func main(){
 	txt := `{
     "reason":"查询成功!",
@@ -345,16 +345,13 @@ func main(){
 1. 新增html解析，指定html内容提取
 2. 新增抓取实例
 3. 优化部分方法
-4. 添加注释
 ```
 
 #### v0.3.9
 ```
 新增:
 1. 新增配置，支持yaml
-
-优化部分方法
-代码审查
+2. 优化部分方法
 ```
 
 #### v0.4.1
@@ -363,10 +360,6 @@ func main(){
 1. 文件相关处理
 2. 文件压缩解压
 3. 新增抓取实列 _examples/cnlinfo
-
-优化部分方法
-代码审查
-
 ```
 
 #### v0.4.2
@@ -375,8 +368,6 @@ func main(){
 1. redis, nsq, rabbitmq, kafka 消息队列方法
 2. 新增开发文档
 3. 新增redis相关方法
-
-代码审查
 ```
 
 #### v0.4.3
@@ -386,7 +377,15 @@ func main(){
 3. 修复redis封装方法的bug 
 4. 请求日志添加请求地址信息
 5. 优化抓取实例
+```
 
-代码审查
+##### v0.4.4 ~ v0.4.6
+```
+1. 移除 grpc相关方法
+2. 新增DNS查询
+3. 新增证书信息获取
+4. 新增Url扫描
+5. 新增邮件发送
+6. 优化ICMP Ping的方法
 ```
 
