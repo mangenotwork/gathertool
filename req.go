@@ -27,6 +27,10 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 const (
 	POST    = "POST"
 	GET     = "GET"

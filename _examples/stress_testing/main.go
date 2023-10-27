@@ -11,11 +11,12 @@ func main() {
 
 	// 普通 GET api压测
 	//url := "http://192.168.4.2:8200/api/kjhinfo.ashx"
-	url := "http://192.168.4.12:8091/"
+	url := "http://192.168.3.2:8301"
 	//url := "http://192.168.4.15:8096/api/appprofile/GetCollectPariseTest?id=2212011659209123"
 
 	// 请求10000次 并发数 1000
-	test := gt.NewTestUrl(url, "Get", 100000, 10000)
+	test := gt.NewTestUrl(url, "Get", 100000, 5000)
+	//test.OpenRetry()
 	test.Run()
 
 	//token := &http.Header{}

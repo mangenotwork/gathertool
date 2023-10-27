@@ -41,6 +41,9 @@ type StressUrl struct {
 	// 接口传入类型
 	ContentType string
 
+	// 是否重试
+	isRetry bool
+
 	stateCodeList    []*stateCodeData
 	stateCodeListMux *sync.Mutex
 }
@@ -54,6 +57,7 @@ func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 		Total:            total,
 		TQueue:           NewQueue(),
 		sumReqTime:       int64(0),
+		isRetry:          false,
 		stateCodeList:    make([]*stateCodeData, 0),
 		stateCodeListMux: &sync.Mutex{},
 	}
@@ -62,6 +66,10 @@ func NewTestUrl(url, method string, sum int64, total int) *StressUrl {
 // SetJson 设置json
 func (s *StressUrl) SetJson(str string) {
 	s.JsonData = str
+}
+
+func (s *StressUrl) OpenRetry() {
+	s.isRetry = true
 }
 
 // Run 运行压测
@@ -139,6 +147,9 @@ func (s *StressUrl) Run(vs ...interface{}) {
 					continue
 				}
 				ctx.JobNumber = i
+				if !s.isRetry {
+					ctx.CloseRetry()
+				}
 				ctx.Do()
 
 				atomic.AddInt64(&s.sumReqTime, int64(ctx.Ms))
