@@ -126,14 +126,14 @@ func (s *StressUrl) Run(vs ...interface{}) {
 				t.MaxIdleConnsPerHost = s.Total * 2
 				t.DisableKeepAlives = true
 				t.DialContext = (&net.Dialer{
-					Timeout:   10 * time.Second,
-					KeepAlive: 10 * time.Second,
+					Timeout:   3 * time.Second,
+					KeepAlive: 3 * time.Second,
 				}).DialContext
-				t.IdleConnTimeout = 20 * time.Second
+				t.IdleConnTimeout = 3 * time.Second
 				t.ExpectContinueTimeout = 1 * time.Second
 				client := http.Client{
 					Transport: t,
-					Timeout:   5 * time.Second,
+					Timeout:   1 * time.Second,
 				}
 				switch s.Method {
 				case "get", "Get", "GET":
