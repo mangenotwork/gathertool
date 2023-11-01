@@ -227,13 +227,13 @@ func (c *Context) Do() func() {
 	}
 	// 是否超时
 	if c.Err != nil && (strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") ||
-		strings.Contains(c.Err.Error(), ("Too Many Requests")) ||
-		strings.Contains(c.Err.Error(), ("To Many Requests")) ||
-		strings.Contains(c.Err.Error(), ("EOF")) ||
-		strings.Contains(c.Err.Error(), ("connection timed out"))) {
+		strings.Contains(c.Err.Error(), "Too Many Requests") ||
+		strings.Contains(c.Err.Error(), "To Many Requests") ||
+		strings.Contains(c.Err.Error(), "EOF") ||
+		strings.Contains(c.Err.Error(), "connection timed out")) {
 
 		Error("【日志】 请求 超时 = ", c.Err)
-		if c.RetryFunc != nil && c.isRetry {
+		if c.RetryFunc != nil && c.isRetry == true {
 			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
 			c.Req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
@@ -246,7 +246,7 @@ func (c *Context) Do() func() {
 	if c.Err != nil {
 		Error("【日志】 请求 err = ", c.Err)
 		// 指定的失败都执行 retry
-		if c.err2retry && c.RetryFunc != nil && c.isRetry {
+		if c.err2retry && c.RetryFunc != nil && c.isRetry == true {
 			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
 			c.Req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
@@ -284,7 +284,7 @@ func (c *Context) Do() func() {
 	switch v {
 	case "success":
 		body, err := io.ReadAll(c.Resp.Body)
-		if err != nil {
+		if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
 			Error(err)
 			return nil
 		}
@@ -443,7 +443,7 @@ func (c *Context) SetProxyFunc(f func() *http.Transport) *Context {
 // SetProxyPool 给请求设置代理池
 func (c *Context) SetProxyPool(pool *ProxyPool) *Context {
 	ip, _ := pool.Get()
-	InfofTimes(3, "[日志] 使用代理: %s", ip)
+	InfoFTimes(3, "[日志] 使用代理: %s", ip)
 	proxy, _ := url.Parse(ip)
 	c.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxy)}
 	return c
@@ -612,10 +612,10 @@ func (c *Context) Upload(filePath string) func() {
 // CookieNext 使用上下文cookies
 func (c *Context) CookieNext() error {
 	if c.Resp == nil {
-		return fmt.Errorf("response is nil.")
+		return fmt.Errorf("response is nil")
 	}
 	if c.Req == nil {
-		return fmt.Errorf("request is nil.")
+		return fmt.Errorf("request is nil")
 	}
 	// 上下文cookies
 	for _, cookie := range c.Resp.Cookies() {

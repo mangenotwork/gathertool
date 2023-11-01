@@ -53,7 +53,7 @@ func (c *webSocketClient) Send(body []byte) error {
 }
 
 func (c *webSocketClient) Close() {
-	c.Ws.Close()
+	_ = c.Ws.Close()
 }
 
 func (c *webSocketClient) Read(data []byte) error {

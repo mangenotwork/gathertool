@@ -39,7 +39,7 @@ func NewGet(url string, vs ...interface{}) *Context {
 		Error(err)
 		return &Context{
 			Err:       fmt.Errorf(url, " 请求错误， err: ", err.Error()),
-			StateCode: 404,
+			StateCode: 404, // http code 404
 		}
 	}
 	return Req(request, vs...)
@@ -80,14 +80,14 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 // FormData form data
 type FormData map[string]string
 
-// PostForm 执行post请求，请求参数为fromdata，请求内容在上下文 *Context 里
+// PostForm 执行post请求，请求参数为from data，请求内容在上下文 *Context 里
 func PostForm(url string, data map[string]string, vs ...interface{}) (*Context, error) {
 	ctx := NewPostForm(url, data, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
-// NewPostForm 定义一个post请求对象，请求参数为fromdata，请求需执行 XX.Do()
+// NewPostForm 定义一个post请求对象，请求参数为from data，请求需执行 XX.Do()
 func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context {
 	postData := url.Values{}
 	for k, v := range data {

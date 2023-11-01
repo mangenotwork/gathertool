@@ -10,7 +10,6 @@ package gathertool
 import (
 	"context"
 	"fmt"
-	"log"
 	"reflect"
 	"time"
 
@@ -83,7 +82,7 @@ func (m *Mongo) GetConn() (err error) {
 // dbname:DB名
 func (m *Mongo) GetDB(dbname string) {
 	if m.Conn == nil {
-		m.GetConn()
+		_ = m.GetConn()
 	}
 	m.Database = m.Conn.Database(dbname)
 }
@@ -92,7 +91,7 @@ func (m *Mongo) GetDB(dbname string) {
 // dbname:DB名;  name:集合名
 func (m *Mongo) GetCollection(dbname, name string) {
 	if m.Conn == nil {
-		m.GetConn()
+		_ = m.GetConn()
 	}
 	m.Collection = m.Conn.Database(dbname).Collection(name)
 }
@@ -110,7 +109,7 @@ func (m *Mongo) Insert(document interface{}) error {
 		if err != nil {
 			return err
 		}
-		log.Println("Inserted a single document: ", insertResult.InsertedID)
+		Info("Inserted a single document: ", insertResult.InsertedID)
 	}
 
 	if v.Kind() == reflect.Slice {
@@ -118,7 +117,7 @@ func (m *Mongo) Insert(document interface{}) error {
 		if err != nil {
 			return err
 		}
-		log.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
+		Info("Inserted multiple documents: ", insertManyResult.InsertedIDs)
 	}
 
 	return nil
@@ -128,7 +127,7 @@ func (m *Mongo) Insert(document interface{}) error {
 func MongoConn() {
 	m, err := NewMongo("", "", "", "")
 	if err != nil {
-		log.Println(err)
+		Error(err)
 		return
 	}
 	m.GetCollection("test", "trainers")
@@ -145,7 +144,7 @@ func MongoConn() {
 	misty := Trainer{"Misty", 10, "Cerulean City"}
 	brock := Trainer{"Brock", 15, "Pewter City"}
 	trainers := []interface{}{ash, misty, brock}
-	m.Insert(trainers)
+	_ = m.Insert(trainers)
 }
 
 // MongoConn1 mongoDB客户端连接
@@ -156,21 +155,20 @@ func MongoConn1() {
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		Error(err)
+		return
 	}
 
 	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Fatal(err)
+		Error(err)
+		return
 	}
-
 	Info("Connected to MongoDB!")
-
 	// ===== 获得在test库里面Trainer集合的handle
 	collection := client.Database("test").Collection("trainers")
 	Info(collection)
-
 	//数据结构体
 	type Trainer struct {
 		Name string
@@ -182,9 +180,9 @@ func MongoConn1() {
 	//ash := Trainer{"aa", 10, "Pallet Town"}
 	//insertResult, err := collection.InsertOne(context.TODO(), ash)
 	//if err != nil {
-	//	log.Fatal(err)
+	//	Error(err)
 	//}
-	//log.Println("Inserted a single document: ", insertResult.InsertedID)
+	//Info("Inserted a single document: ", insertResult.InsertedID)
 
 	// ===== 插入多个文档 collection.InsertMany() 函数会采用一个slice对象
 	//misty := Trainer{"Misty", 10, "Cerulean City"}
@@ -192,9 +190,9 @@ func MongoConn1() {
 	//trainers := []interface{}{misty, brock}
 	//insertManyResult, err := collection.InsertMany(context.TODO(), trainers)
 	//if err != nil {
-	//	log.Fatal(err)
+	//	Error(err)
 	//}
-	//log.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
+	//Info("Inserted multiple documents: ", insertManyResult.InsertedIDs)
 
 	// ===== 查找文档
 	// create a value into which the result can be decoded
@@ -202,9 +200,9 @@ func MongoConn1() {
 	filter := bson.D{{"name", "Ash"}}
 	err = collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		log.Println("not find err : ", err)
+		Error("not find err : ", err)
 	}
-	log.Printf("Found a single document: %+v\n", result)
+	Info("Found a single document: %+v\n", result)
 
 	// ===== 要查询多个文档， 使用collection.Find()，这个函数返回一个游标
 	findOptions := options.Find()
@@ -213,22 +211,22 @@ func MongoConn1() {
 	// Passing bson.D{{}} as the filter matches all documents in the collection
 	cur, err := collection.Find(context.TODO(), bson.D{{}}, findOptions)
 	if err != nil {
-		log.Fatal(err)
+		Error(err)
 	}
 	for cur.Next(context.TODO()) {
 		var elem Trainer
 		err := cur.Decode(&elem)
 		if err != nil {
-			log.Fatal(err)
+			Error(err)
 		}
-		log.Printf("elem is : %v", elem)
+		Info("elem is : %v", elem)
 		results = append(results, &elem)
 	}
 	if err := cur.Err(); err != nil {
-		log.Fatal(err)
+		Error(err)
 	}
-	cur.Close(context.TODO())
-	log.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	_ = cur.Close(context.TODO())
+	Info("Found multiple documents (array of pointers): %+v\n", results)
 
 	// ===== 更新文档
 	//collection.UpdateOne()函数允许你更新单一的文档
@@ -240,29 +238,29 @@ func MongoConn1() {
 	}
 	updateResult, err := collection.UpdateOne(context.TODO(), filterUpdate, update)
 	if err != nil {
-		log.Fatal(err)
+		Error(err)
 	}
-	log.Printf("updateResult : %+v\n", updateResult)
+	Info("updateResult : %+v\n", updateResult)
 
 	resultUpdate := &Trainer{}
 	err = collection.FindOne(context.TODO(), filterUpdate).Decode(&resultUpdate)
 	if err != nil {
-		log.Fatal(err)
+		Error(err)
 	}
-	log.Println("resultUpdate : ", resultUpdate)
+	Info("resultUpdate : ", resultUpdate)
 
 	// ===== 删除文档
 	//可以使用collection.DeleteOne() 或者 collection.DeleteMany()来删除文档
 	deleteResult, err := collection.DeleteMany(context.TODO(), bson.D{{"name", "Ash"}})
 	if err != nil {
-		log.Fatal(err)
+		Error(err)
 	}
-	log.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
+	Info("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
 
 	// ===== 关闭连接
 	err = client.Disconnect(context.TODO())
 	if err != nil {
-		log.Fatal(err)
+		Error(err)
 	}
 	Info("Connection to MongoDB closed.")
 }

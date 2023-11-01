@@ -101,7 +101,7 @@ func (s *StressUrl) Run(vs ...interface{}) {
 
 	//初始化队列
 	for n = 0; n < s.Sum; n++ {
-		s.TQueue.Add(&Task{Url: s.Url})
+		_ = s.TQueue.Add(&Task{Url: s.Url})
 	}
 	log.Println("总执行次数： ", s.TQueue.Size())
 	var count int64 = 0

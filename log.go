@@ -96,8 +96,8 @@ func InfoTimes(times int, args ...interface{}) {
 	std.Log(1, fmt.Sprint(args...), times)
 }
 
-// InfofTimes 日志-信息, 指定日志代码位置的定位调用层级
-func InfofTimes(times int, format string, args ...interface{}) {
+// InfoFTimes 日志-信息, 指定日志代码位置的定位调用层级
+func InfoFTimes(times int, format string, args ...interface{}) {
 	std.Log(1, fmt.Sprintf(format, args...), times)
 }
 
@@ -106,8 +106,8 @@ func Debug(args ...interface{}) {
 	std.Log(2, fmt.Sprint(args...), 2)
 }
 
-// Debugf 日志-调试
-func Debugf(format string, args ...interface{}) {
+// DebugF 日志-调试
+func DebugF(format string, args ...interface{}) {
 	std.Log(2, fmt.Sprintf(format, args...), 2)
 }
 
@@ -116,8 +116,8 @@ func DebugTimes(times int, args ...interface{}) {
 	std.Log(1, fmt.Sprint(args...), times)
 }
 
-// DebugfTimes 日志-调试, 指定日志代码位置的定位调用层级
-func DebugfTimes(format string, times int, args ...interface{}) {
+// DebugFTimes 日志-调试, 指定日志代码位置的定位调用层级
+func DebugFTimes(format string, times int, args ...interface{}) {
 	std.Log(1, fmt.Sprintf(format, args...), times)
 }
 
@@ -126,8 +126,8 @@ func Warn(args ...interface{}) {
 	std.Log(3, fmt.Sprint(args...), 2)
 }
 
-// Warnf 日志-警告
-func Warnf(format string, args ...interface{}) {
+// WarnF 日志-警告
+func WarnF(format string, args ...interface{}) {
 	std.Log(3, fmt.Sprintf(format, args...), 2)
 }
 
@@ -136,8 +136,8 @@ func WarnTimes(times int, args ...interface{}) {
 	std.Log(1, fmt.Sprint(args...), times)
 }
 
-// WarnfTimes 日志-警告, 指定日志代码位置的定位调用层级
-func WarnfTimes(format string, times int, args ...interface{}) {
+// WarnFTimes 日志-警告, 指定日志代码位置的定位调用层级
+func WarnFTimes(format string, times int, args ...interface{}) {
 	std.Log(1, fmt.Sprintf(format, args...), times)
 }
 
@@ -159,6 +159,10 @@ func ErrorTimes(times int, args ...interface{}) {
 // ErrorfTimes 日志-错误, 指定日志代码位置的定位调用层级
 func ErrorfTimes(format string, times int, args ...interface{}) {
 	std.Log(4, fmt.Sprintf(format, args...), times)
+}
+
+func Panic(args ...interface{}) {
+	panic(args)
 }
 
 // HTTPTimes 日志-信息, 指定日志代码位置的定位调用层级

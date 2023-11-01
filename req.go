@@ -371,7 +371,7 @@ func SearchPort(ipStr string, vs ...interface{}) {
 		buf.WriteString(ipStr)
 		buf.WriteString(":")
 		buf.WriteString(strconv.Itoa(i))
-		queue.Add(&Task{
+		_ = queue.Add(&Task{
 			Url: buf.String(),
 		})
 	}
@@ -392,7 +392,7 @@ func SearchPort(ipStr string, vs ...interface{}) {
 				conn, err := net.DialTimeout("tcp", task.Url, timeOut)
 				if err == nil {
 					Error(task.Url, "开放")
-					conn.Close()
+					_ = conn.Close()
 				}
 			}
 		}(job)

@@ -20,7 +20,7 @@ func main() {
 // SimpleGet1 简单的get请求实例, 写法一： 方法做为请求函数的参数；
 func SimpleGet1() {
 	// 创建请求
-	ctx := gt.NewGet("http://192.168.0.1",
+	ctx := gt.NewGet("http://192.168.3.1",
 		//设置请求成功后的方法： 请求的数据
 		gt.SucceedFunc(func(ctx *gt.Context) {
 			log.Println(string(ctx.RespBody))
@@ -43,7 +43,7 @@ func SimpleGet1() {
 // SimpleGet2 最简单的get请求实例， 写法二： 上下文处理；
 func SimpleGet2() {
 	// 创建请求
-	ctx, err := gt.Get("http://192.168.0.1")
+	ctx, err := gt.Get("http://192.168.3.1")
 	// 打印请求结果与请求错误
 	log.Println(ctx.RespBodyString(), err)
 }
@@ -51,7 +51,7 @@ func SimpleGet2() {
 // SimpleGet3 简单的get请求实例, 写法三： 给请求设置方法；
 func SimpleGet3() {
 	// 创建请求
-	gt.NewGet("http://192.168.0.1").SetSucceedFunc(func(ctx *gt.Context) {
+	gt.NewGet("http://192.168.3.1").SetSucceedFunc(func(ctx *gt.Context) {
 		//设置请求成功后的方法
 		log.Println(string(ctx.RespBody))
 	}).SetFailedFunc(func(ctx *gt.Context) {
@@ -65,7 +65,7 @@ func SimpleGet3() {
 
 // SimpleGet4 简单的get请求实例, 写法四： 外部函数为请求方法；
 func SimpleGet4() {
-	_, _ = gt.Get("http://192.168.0.1",
+	_, _ = gt.Get("http://192.168.3.1",
 		gt.SucceedFunc(succeed),
 		gt.FailedFunc(fail),
 		gt.RetryFunc(retry),

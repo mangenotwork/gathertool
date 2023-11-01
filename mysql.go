@@ -22,9 +22,9 @@ import (
 )
 
 var (
-	SHOW_TABLES     = "SHOW TABLES"
-	TABLE_NAME_NULL = fmt.Errorf("table name is null.")
-	TABLE_IS_NULL   = fmt.Errorf("table is null.")
+	ShowTablesSql   = "SHOW TABLES"
+	TABLE_NAME_NULL = fmt.Errorf("table name is null")
+	TABLE_IS_NULL   = fmt.Errorf("table is null")
 )
 
 var MysqlDB = &Mysql{}
@@ -133,7 +133,7 @@ func (m *Mysql) allTableName() (err error) {
 	}
 
 	m.allTN = newAllTableName()
-	rows, err := m.DB.Query(SHOW_TABLES)
+	rows, err := m.DB.Query(ShowTablesSql)
 	if err != nil {
 		return
 	}
@@ -220,35 +220,35 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 	}
 
 	if table == "" {
-		return &tableDescribe{}, TABLE_NAME_NULL
+		return nil, TABLE_NAME_NULL
 	}
 
 	rows, err := m.DB.Query("DESCRIBE " + table)
 	if err != nil {
-		return &tableDescribe{}, err
+		return nil, err
 	}
 
-	fieldMap := make(map[string]string, 0)
+	fieldMap := make(map[string]string)
 	for rows.Next() {
 		result := &TableInfo{}
 		err = rows.Scan(&result.Field, &result.Type, &result.Null, &result.Key, &result.Default, &result.Extra)
-		fiedlType := "null"
+		fieldType := "null"
 		if strings.Contains(result.Type, "int") {
-			fiedlType = "int"
+			fieldType = "int"
 		}
 		if strings.Contains(result.Type, "varchar") || strings.Contains(result.Type, "text") {
-			fiedlType = "string"
+			fieldType = "string"
 		}
 		if strings.Contains(result.Type, "float") || strings.Contains(result.Type, "doble") {
-			fiedlType = "float"
+			fieldType = "float"
 		}
 		if strings.Contains(result.Type, "blob") {
-			fiedlType = "[]byte"
+			fieldType = "[]byte"
 		}
 		if strings.Contains(result.Type, "date") || strings.Contains(result.Type, "time") {
-			fiedlType = "time"
+			fieldType = "time"
 		}
-		fieldMap[result.Field] = fiedlType
+		fieldMap[result.Field] = fieldType
 	}
 
 	_ = rows.Close()
@@ -286,7 +286,7 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 
 	columnLength := len(columns)
 	cache := make([]interface{}, columnLength) //临时存储每行数据
-	for index, _ := range cache {              //为每一列初始化一个指针
+	for index := range cache {                 //为每一列初始化一个指针
 		var a interface{}
 		cache[index] = &a
 	}
@@ -422,7 +422,8 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	_, _ = m.Describe(table)
 	describe := m.tableTemp[table]
 	isDescribe := describe.Base != nil
-	insertSql.WriteString("insert into ")
+	insertSql.WriteString("insert into")
+	insertSql.WriteString(" ")
 	insertSql.WriteString(table)
 	insertSql.WriteString(" set ")
 	l := len(fieldData)
@@ -615,7 +616,7 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 
 	columnLength := len(columns)
 	cache := make([]interface{}, columnLength) //临时存储每行数据
-	for index, _ := range cache {              //为每一列初始化一个指针
+	for index := range cache {                 //为每一列初始化一个指针
 		var a interface{}
 		cache[index] = &a
 	}
@@ -686,7 +687,7 @@ func dataType2Mysql(value interface{}) string {
 
 // DeleteTable 删除表
 func (m *Mysql) DeleteTable(tableName string) error {
-	err := m.Exec("DROP TABLE " + tableName)
+	err := m.Exec(fmt.Sprintf("DROP TABLE %s", tableName))
 	if err != nil {
 		return err
 	}
@@ -740,7 +741,7 @@ func (m *Mysql) ToXls(sql, outPath string) {
 
 	fields := make([]string, 0)
 	n := 1
-	for k, _ := range data[0] {
+	for k := range data[0] {
 		fields = append(fields, k)
 		_ = f.SetCellValue("Sheet1", toNumberSystem26(n)+"1", k)
 		n++

@@ -121,9 +121,9 @@ Reconnection:
 	//启动接收
 	go func(conn *TcpClient) {
 		for {
-			recv := make([]byte, 1024)
+			read := make([]byte, 1024)
 			for {
-				n, err := conn.Connection.Read(recv)
+				n, err := conn.Connection.Read(read)
 				if err != nil {
 					if err == io.EOF {
 						log.Println(conn.Addr(), " 断开了连接!")
@@ -133,8 +133,8 @@ Reconnection:
 					return
 				}
 				if n > 0 && n < 1025 {
-					log.Println(string(recv[:n]))
-					r(c, recv[:n])
+					log.Println(string(read[:n]))
+					r(c, read[:n])
 				}
 
 			}
@@ -181,7 +181,7 @@ func Whois(host string) *WhoisInfo {
 
 func whois(server, host string) string {
 	conn, _ := net.Dial("tcp", server)
-	conn.Write([]byte(host + " \r\n"))
+	_, _ = conn.Write([]byte(host + " \r\n"))
 	buf := make([]byte, 1024*10)
 	n, err := conn.Read(buf)
 	if err != nil && err != io.EOF {
@@ -190,7 +190,7 @@ func whois(server, host string) string {
 	}
 	rse := string(buf[:n])
 	defer func() {
-		conn.Close()
+		_ = conn.Close()
 	}()
 	return rse
 }

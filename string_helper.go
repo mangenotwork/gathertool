@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"net"
@@ -405,9 +404,9 @@ func Str2Float32(str string) float32 {
 
 // Uint82Str []uint8 -> string
 func Uint82Str(bs []uint8) string {
-	ba := []byte{}
+	ba := make([]byte, 0)
 	for _, b := range bs {
-		ba = append(ba, byte(b))
+		ba = append(ba, b)
 	}
 	return string(ba)
 }
@@ -502,9 +501,8 @@ func Byte2Float64(b []byte) float64 {
 func Struct2Map(obj interface{}) map[string]interface{} {
 	rt, rv := reflect.TypeOf(obj), reflect.ValueOf(obj)
 	if rt != nil && rt.Kind() != reflect.Struct {
-		return make(map[string]interface{}, 0)
+		return make(map[string]interface{})
 	}
-
 	out := make(map[string]interface{}, rt.NumField())
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
@@ -746,7 +744,7 @@ func Struct2MapV3(obj interface{}) map[string]interface{} {
 func PanicToError(fn func()) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("Panic error: %v", r)
+			err = fmt.Errorf("panic error: %v", r)
 		}
 	}()
 
@@ -854,7 +852,7 @@ func convert(dstCharset string, srcCharset string, src string) (dst string, err 
 	// Converting `src` to UTF-8.
 	if srcCharset != "UTF-8" {
 		if e := getEncoding(srcCharset); e != nil {
-			tmp, err := ioutil.ReadAll(
+			tmp, err := io.ReadAll(
 				transform.NewReader(bytes.NewReader([]byte(src)), e.NewDecoder()),
 			)
 			if err != nil {
@@ -868,7 +866,7 @@ func convert(dstCharset string, srcCharset string, src string) (dst string, err 
 	// Do the converting from UTF-8 to `dstCharset`.
 	if dstCharset != "UTF-8" {
 		if e := getEncoding(dstCharset); e != nil {
-			tmp, err := ioutil.ReadAll(
+			tmp, err := io.ReadAll(
 				transform.NewReader(bytes.NewReader([]byte(src)), e.NewEncoder()),
 			)
 			if err != nil {
@@ -977,7 +975,7 @@ func HZGB2312To(dstCharset string, src string) (dst string, err error) {
 
 // ================================================ Set 集合
 
-// 可以用于去重
+// Set 可以用于去重
 type Set map[string]struct{}
 
 func (s Set) Has(key string) bool {
@@ -1037,7 +1035,9 @@ func FileMd5(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 	md5hash := md5.New()
 	if _, err := io.Copy(md5hash, f); err != nil {
 		return "", err
@@ -1049,7 +1049,7 @@ func FileMd5(path string) (string, error) {
 func PathExists(path string) {
 	_, err := os.Stat(path)
 	if err != nil && os.IsNotExist(err) {
-		os.MkdirAll(path, 0777)
+		_ = os.MkdirAll(path, 0777)
 	}
 }
 
@@ -1107,11 +1107,11 @@ func windowsPath(path string) string {
 
 // GetNowPath 获取当前运行路径
 func GetNowPath() string {
-	path, err := os.Getwd()
+	pathData, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return windowsPath(path)
+	return windowsPath(pathData)
 }
 
 // FileMd5sum 文件 Md5
@@ -1121,10 +1121,12 @@ func FileMd5sum(fileName string) string {
 		Info(fileName, err)
 		return ""
 	}
-	defer fin.Close()
-	Buf, buferr := ioutil.ReadFile(fileName)
-	if buferr != nil {
-		Info(fileName, buferr)
+	defer func() {
+		_ = fin.Close()
+	}()
+	Buf, bufErr := os.ReadFile(fileName)
+	if bufErr != nil {
+		Info(fileName, bufErr)
 		return ""
 	}
 	m := md5.Sum(Buf)
@@ -1212,11 +1214,11 @@ func IsDir(path string) bool {
 }
 
 func Pwd() string {
-	path, err := os.Getwd()
+	pathData, err := os.Getwd()
 	if err != nil {
 		return ""
 	}
-	return path
+	return pathData
 }
 
 func Chdir(dir string) error {
@@ -1371,8 +1373,8 @@ func Slice2Map(slice interface{}) map[string]interface{} {
 func GzipCompress(src []byte) []byte {
 	var in bytes.Buffer
 	w := gzip.NewWriter(&in)
-	w.Write(src)
-	w.Close()
+	_, _ = w.Write(src)
+	_ = w.Close()
 	return in.Bytes()
 }
 
@@ -1383,8 +1385,10 @@ func GzipDecompress(src []byte) []byte {
 	if err != nil {
 		return dst
 	}
-	defer gr.Close()
-	tmp, err := ioutil.ReadAll(gr)
+	defer func() {
+		_ = gr.Close()
+	}()
+	tmp, err := io.ReadAll(gr)
 	if err != nil {
 		return dst
 	}
@@ -1629,7 +1633,7 @@ func GetMD5Encode(data string) string {
 // GetAllFile 获取目录下的所有文件
 func GetAllFile(pathname string) ([]string, error) {
 	s := make([]string, 0)
-	rd, err := ioutil.ReadDir(pathname)
+	rd, err := os.ReadDir(pathname)
 	if err != nil {
 		Error("read dir fail:", err)
 		return s, err
@@ -1767,9 +1771,13 @@ func DecompressionZipFile(src, dest string) error {
 // dest 压缩文件存放地址
 func CompressFiles(files []string, dest string) error {
 	d, _ := os.Create(dest)
-	defer d.Close()
+	defer func() {
+		_ = d.Close()
+	}()
 	w := zip.NewWriter(d)
-	defer w.Close()
+	defer func() {
+		_ = w.Close()
+	}()
 	for _, file := range files {
 		err := compressFiles(file, "", w)
 		if err != nil {
@@ -1812,7 +1820,7 @@ func compressFiles(filePath string, prefix string, zw *zip.Writer) error {
 			return err
 		}
 		_, err = io.Copy(writer, file)
-		file.Close()
+		_ = file.Close()
 		if err != nil {
 			return err
 		}
@@ -1829,12 +1837,16 @@ func CompressDirZip(src, outFile string) error {
 	if err != nil {
 		return err
 	}
-	defer zipFile.Close()
+	defer func() {
+		_ = zipFile.Close()
+	}()
 	// 打开：zip文件
 	archive := zip.NewWriter(zipFile)
-	defer archive.Close()
+	defer func() {
+		_ = archive.Close()
+	}()
 	// 遍历路径信息
-	filepath.Walk(src, func(path string, info os.FileInfo, _ error) error {
+	return filepath.Walk(src, func(path string, info os.FileInfo, _ error) error {
 		// 如果是源路径，提前进行下一个遍历
 		if path == src {
 			return nil
@@ -1853,12 +1865,13 @@ func CompressDirZip(src, outFile string) error {
 		writer, _ := archive.CreateHeader(header)
 		if !info.IsDir() {
 			file, _ := os.Open(path)
-			defer file.Close()
-			io.Copy(writer, file)
+			defer func() {
+				_ = file.Close()
+			}()
+			_, _ = io.Copy(writer, file)
 		}
 		return nil
 	})
-	return nil
 }
 
 // OutJsonFile 将data输出到json文件
@@ -1924,11 +1937,11 @@ func (idw *IdWorker) InitIdWorker(workerId, datacenterId int64) error {
 	idw.signMask = ^baseValue + 1
 	idw.idLock = &sync.Mutex{}
 	if idw.workerId < 0 || idw.workerId > idw.maxWorkerId {
-		return fmt.Errorf("workerId[%v] is less than 0 or greater than maxWorkerId[%v].",
+		return fmt.Errorf("workerId[%v] is less than 0 or greater than maxWorkerId[%v]",
 			workerId, datacenterId)
 	}
 	if idw.datacenterId < 0 || idw.datacenterId > idw.maxDatacenterId {
-		return fmt.Errorf("datacenterId[%d] is less than 0 or greater than maxDatacenterId[%d].",
+		return fmt.Errorf("datacenterId[%d] is less than 0 or greater than maxDatacenterId[%d]",
 			workerId, datacenterId)
 	}
 	idw.workerId = workerId
@@ -2042,10 +2055,10 @@ func IP2Binary(ip string) string {
 
 // UInt32ToIP  uint32 ==> net.IP
 func UInt32ToIP(ip uint32) net.IP {
-	var bytes [4]byte
-	bytes[0] = byte(ip & 0xFF)
-	bytes[1] = byte((ip >> 8) & 0xFF)
-	bytes[2] = byte((ip >> 16) & 0xFF)
-	bytes[3] = byte((ip >> 24) & 0xFF)
-	return net.IPv4(bytes[3], bytes[2], bytes[1], bytes[0])
+	var b [4]byte
+	b[0] = byte(ip & 0xFF)
+	b[1] = byte((ip >> 8) & 0xFF)
+	b[2] = byte((ip >> 16) & 0xFF)
+	b[3] = byte((ip >> 24) & 0xFF)
+	return net.IPv4(b[3], b[2], b[1], b[0])
 }

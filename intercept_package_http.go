@@ -19,11 +19,11 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -39,7 +39,6 @@ func (ipt *Intercept) RunServer() {
 	Info("启动代理&抓包 <ManGe代理&抓包> ......... ")
 	Info(" - HTTPS代理 : 只支持代理转发  -> ", ipt.Ip)
 	Info(" - HTTP代理: 支持数据包处理与代理转发  -> ", ipt.Ip)
-
 	cert, err := genCertificate()
 	if err != nil {
 		panic(err)
@@ -61,13 +60,16 @@ func (ipt *Intercept) RunServer() {
 					http.Error(w, "Hijacking not supported", http.StatusInternalServerError)
 					return
 				}
-
 				clientConn, _, err := hijacker.Hijack()
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusServiceUnavailable)
 				}
-				go io.Copy(clientConn, destConn)
-				go io.Copy(destConn, clientConn)
+				go func() {
+					_, _ = io.Copy(clientConn, destConn)
+				}()
+				go func() {
+					_, _ = io.Copy(destConn, clientConn)
+				}()
 			} else {
 				Info("HTTP 请求")
 				res, err := http.DefaultTransport.RoundTrip(r)
@@ -75,17 +77,17 @@ func (ipt *Intercept) RunServer() {
 					http.Error(w, err.Error(), http.StatusServiceUnavailable)
 					return
 				}
-				defer res.Body.Close()
-
+				defer func() {
+					_ = res.Body.Close()
+				}()
 				for k, vv := range res.Header {
 					for _, v := range vv {
 						w.Header().Add(k, v)
 					}
 				}
 				var bodyBytes []byte
-				bodyBytes, _ = ioutil.ReadAll(res.Body)
-				res.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-
+				bodyBytes, _ = io.ReadAll(res.Body)
+				res.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 				w.WriteHeader(res.StatusCode)
 				httpPackage := &HttpPackage{
 					Url:         r.URL,
@@ -93,16 +95,12 @@ func (ipt *Intercept) RunServer() {
 					Body:        bodyBytes,
 					Header:      res.Header,
 				}
-
 				ipt.HttpPackageFunc(httpPackage)
-
-				io.Copy(w, res.Body)
-				res.Body.Close()
-
+				_, _ = io.Copy(w, res.Body)
+				_ = res.Body.Close()
 			}
 		}),
 	}
-
 	err = server.ListenAndServe()
 	if err != nil {
 		panic(err)
@@ -114,7 +112,6 @@ func (ipt *Intercept) RunHttpIntercept() {
 	Info("启动抓包 <ManGe抓包> ......... ")
 	Info("目前只支持HTTP, HTTPS还在开发中 ......... ")
 	Info("请在系统设置代理 HTTP代理  ", ipt.Ip)
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		Info("\n\n___________________________________________________________________________")
 		Info("代理请求信息： ", r.RemoteAddr, r.Method, r.URL.String())
@@ -137,11 +134,9 @@ func (ipt *Intercept) RunHttpIntercept() {
 				w.Header().Add(key, v)
 			}
 		}
-
 		var bodyBytes []byte
-		bodyBytes, _ = ioutil.ReadAll(res.Body)
-		res.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-
+		bodyBytes, _ = io.ReadAll(res.Body)
+		res.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 		w.WriteHeader(res.StatusCode)
 		httpPackage := &HttpPackage{
 			Url:         r.URL,
@@ -149,18 +144,14 @@ func (ipt *Intercept) RunHttpIntercept() {
 			Body:        bodyBytes,
 			Header:      res.Header,
 		}
-
 		ipt.HttpPackageFunc(httpPackage)
-
-		io.Copy(w, res.Body)
-		res.Body.Close()
+		_, _ = io.Copy(w, res.Body)
+		_ = res.Body.Close()
 	})
-
 	err := http.ListenAndServe(ipt.Ip, nil)
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 func genCertificate() (cert tls.Certificate, err error) {
@@ -230,7 +221,7 @@ func (pack *HttpPackage) Html() string {
 		rdata := strings.NewReader(string(pack.Body))
 		r, err := gzip.NewReader(rdata)
 		if err == nil {
-			s, _ := ioutil.ReadAll(r)
+			s, _ := io.ReadAll(r)
 			return string(s)
 		}
 	}
@@ -246,9 +237,9 @@ func (pack *HttpPackage) SaveImage(path string) error {
 		} else {
 			path += pack.Url.String()[idx+1:]
 		}
-		return ioutil.WriteFile(path, pack.Body, 0666)
+		return os.WriteFile(path, pack.Body, 0666)
 	}
-	return fmt.Errorf("ContentType not image.")
+	return fmt.Errorf("ContentType not image")
 }
 
 // Json 数据类型是json
@@ -265,7 +256,7 @@ func (pack *HttpPackage) Txt() string {
 		rdata := strings.NewReader(string(pack.Body))
 		r, err := gzip.NewReader(rdata)
 		if err == nil {
-			s, _ := ioutil.ReadAll(r)
+			s, _ := io.ReadAll(r)
 			return string(s)
 		}
 	}
@@ -276,11 +267,11 @@ func (pack *HttpPackage) Txt() string {
 func (pack *HttpPackage) ToFile(path string) error {
 	ext := ContentType[pack.ContentType]
 	path = path + Any2String(time.Now().UnixNano()) + ext
-	return ioutil.WriteFile(path, pack.Body, 0666)
+	return os.WriteFile(path, pack.Body, 0666)
 }
 
 // ContentType 数据类型
-var ContentType map[string]string = map[string]string{
+var ContentType = map[string]string{
 	"application/octet-stream":            ".*",
 	"application/x-001":                   ".001",
 	"application/x-301":                   ".301",

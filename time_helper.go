@@ -116,7 +116,7 @@ var (
 
 // GetChineseMonthDay 获取农历
 func GetChineseMonthDay(date string) (rMonth, rDay int64) {
-	var monCyl, leapMonth int = 0, 0
+	var monCyl, leapMonth = 0, 0
 	t1, _ := time.Parse(timeFormat, "1900-01-31 00:00:00")
 	t2, err := time.Parse(timeFormatYYYYMMDD, date)
 	if err != nil {
@@ -124,7 +124,7 @@ func GetChineseMonthDay(date string) (rMonth, rDay int64) {
 	}
 	offset := int((t2.UnixNano() - t1.UnixNano()) / 1000000 / 86400000)
 	monCyl = 14
-	var iYear, daysOfYear int = 0, 0
+	var iYear, daysOfYear = 0, 0
 
 	for iYear = 1900; iYear < 2050 && offset > 0; iYear++ {
 		daysOfYear = yearDays(iYear)
@@ -141,7 +141,7 @@ func GetChineseMonthDay(date string) (rMonth, rDay int64) {
 	leapMonth = leapMonthMethod(iYear)
 	leap = false
 
-	var iMonth, daysOfMonth int = 0, 0
+	var iMonth, daysOfMonth = 0, 0
 
 	for iMonth = 1; iMonth < 13 && offset > 0; iMonth++ {
 		if leapMonth > 0 && iMonth == (leapMonth+1) && !leap {
@@ -195,13 +195,13 @@ func GetChineseMonthDay(date string) (rMonth, rDay int64) {
 }
 
 func yearDays(y int) int {
-	var i, sum int = 348, 348
+	var i, sum = 348, 348
 	for i = 0x8000; i > 0x8; i >>= 1 {
 		if (lunarInfo[y-1900] & i) != 0 {
 			sum++
 		}
 	}
-	return (sum + leapDays(y))
+	return sum + leapDays(y)
 }
 
 func getChinaDayString(day int) string {
@@ -225,7 +225,7 @@ func getChinaDayString(day int) string {
 }
 
 func leapMonthMethod(y int) int {
-	return (int)(lunarInfo[y-1900] & 0xf)
+	return lunarInfo[y-1900] & 0xf
 }
 
 func monthDays(y, m int) int {
@@ -265,7 +265,7 @@ func NowToEnd() (int64, error) {
 // Leaps 闰年的天数
 var Leaps = []int{0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
-// Pyears 平年天数
+// PyearS 平年天数
 var Pyears = []int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 // IsLeap 是否是闰年

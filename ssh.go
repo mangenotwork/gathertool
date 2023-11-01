@@ -9,7 +9,7 @@ package gathertool
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net"
 	"os/exec"
 
@@ -37,7 +37,7 @@ func SSHClient(user string, pass string, addr string) (*ssh.Client, error) {
 	}
 	clientConn, chans, reqs, err := ssh.NewClientConn(sshConn, addr, config)
 	if nil != err {
-		sshConn.Close()
+		_ = sshConn.Close()
 		return nil, err
 	}
 	client := ssh.NewClient(clientConn, chans, reqs)
@@ -61,7 +61,7 @@ func LinuxSendCommand(command string) (opStr string) {
 		Error("ERR Start : ", startErr)
 		return startErr.Error()
 	}
-	opBytes, opBytesErr := ioutil.ReadAll(stdout)
+	opBytes, opBytesErr := io.ReadAll(stdout)
 	if opBytesErr != nil {
 		opStr = opBytesErr.Error()
 	}
@@ -90,7 +90,7 @@ func WindowsSendCommand(command []string) (opStr string) {
 		Error("ERR Start : ", startErr)
 		return startErr.Error()
 	}
-	opBytes, opBytesErr := ioutil.ReadAll(stdout)
+	opBytes, opBytesErr := io.ReadAll(stdout)
 	if opBytesErr != nil {
 		Error(opBytesErr)
 		return opBytesErr.Error()
@@ -100,7 +100,7 @@ func WindowsSendCommand(command []string) (opStr string) {
 	return
 }
 
-// TODO WindwsSendPipe 执行windows 管道命令
-func WindwsSendPipe(command1, command2 []string) (opStr string) {
+// WindowsSendPipe TODO  执行windows 管道命令
+func WindowsSendPipe(command1, command2 []string) (opStr string) {
 	return ""
 }

@@ -16,11 +16,11 @@ import (
 
 // TodoQueue 任务队列
 type TodoQueue interface {
-	Add(task *Task) error //向队列中添加元素
-	Poll() *Task          //移除队列中最前面的元素
-	Clear() bool          //清空队列
-	Size() int            //获取队列的元素个数
-	IsEmpty() bool        //判断队列是否是空
+	Add(task *Task) error // 向队列中添加元素
+	Poll() *Task          // 移除队列中最前面的元素
+	Clear() bool          // 清空队列
+	Size() int            // 获取队列的元素个数
+	IsEmpty() bool        // 判断队列是否为空
 	Print()               // 打印
 }
 
@@ -106,7 +106,7 @@ func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 		Url:       url,
 		JsonParam: jsonParam,
 		HeaderMap: header,
-		Data:      make(map[string]interface{}, 0),
+		Data:      make(map[string]interface{}),
 		Type:      "do",
 	}
 }
@@ -186,10 +186,10 @@ func NewUploadQueue() TodoQueue {
 // Add 向队列中添加元素
 func (q *UploadQueue) Add(task *Task) error {
 	if task.Url == "" {
-		return errors.New("Task url is null.")
+		return errors.New("task url is null")
 	}
 	if task.SavePath == "" && (task.SaveDir == "" || task.FileName == "") {
-		return errors.New("save path is null.")
+		return errors.New("save path is null")
 	}
 	q.mux.Lock()
 	defer q.mux.Unlock()

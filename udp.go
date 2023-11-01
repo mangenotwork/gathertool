@@ -34,7 +34,9 @@ func (u *UdpClient) Run(hostServer string, port int, r func(u *UdpClient, data [
 		log.Println(err)
 	}
 	log.Println("连接成功; c = ", u.Conn)
-	defer u.Conn.Close()
+	defer func() {
+		_ = u.Conn.Close()
+	}()
 
 	go func() {
 		data := make([]byte, 1024)
@@ -82,14 +84,13 @@ func (u *UdpClient) Close() {
 	_ = u.Conn.Close()
 }
 
-// DNSInfo
 type DNSInfo struct {
 	IPs           []string `json:"ips"`
 	LookupCNAME   string   `json:"cname"`
 	DnsServerIP   string   `json:"dnsServerIP"`
 	DnsServerName string   `json:"dnsServerName"`
 	IsCDN         bool     `json:"isCDN"`
-	Ms            float64  `json:"ms"` // ms
+	Ms            float64  `json:"ms"`
 }
 
 // NsLookUp DNS查询
@@ -175,7 +176,7 @@ func NsLookUpAll(host string) ([]*DNSInfo, []string) {
 			allIPMap[i] = struct{}{}
 		}
 	}
-	for k, _ := range allIPMap {
+	for k := range allIPMap {
 		allIP = append(allIP, k)
 	}
 	return all, allIP

@@ -9,7 +9,6 @@ package gathertool
 
 import (
 	"io"
-	"log"
 	"net"
 	"strconv"
 )
@@ -18,43 +17,40 @@ import (
 func SocketProxy(addr string) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Panic(err)
+		Panic(err)
 	}
 	for {
 		client, err := l.Accept()
 		if err != nil {
-			log.Panic(err)
+			Panic(err)
 		}
 		go handleClientRequest2(client)
 	}
 }
 
 func handleClientRequest2(client net.Conn) {
-
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println(err)
+			Error(err)
 		}
 	}()
-
-	log.Println("socket 请求 : ", client.RemoteAddr(), " --> ", client.LocalAddr())
-
+	Info("socket 请求 : ", client.RemoteAddr(), " --> ", client.LocalAddr())
 	if client == nil {
 		return
 
 	}
-	defer client.Close()
+	defer func() {
+		_ = client.Close()
+	}()
 	var b [1024 * 100]byte
-
 	n, err := client.Read(b[:])
 	if err != nil {
-		log.Println(err)
+		Error(err)
 		return
 	}
-
 	if b[0] == 0x05 { //只处理Socks5协议
 		//客户端回应：Socks服务端不需要验证方式
-		client.Write([]byte{0x05, 0x00})
+		_, _ = client.Write([]byte{0x05, 0x00})
 		n, err = client.Read(b[:])
 		var host, port string
 
@@ -73,15 +69,18 @@ func handleClientRequest2(client net.Conn) {
 
 		server, err := net.Dial("tcp", net.JoinHostPort(host, port))
 		if err != nil {
-			log.Println(err)
+			Error(err)
 			return
 
 		}
-		defer server.Close()
+		defer func() {
+			_ = server.Close()
+		}()
 		_, _ = client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //响应客户端连接成功
-
 		//进行转发
-		go io.Copy(server, client)
-		io.Copy(client, server)
+		go func() {
+			_, _ = io.Copy(server, client)
+		}()
+		_, _ = io.Copy(client, server)
 	}
 }

@@ -9,12 +9,19 @@ import (
 func main() {
 	gt.CPUMax()
 
+	//h := gt.Header{"Cookie": "acw_sc__v2=654203242be7b8650bff3923d72a260cc6055a87;"}
+	//ctx, err := gt.Get("https://www.beianx.cn/search/8300.cn", h)
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	//log.Println(ctx.Html)
+
 	// 普通 GET api压测
 	//url := "http://192.168.4.2:8200/api/kjhinfo.ashx"
-	//url := "http://192.168.3.7:5121/api/Lm/GetParentLm"
-	url := "https://www.8300.cn"
-	//url := "http://192.168.4.15:8096/api/appprofile/GetCollectPariseTest?id=2212011659209123"
-
+	url := "http://192.168.3.7:5121/api/Lm/GetParentLm"
+	//url := "https://www.8300.cn"
+	////url := "http://192.168.4.15:8096/api/appprofile/GetCollectPariseTest?id=2212011659209123"
+	//
 	// 请求10000次 并发数 1000
 	test := gt.NewTestUrl(url, "Get", 100000, 1000)
 	//test.OpenRetry()
