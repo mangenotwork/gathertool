@@ -60,7 +60,9 @@ func ReadCsvFile(filename string) [][]string {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 	reader := csv.NewReader(file)
 	reader.Comma = ','
 

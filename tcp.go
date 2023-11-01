@@ -157,7 +157,6 @@ Reconnection:
 
 // Whois 查询
 
-// 根服务器
 var RootWhoisServers = "whois.iana.org:43"
 
 type WhoisInfo struct {

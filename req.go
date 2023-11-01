@@ -14,6 +14,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"golang.org/x/net/publicsuffix"
 	"math/rand"
 	"net"
 	"net/http"
@@ -23,8 +24,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/net/publicsuffix"
 )
 
 func init() {
@@ -182,7 +181,8 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		end          EndFunc
 		reqTimeOut   ReqTimeOut
 		reqTimeOutMs ReqTimeOutMs
-		islog        IsLog
+		isLog        IsLog
+		isRetry      IsRetry
 		proxyUrl     string
 		sleep        Sleep
 	)
@@ -239,7 +239,9 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		case ReqTimeOutMs:
 			reqTimeOutMs = vv
 		case IsLog:
-			islog = vv
+			isLog = vv
+		case IsRetry:
+			isRetry = vv
 		case ProxyUrl:
 			proxyUrl = string(vv)
 		case Sleep:
@@ -279,14 +281,14 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 				return conn, err
 			},
 			ForceAttemptHTTP2: true,
-			// gathertool默认每个请求实例都创建一个独立的client，
+			// gathertool 默认每个请求实例都创建一个独立的client，
 			// 不复用client，这样设计是在高并发中，每个请求都是独立的
 			MaxIdleConns:          10,
 			MaxIdleConnsPerHost:   5, // 默认是 2
 			IdleConnTimeout:       30 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
-			DisableKeepAlives:     true, //DisableKeepAlives这个字段可以用来关闭长连接，默认值为false
+			DisableKeepAlives:     true, //DisableKeepAlives 这个字段可以用来关闭长连接，默认值为false
 			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		}
 	}
@@ -340,7 +342,8 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		FailedFunc:  failed,
 		RetryFunc:   retry,
 		EndFunc:     end,
-		IsLog:       islog,
+		IsLog:       isLog,
+		isRetry:     isRetry,
 		sleep:       sleep,
 		Param:       make(map[string]interface{}),
 	}
@@ -565,4 +568,21 @@ func GetCertificateInfo(caseUrl string) (SSLCertificateInfo, bool) {
 	info.Version = strconv.Itoa(cert.Version)
 	info.SignatureAlgorithm = cert.SignatureAlgorithm.String()
 	return info, true
+}
+
+// UsefulUrl 判断url是否是有效的
+func UsefulUrl(str string) bool {
+	_, err := url.ParseRequestURI(str)
+	if err != nil {
+		return false
+	}
+	u, err := url.Parse(str)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+	// Check if the URL has a valid scheme (http or https)
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return false
+	}
+	return true
 }

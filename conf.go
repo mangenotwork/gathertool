@@ -9,7 +9,6 @@ package gathertool
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	yaml "gopkg.in/yaml.v3"
@@ -37,7 +36,7 @@ func (c *conf) Init() error {
 	}
 	Info("读取配置文件:", c.Path)
 	//读取yaml文件到缓存中
-	config, err := ioutil.ReadFile(c.Path)
+	config, err := os.ReadFile(c.Path)
 	if err != nil {
 		Errorf("读取配置文件[%v]失败", c.Path)
 		return err

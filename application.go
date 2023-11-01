@@ -15,6 +15,10 @@ import (
 
 var ApplicationTerminalOut = true
 
+func ApplicationTerminalOutClose() {
+	ApplicationTerminalOut = false
+}
+
 // HostToolEr TODO HostToolEr
 type HostToolEr interface {
 	Run() ([]string, int)
@@ -129,8 +133,10 @@ func (scan *HostScanExtLinks) Run() ([]string, int) {
 			if _, ok := urlSet[link]; ok {
 				continue
 			}
-			urlSet[link] = struct{}{}
-			count++
+			if UsefulUrl(link) {
+				urlSet[link] = struct{}{}
+				count++
+			}
 		}
 	}
 	urls := make([]string, 0)

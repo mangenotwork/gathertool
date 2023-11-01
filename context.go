@@ -15,7 +15,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 	"math/rand"
@@ -50,6 +50,9 @@ type EndFunc func(c *Context)
 
 // IsLog 是否开启全局日志
 type IsLog bool
+
+// IsRetry 是否关闭重试
+type IsRetry bool
 
 // ProxyUrl 全局代理地址，一个代理，多个代理请使用代理池ProxyPool
 type ProxyUrl string
@@ -117,7 +120,7 @@ type Context struct {
 	err2retry bool
 
 	// 是否关闭重试
-	isRetry bool
+	isRetry IsRetry
 
 	// 休眠时间
 	sleep Sleep
@@ -185,21 +188,17 @@ func (c *Context) SetSleepRand(min, max int) *Context {
 // Do 执行请求
 func (c *Context) Do() func() {
 	var bodyBytes []byte
-
 	if c == nil {
 		return nil
 	}
-
 	//执行 start
 	if c.times == 0 && c.StartFunc != nil {
 		c.StartFunc(c)
 	}
-
 	//执行 end
 	if c.times == c.MaxTimes && c.EndFunc != nil {
 		c.EndFunc(c)
 	}
-
 	//重试验证
 	c.times++
 	if c.times > c.MaxTimes {
@@ -210,18 +209,15 @@ func (c *Context) Do() func() {
 		}
 		return nil
 	}
-
 	// 复用 Req.Body
 	if c.Req.Body != nil {
-		bodyBytes, _ = ioutil.ReadAll(c.Req.Body)
+		bodyBytes, _ = io.ReadAll(c.Req.Body)
 	}
-	c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-
+	c.Req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	// 设置的休眠时间
 	if c.sleep != 0 {
 		time.Sleep(time.Duration(c.sleep))
 	}
-
 	// 执行请求
 	before := time.Now()
 	c.Resp, c.Err = c.Client.Do(c.Req)
@@ -237,9 +233,9 @@ func (c *Context) Do() func() {
 		strings.Contains(c.Err.Error(), ("connection timed out"))) {
 
 		Error("【日志】 请求 超时 = ", c.Err)
-		if c.RetryFunc != nil && !c.isRetry {
+		if c.RetryFunc != nil && c.isRetry {
 			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
-			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			c.Req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
@@ -250,9 +246,9 @@ func (c *Context) Do() func() {
 	if c.Err != nil {
 		Error("【日志】 请求 err = ", c.Err)
 		// 指定的失败都执行 retry
-		if c.err2retry && c.RetryFunc != nil && !c.isRetry {
+		if c.err2retry && c.RetryFunc != nil && c.isRetry {
 			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
-			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			c.Req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
@@ -277,7 +273,7 @@ func (c *Context) Do() func() {
 	// 根据状态码配置的事件了类型进行该事件的方法
 	v, ok := StatusCodeMap[c.Resp.StatusCode]
 	if !ok {
-		body, err := ioutil.ReadAll(c.Resp.Body)
+		body, err := io.ReadAll(c.Resp.Body)
 		if err != nil {
 			Error(err)
 			return nil
@@ -287,22 +283,21 @@ func (c *Context) Do() func() {
 
 	switch v {
 	case "success":
-		body, err := ioutil.ReadAll(c.Resp.Body)
+		body, err := io.ReadAll(c.Resp.Body)
 		if err != nil {
 			Error(err)
 			return nil
 		}
 		c.RespBody = body
 		if c.SucceedFunc != nil {
-			// InfoTimes(3, "[日志] 执行 success 事件")
 			c.SucceedFunc(c)
 		}
 
 	case "retry":
-		c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-		if c.RetryFunc != nil && !c.isRetry {
+		c.Req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		if c.RetryFunc != nil && c.isRetry {
 			InfoTimes(4, "[日志] 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
-			c.Req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			c.Req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			c.RetryFunc(c)
 			return c.Do()
 		}
@@ -393,7 +388,7 @@ func (c *Context) RespContentLength() int64 {
 func (c *Context) CheckReqMd5() string {
 	var buffer bytes.Buffer
 	urlStr := c.Req.URL.String()
-	reqBodyBytes, _ := ioutil.ReadAll(c.Req.Body)
+	reqBodyBytes, _ := io.ReadAll(c.Req.Body)
 	method := c.Req.Method
 	buffer.WriteString(urlStr)
 	buffer.Write(reqBodyBytes)
@@ -407,7 +402,7 @@ func (c *Context) CheckReqMd5() string {
 func (c *Context) CheckMd5() string {
 	var buffer bytes.Buffer
 	urlStr := c.Req.URL.String()
-	reqBodyBytes, _ := ioutil.ReadAll(c.Req.Body)
+	reqBodyBytes, _ := io.ReadAll(c.Req.Body)
 	method := c.Req.Method
 	buffer.WriteString(urlStr)
 	buffer.Write(reqBodyBytes)
@@ -587,7 +582,7 @@ func (c *Context) Upload(filePath string) func() {
 	}
 
 	defer func() {
-		f.Close()
+		_ = f.Close()
 	}()
 
 	contentLength := Str2Float64(c.Resp.Header.Get("Content-Length"))
@@ -611,7 +606,6 @@ func (c *Context) Upload(filePath string) func() {
 	ct := time.Now().Sub(st)
 	log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum), "/", FileSizeFormat(int64(contentLength)),
 		" |\t ", math.Floor((float64(sum)/contentLength)*100), "%", "|\t ", ct)
-	//loger(" rep header ", c.Resp.ContentLength)
 	return nil
 }
 
@@ -642,7 +636,7 @@ func (c *Context) OpenErr2Retry() {
 
 // CloseRetry 关闭重试
 func (c *Context) CloseRetry() {
-	c.isRetry = true
+	c.isRetry = false
 }
 
 // GetParam 获取上下文参数
