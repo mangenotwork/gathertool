@@ -16,7 +16,7 @@ import (
 
 // orderMap 固定顺序map
 type orderMap[K comparable, V SliceType] struct {
-	mux     sync.Mutex
+	mux     sync.Mutex // TODO 使用读写锁
 	data    map[K]V
 	keyList []K
 	size    int
@@ -117,6 +117,22 @@ func (m *orderMap[K, V]) Reverse() *orderMap[K, V] {
 	}
 	return m
 }
+
+// TODO 转json
+
+// TODO debug打印
+
+// TODO 插入值指定位置
+
+// TODO 值移动指定位置操作
+
+// TODO 取指定位置的值
+
+// TODO 首位读取并移除
+
+// TODO 末尾读取并移除
+
+// TODO 洗牌
 
 // MysqlNewTable 给mysql提供创建新的固定map顺序为字段的表
 func (m *orderMap[K, V]) MysqlNewTable(db Mysql, table string) error {
