@@ -1,5 +1,5 @@
 /*
-	Description : 一些常用的应用场景函数
+	Description : 一些扫描方法,一些website host方法
 	Author : ManGe
 	Mail : 2912882908@qq.com
 	Github : https://github.com/mangenotwork/gathertool
@@ -24,8 +24,7 @@ type HostToolEr interface {
 	Run() ([]string, int)
 }
 
-// HostScanUrl ========================================================================================================
-// Host站点下 A标签 Url扫描， 从更目录开始扫描指定深度 get Url 应用函数
+// HostScanUrl Host站点下 A标签 Url扫描， 从更目录开始扫描指定深度 get Url 应用函数
 type HostScanUrl struct {
 	Host     string
 	Depth    int // 页面深度
@@ -99,8 +98,7 @@ G:
 	}
 }
 
-// HostScanExtLinks ===================================================================================================
-// Host站点下的外链采集 应用函数
+// HostScanExtLinks Host站点下的外链采集 应用函数
 type HostScanExtLinks struct {
 	Host string
 }
@@ -146,8 +144,7 @@ func (scan *HostScanExtLinks) Run() ([]string, int) {
 	return urls, count
 }
 
-// HostScanBadLink ====================================================================================================
-// Host站点下 HTML Get Url 死链接扫描 应用函数
+// HostScanBadLink Host站点下 HTML Get Url 死链接扫描 应用函数
 type HostScanBadLink struct {
 	Host      string
 	Depth     int // 页面深度
@@ -228,8 +225,7 @@ func (scan *HostScanBadLink) do(caseUrl string, df int) {
 	}
 }
 
-// HostPageSpeedCheck =================================================================================================
-// Host站点下 HTML Get 测速 应用函数
+// HostPageSpeedCheck Host站点下 HTML Get 测速 应用函数
 type HostPageSpeedCheck struct {
 	Host      string
 	Depth     int // 页面深度
@@ -318,24 +314,24 @@ func (scan *HostPageSpeedCheck) AverageSpeed() float64 {
 
 // MaxSpeed 最高用时
 func (scan *HostPageSpeedCheck) MaxSpeed() int64 {
-	var max int64 = 0
+	var maxTmp int64 = 0
 	for _, v := range scan.PageSpeed {
-		if v.Milliseconds() > max {
-			max = v.Milliseconds()
+		if v.Milliseconds() > maxTmp {
+			maxTmp = v.Milliseconds()
 		}
 	}
-	return max
+	return maxTmp
 }
 
 // MinSpeed 最低用时
 func (scan *HostPageSpeedCheck) MinSpeed() int64 {
-	var min int64 = 0
+	var minTmp int64 = 0
 	for _, v := range scan.PageSpeed {
-		if v.Milliseconds() < min {
-			min = v.Milliseconds()
+		if v.Milliseconds() < minTmp {
+			minTmp = v.Milliseconds()
 		}
 	}
-	return min
+	return minTmp
 }
 
 // Report 报告

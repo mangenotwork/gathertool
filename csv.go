@@ -9,7 +9,6 @@ package gathertool
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 )
 
@@ -38,9 +37,7 @@ func (c *Csv) Close() {
 	c.Close()
 }
 
-// Add 写入csv
 func (c *Csv) Add(data []string) error {
-	log.Println("写入csv = ", data)
 	err := c.W.Write(data)
 	if err != nil {
 		return err
@@ -49,7 +46,6 @@ func (c *Csv) Add(data []string) error {
 	return nil
 }
 
-// ReadAll 读取所有
 func (c *Csv) ReadAll() ([][]string, error) {
 	return c.R.ReadAll()
 }
@@ -65,7 +61,6 @@ func ReadCsvFile(filename string) [][]string {
 	}()
 	reader := csv.NewReader(file)
 	reader.Comma = ','
-
 	allRecords, err := reader.ReadAll()
 	if err != nil {
 		panic(err)

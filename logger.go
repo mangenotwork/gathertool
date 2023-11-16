@@ -1,5 +1,5 @@
 /*
-	Description : 内部日志打印
+	Description : logger
 	Author : ManGe
 	Mail : 2912882908@qq.com
 	Github : https://github.com/mangenotwork/gathertool

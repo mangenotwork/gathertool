@@ -231,7 +231,6 @@ func (c *Context) Do() func() {
 		strings.Contains(c.Err.Error(), "To Many Requests") ||
 		strings.Contains(c.Err.Error(), "EOF") ||
 		strings.Contains(c.Err.Error(), "connection timed out")) {
-
 		Error("【日志】 请求 超时 = ", c.Err)
 		if c.RetryFunc != nil && c.isRetry == true {
 			InfoTimes(4, "【日志】 执行 retry 事件： 第", c.times, "次， 总： ", c.MaxTimes)
@@ -252,7 +251,6 @@ func (c *Context) Do() func() {
 			c.RetryFunc(c)
 			return c.Do()
 		}
-
 		if c.FailedFunc != nil {
 			c.FailedFunc(c)
 		}
@@ -588,7 +586,7 @@ func (c *Context) Upload(filePath string) func() {
 	contentLength := Str2Float64(c.Resp.Header.Get("Content-Length"))
 	var sum int64 = 0
 	buf := make([]byte, 1024*100)
-	st := time.Now()
+	sTime := time.Now()
 	i := 0
 	for {
 		i++
@@ -603,7 +601,7 @@ func (c *Context) Upload(filePath string) func() {
 				" |\t ", math.Floor((float64(sum)/contentLength)*100), "%")
 		}
 	}
-	ct := time.Now().Sub(st)
+	ct := time.Now().Sub(sTime)
 	log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum), "/", FileSizeFormat(int64(contentLength)),
 		" |\t ", math.Floor((float64(sum)/contentLength)*100), "%", "|\t ", ct)
 	return nil

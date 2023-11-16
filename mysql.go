@@ -370,52 +370,6 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	return nil
 }
 
-// NewTableGd 创建新的固定map顺序为字段的表
-func (m *Mysql) NewTableGd(table string, fields *gDMap) error {
-	var (
-		createSql bytes.Buffer
-		line      = fields.Len()
-	)
-
-	if table == "" {
-		return TABLE_IS_NULL
-	}
-
-	if line < 1 {
-		return fmt.Errorf("fiedls len is 0")
-	}
-
-	if m.DB == nil {
-		_ = m.Conn()
-	}
-
-	createSql.WriteString("CREATE TABLE ")
-	createSql.WriteString(table)
-	createSql.WriteString(" ( temp_id int(11) NOT NULL AUTO_INCREMENT, ")
-	fields.Range(func(k string, v interface{}) {
-		createSql.WriteString(k)
-		createSql.WriteString(" ")
-		createSql.WriteString(dataType2Mysql(v))
-		createSql.WriteString(", ")
-	})
-
-	createSql.WriteString("PRIMARY KEY (temp_id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
-	_, err := m.DB.Exec(createSql.String())
-	if m.log {
-		Info("[Sql] Exec : " + createSql.String())
-		if err != nil {
-			Error("[Sql] Error : " + err.Error())
-		}
-	}
-
-	if m.allTN == nil {
-		_ = m.allTableName()
-	}
-
-	m.allTN.add(table)
-	return nil
-}
-
 // insert 插入操作
 func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 	var insertSql bytes.Buffer
@@ -514,43 +468,6 @@ func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error {
 	}
 
 	return m.insert(table, fieldData)
-}
-
-// InsertAtGd  固定顺序map写入
-func (m *Mysql) InsertAtGd(table string, fieldData *gDMap) error {
-	var (
-		line         = fieldData.Len()
-		fieldDataMap = make(map[string]interface{})
-	)
-
-	if table == "" {
-		return TABLE_IS_NULL
-	}
-
-	if line < 1 {
-		return fmt.Errorf("fiedls len is 0")
-	}
-
-	if m.DB == nil {
-		_ = m.Conn()
-	}
-
-	if m.allTN == nil {
-		_ = m.allTableName()
-	}
-
-	if !m.allTN.isHave(table) {
-		err := m.NewTableGd(table, fieldData)
-		if err != nil {
-			return err
-		}
-	}
-
-	fieldData.Range(func(k string, v interface{}) {
-		fieldDataMap[k] = v
-	})
-
-	return m.insert(table, fieldDataMap)
 }
 
 // InsertAtJson json字符串存入数据库

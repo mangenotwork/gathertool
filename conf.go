@@ -14,6 +14,8 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+// TODO 扩展到所有能支持的配置文件
+
 var Config *conf
 
 type conf struct {
