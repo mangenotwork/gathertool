@@ -1,9 +1,8 @@
 /*
-	Description : csv的相关方法
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : csv的相关方法
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 

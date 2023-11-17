@@ -1,9 +1,8 @@
 /*
-	Description : Udp的连接 (Udp客户端); 应用场景是模拟Udp客户端;
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : Udp的连接 (Udp客户端); 应用场景是模拟Udp客户端;
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -192,9 +191,7 @@ var DNSServer = map[string]string{
 	"218.30.118.6":  "公共DNS|DNS 派 电信/移动/铁通",
 	"123.125.81.6":  "公共DNS|DNS DNS 派 联通",
 	"140.207.198.6": "公共DNS|DNS DNS 派 联通",
-	//"1.2.4.8":       "公共DNS|cnnicDNS",
-	//"210.2.4.8":     "公共DNS|cnnicDNS",
-	"8.8.8.8": "公共DNS|GoogleDNS",
+	"8.8.8.8":       "公共DNS|GoogleDNS",
 	//"8.8.4.4":       "公共DNS|GoogleDNS",
 	//"1.1.1.1":       "公共DNS|CloudflareDNS",
 	//"1.0.0.1":       "公共DNS|CloudflareDNS",
@@ -203,8 +200,6 @@ var DNSServer = map[string]string{
 	//"185.184.222.222": "公共DNS|DNS.SB",
 	//"208.67.222.222": "公共DNS|OpenDNS",
 	//"208.67.220.220": "公共DNS|OpenDNS",
-	// "199.91.73.222":   "公共DNS|V2EXDNS",
-	// "178.79.131.110":  "公共DNS|V2EXDNS",
 	"223.5.5.5": "公共DNS|阿里云DNS",
 	"223.6.6.6": "公共DNS|阿里云DNS",
 	//"183.60.83.19": "公共DNS|腾讯云DNS",

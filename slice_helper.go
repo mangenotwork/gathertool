@@ -1,9 +1,8 @@
 /*
-	Description : 切片工具
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 切片工具
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -12,15 +11,6 @@ import (
 	"sync"
 	"time"
 )
-
-type SliceType interface {
-	int | uint | int8 | uint8 | int16 | uint16 | int32 | uint32 | int64 | uint64 | float32 | float64 | string | bool |
-		*int | *uint | *int8 | *uint8 | *int16 | *uint16 | *int32 | *uint32 | *int64 | *uint64 | *float32 | *float64 |
-		*string | *bool | chan int | chan uint | chan int8 | chan uint8 | chan int16 | chan uint16 | chan int32 |
-		chan uint32 | chan int64 | chan uint64 | chan float32 | chan float64 | chan string | chan bool | chan *int |
-		chan *uint | chan *int8 | chan *uint8 | chan *int16 | chan *uint16 | chan *int32 | chan *uint32 | chan *int64 |
-		chan *uint64 | chan *float32 | chan *float64 | chan *string | chan *bool
-}
 
 type sliceTool struct{}
 
@@ -203,13 +193,13 @@ func (sliceTool) MaxInt(a []int) int {
 	if l == 0 {
 		return 0
 	}
-	max := a[0]
+	maxV := a[0]
 	for k := 1; k < l; k++ {
-		if a[k] > max {
-			max = a[k]
+		if a[k] > maxV {
+			maxV = a[k]
 		}
 	}
-	return max
+	return maxV
 }
 
 func (sliceTool) MaxInt64(a []int64) int64 {
@@ -217,13 +207,13 @@ func (sliceTool) MaxInt64(a []int64) int64 {
 	if l == 0 {
 		return 0
 	}
-	max := a[0]
+	maxV := a[0]
 	for k := 1; k < l; k++ {
-		if a[k] > max {
-			max = a[k]
+		if a[k] > maxV {
+			maxV = a[k]
 		}
 	}
-	return max
+	return maxV
 }
 
 func (sliceTool) MinInt(a []int) int {
@@ -231,13 +221,13 @@ func (sliceTool) MinInt(a []int) int {
 	if l == 0 {
 		return 0
 	}
-	min := a[0]
+	minV := a[0]
 	for k := 1; k < l; k++ {
-		if a[k] < min {
-			min = a[k]
+		if a[k] < minV {
+			minV = a[k]
 		}
 	}
-	return min
+	return minV
 }
 
 func (sliceTool) MinInt64(a []int64) int64 {
@@ -245,13 +235,13 @@ func (sliceTool) MinInt64(a []int64) int64 {
 	if l == 0 {
 		return 0
 	}
-	min := a[0]
+	minV := a[0]
 	for k := 1; k < l; k++ {
-		if a[k] < min {
-			min = a[k]
+		if a[k] < minV {
+			minV = a[k]
 		}
 	}
-	return min
+	return minV
 }
 
 func (sliceTool) PopInt(a []int) (int, []int) {

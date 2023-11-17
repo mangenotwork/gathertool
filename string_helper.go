@@ -1,9 +1,8 @@
 /*
-	Description : 数据类型相关的操作
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 数据类型相关的操作
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -984,7 +983,7 @@ func HZGB2312To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "HZGB2312", src)
 }
 
-func IsContain[T SliceType](items []T, item T) bool {
+func IsContain[T comparable](items []T, item T) bool {
 	for i := 0; i < len(items); i++ {
 		if items[i] == item {
 			return true
@@ -1093,11 +1092,11 @@ func IF[T any](condition bool, a, b T) T {
 }
 
 // CopySlice Copy slice
-func CopySlice[T SliceType](s []T) []T {
+func CopySlice[T comparable](s []T) []T {
 	return append(s[:0:0], s...)
 }
 
-func IsInSlice[T SliceType](s []T, v T) bool {
+func IsInSlice[T comparable](s []T, v T) bool {
 	for i := range s {
 		if s[i] == v {
 			return true

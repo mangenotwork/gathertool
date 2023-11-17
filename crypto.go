@@ -1,9 +1,8 @@
 /*
-	Description : 加密解码相关封装方法
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 加密解码相关封装方法
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -166,8 +165,8 @@ func (cbc *cbcObj) pkcs5Padding(ciphertext []byte, blockSize int) []byte {
 
 func (cbc *cbcObj) pkcs5UnPadding(origData []byte) []byte {
 	length := len(origData)
-	unpadDing := int(origData[length-1])
-	return origData[:(length - unpadDing)]
+	unPadDing := int(origData[length-1])
+	return origData[:(length - unPadDing)]
 }
 
 // ECB : 电码本模式（Electronic Codebook Book (ECB)）
@@ -215,8 +214,8 @@ func (ecb *ecbObj) Encrypt(str, key []byte) ([]byte, error) {
 
 func (ecb *ecbObj) pkcs5PaddingDes(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
+	padText := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padText...)
 }
 
 func (ecb *ecbObj) pkcs5PaddingAes(ciphertext []byte, blockSize int) []byte {
@@ -335,7 +334,7 @@ func (cfb *cfbObj) Decrypt(str, key []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	iv := []byte{}
+	iv := make([]byte, 0)
 	if cfb.cryptoType == "aes" {
 		if len(str) < aes.BlockSize {
 			return nil, errors.New("ciphertext too short")
@@ -504,12 +503,6 @@ func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err er
 	}
 	return
 }
-
-// TODO Rabbit
-
-// TODO RC4
-
-// TODO RIPEMD-160
 
 /*
 0: “sha1”

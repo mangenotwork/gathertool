@@ -1,9 +1,8 @@
 /*
-	Description : mysql 相关方法
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : mysql 相关方法
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -25,6 +24,7 @@ var (
 	ShowTablesSql   = "SHOW TABLES"
 	TABLE_NAME_NULL = fmt.Errorf("table name is null")
 	TABLE_IS_NULL   = fmt.Errorf("table is null")
+	HOST_IS_NULL    = fmt.Errorf("host is null")
 )
 
 var MysqlDB = &Mysql{}
@@ -57,7 +57,7 @@ func NewMysqlDB(host string, port int, user, password, database string) (err err
 // NewMysql 创建一个mysql对象
 func NewMysql(host string, port int, user, password, database string) (*Mysql, error) {
 	if len(host) < 1 {
-		return nil, fmt.Errorf("Host is Null.")
+		return nil, HOST_IS_NULL
 	}
 	if port < 1 {
 		port = 3369
@@ -214,18 +214,15 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	if v, ok := m.tableTemp[table]; ok {
 		return v, nil
 	}
-
 	if table == "" {
-		return nil, TABLE_NAME_NULL
+		return &tableDescribe{}, TABLE_NAME_NULL
 	}
-
 	rows, err := m.DB.Query("DESCRIBE " + table)
 	if err != nil {
-		return nil, err
+		return &tableDescribe{}, err
 	}
 
 	fieldMap := make(map[string]string)
@@ -239,7 +236,7 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 		if strings.Contains(result.Type, "varchar") || strings.Contains(result.Type, "text") {
 			fieldType = "string"
 		}
-		if strings.Contains(result.Type, "float") || strings.Contains(result.Type, "doble") {
+		if strings.Contains(result.Type, "float") || strings.Contains(result.Type, "double") {
 			fieldType = "float"
 		}
 		if strings.Contains(result.Type, "blob") {
@@ -250,12 +247,10 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 		}
 		fieldMap[result.Field] = fieldType
 	}
-
 	_ = rows.Close()
 	td := &tableDescribe{
 		Base: fieldMap,
 	}
-
 	// 缓存
 	m.tableTemp[table] = td
 	return td, nil
@@ -431,7 +426,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	}
 
 	if !m.allTN.isHave(table) {
-		return fmt.Errorf("[Insert Err] Table not fond.")
+		return fmt.Errorf("[Insert Err] Table not fond")
 	}
 	return m.insert(table, fieldData)
 }
@@ -508,7 +503,7 @@ func (m *Mysql) Exec(sql string) error {
 	return err
 }
 
-// Query 执行selete sql
+// Query 执行 select sql
 func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	if m.DB == nil {
 		_ = m.Conn()

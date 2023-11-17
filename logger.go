@@ -1,9 +1,8 @@
 /*
-	Description : logger
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : logger
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -18,7 +17,7 @@ import (
 )
 
 // LogClose 是否关闭日志
-var LogClose bool = true
+var LogClose = true
 var std = newStd()
 
 // CloseLog 关闭日志
@@ -62,7 +61,7 @@ func (l *logger) Log(level Level, args string, times int) {
 	fileList := strings.Split(file, "/")
 	// 最多显示两级路径
 	if len(fileList) > 3 {
-		fileList = fileList[len(fileList)-3 : len(fileList)]
+		fileList = fileList[len(fileList)-3:]
 	}
 	buffer.WriteString(strings.Join(fileList, "/"))
 	buffer.WriteString(":")
@@ -86,8 +85,8 @@ func Info(args ...interface{}) {
 	std.Log(1, fmt.Sprint(args...), 2)
 }
 
-// Infof 日志-信息
-func Infof(format string, args ...interface{}) {
+// InfoF 日志-信息
+func InfoF(format string, args ...interface{}) {
 	std.Log(1, fmt.Sprintf(format, args...), 2)
 }
 

@@ -1,9 +1,8 @@
 /*
-	Description : HTTP&HTTPs代理并拦截HTTP的数据包; socket5代理
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : HTTP&HTTPs代理并拦截HTTP的数据包; socket5代理
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -168,7 +167,7 @@ func generateKeyPair() (rawCert, rawKey []byte, err error) {
 	// Create private key and self-signed certificate
 	// Adapted from https://golang.org/src/crypto/tls/generate_cert.go
 
-	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	private, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return
 	}
@@ -180,7 +179,7 @@ func generateKeyPair() (rawCert, rawKey []byte, err error) {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"ManGe-gathertool"},
+			Organization: []string{"ManGe-gatherTool"},
 		},
 		NotBefore: notBefore,
 		NotAfter:  notAfter,
@@ -189,13 +188,13 @@ func generateKeyPair() (rawCert, rawKey []byte, err error) {
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
-	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &private.PublicKey, private)
 	if err != nil {
 		return
 	}
 
 	rawCert = pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
-	rawKey = pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
+	rawKey = pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(private)})
 
 	return
 }

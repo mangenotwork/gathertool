@@ -1,9 +1,8 @@
 /*
-	Description : 请求相关
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 请求相关
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -12,7 +11,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"fmt"
 	"golang.org/x/net/publicsuffix"
 	"math/rand"
@@ -27,7 +25,7 @@ import (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
+	rand.NewSource(time.Now().UnixNano())
 }
 
 const (
@@ -42,8 +40,6 @@ const (
 )
 
 var (
-	UrlBad = errors.New("url is bad.")  // 错误的url
-	UrlNil = errors.New("url is null.") // 空的url
 	randEr = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
@@ -53,7 +49,7 @@ type Sleep time.Duration
 
 // Request 请求
 func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
-	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
 		Error("err->", err)
 		return nil, err
@@ -66,7 +62,7 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 
 // NewRequest 请求
 func NewRequest(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
-	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
 		Error("err->", err)
 		return nil
@@ -121,22 +117,14 @@ func NewHeader(data map[string]string) Header {
 	return data
 }
 
-func (h Header) haveObj() {
-	if h == nil {
-		h = Header{}
-	}
-}
-
 // Set Header Set
 func (h Header) Set(key, value string) Header {
-	h.haveObj()
 	h[key] = value
 	return h
 }
 
 // Delete Header Delete
 func (h Header) Delete(key string) Header {
-	h.haveObj()
 	delete(h, key)
 	return h
 }
@@ -148,22 +136,14 @@ func NewCookie(data map[string]string) Cookie {
 	return data
 }
 
-func (c Cookie) haveObj() {
-	if c == nil {
-		c = Cookie{}
-	}
-}
-
 // Set Cookie Set
 func (c Cookie) Set(key, value string) Cookie {
-	c.haveObj()
 	c[key] = value
 	return c
 }
 
 // Delete Cookie Delete
 func (c Cookie) Delete(key string) Cookie {
-	c.haveObj()
 	delete(c, key)
 	return c
 }
@@ -281,14 +261,14 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 				return conn, err
 			},
 			ForceAttemptHTTP2: true,
-			// gathertool 默认每个请求实例都创建一个独立的client，
+			// gatherTool 默认每个请求实例都创建一个独立的client，
 			// 不复用client，这样设计是在高并发中，每个请求都是独立的
 			MaxIdleConns:          10,
 			MaxIdleConnsPerHost:   5, // 默认是 2
 			IdleConnTimeout:       30 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
-			DisableKeepAlives:     true, //DisableKeepAlives 这个字段可以用来关闭长连接，默认值为false
+			DisableKeepAlives:     true, // 这个字段可以用来关闭长连接，默认值为false
 			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		}
 	}
@@ -482,8 +462,8 @@ func checkSum(msg []byte) uint16 {
 		sum += int(msg[l-1]) * 256 // notice here, why *256?
 	}
 	sum = (sum >> 16) + (sum & 0xffff)
-	sum += (sum >> 16)
-	var answer uint16 = uint16(^sum)
+	sum += sum >> 16
+	var answer = uint16(^sum)
 	return answer
 }
 
@@ -591,7 +571,7 @@ func UsefulUrl(str string) bool {
 // success 该状态码对应执行成功函数
 // fail    该状态码对应执行失败函数
 // retry   该状态码对应需要重试前执行的函数
-var StatusCodeMap map[int]string = map[int]string{
+var StatusCodeMap = map[int]string{
 	200: "success",
 	201: "success",
 	202: "success",
@@ -675,7 +655,7 @@ const (
 	UCAgent
 )
 
-var UserAgentMap map[int]string = map[int]string{
+var UserAgentMap = map[int]string{
 	1:  "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0",                                                                                                                                          //Firefox on Windows
 	2:  "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.94 Safari/537.36",                                                                                                      //Chrome on Windows
 	3:  "Mozilla/5.0 (compatible; WOW64; MSIE 10.0; Windows NT 6.2)",                                                                                                                                                        //Internet Explorer 10
@@ -740,7 +720,6 @@ var AgentType = map[UserAgentType][]int{
 
 // GetAgent 随机获取那种类型的 user-agent
 func GetAgent(agentType UserAgentType) string {
-	rand.Seed(time.Now().UnixNano())
 	switch agentType {
 	case PCAgent:
 		if v, ok := UserAgentMap[listPCAgent[rand.Intn(len(listPCAgent))]]; ok {

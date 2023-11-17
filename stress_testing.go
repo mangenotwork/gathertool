@@ -1,9 +1,8 @@
 /*
-	Description : 接口压力测试， 并输出结果
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 接口压力测试， 并输出结果
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -80,7 +79,7 @@ func (s *StressUrl) Run(vs ...interface{}) {
 		n            int64
 		wg           sync.WaitGroup
 		reqTimeout   ReqTimeOut
-		reqTimeoutms ReqTimeOutMs
+		reqTimeoutMs ReqTimeOutMs
 		header       http.Header
 	)
 	for _, v := range vs {
@@ -91,7 +90,7 @@ func (s *StressUrl) Run(vs ...interface{}) {
 		case ReqTimeOut:
 			reqTimeout = vv
 		case ReqTimeOutMs:
-			reqTimeoutms = vv
+			reqTimeoutMs = vv
 		case http.Header:
 			header = vv
 		case *http.Header:
@@ -137,9 +136,9 @@ func (s *StressUrl) Run(vs ...interface{}) {
 				}
 				switch s.Method {
 				case "get", "Get", "GET":
-					ctx = NewGet(task.Url, client, succeedFunc, reqTimeout, reqTimeoutms, header)
+					ctx = NewGet(task.Url, client, succeedFunc, reqTimeout, reqTimeoutMs, header)
 				case "post", "Post", "POST":
-					ctx = NewPost(task.Url, []byte(s.JsonData), s.ContentType, client, succeedFunc, reqTimeout, reqTimeoutms, header)
+					ctx = NewPost(task.Url, []byte(s.JsonData), s.ContentType, client, succeedFunc, reqTimeout, reqTimeoutMs, header)
 				default:
 					log.Println("暂时不支持的 Method.")
 				}
@@ -180,7 +179,7 @@ func (s *StressUrl) Run(vs ...interface{}) {
 		minTime int64 = 9999999999
 	)
 
-	fb := make(map[int]int, 0)
+	fb := make(map[int]int)
 	for _, v := range s.stateCodeList {
 		if v.ReqTime >= maxTime {
 			maxTime = v.ReqTime

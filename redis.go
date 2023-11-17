@@ -1,9 +1,8 @@
 /*
-	Description : redis 相关方法
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : redis 相关方法
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -15,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 )
 
 // Rds Redis客户端
@@ -183,7 +182,7 @@ func (r *Rds) RedisPool() error {
 				}
 			}
 			if c == nil {
-				return nil, fmt.Errorf("redis connection is null.")
+				return nil, fmt.Errorf("redis connection is null")
 			}
 			//验证redis密码
 			if r.RedisPassword != "" {
@@ -293,7 +292,7 @@ func (r *Rds) MqProducer(mqName string, data interface{}) error {
 // MqConsumer Redis消息队列消费方
 func (r *Rds) MqConsumer(mqName string) (reply interface{}, err error) {
 	if r.MqLen(mqName) < 1 {
-		return nil, fmt.Errorf("data len is 0.")
+		return nil, fmt.Errorf("data len is 0")
 	}
 	return r.GetConn().Do("RPOP", mqName)
 }

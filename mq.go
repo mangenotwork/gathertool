@@ -1,9 +1,8 @@
 /*
-	Description : 消息接口与相关方法, 支持 Nsq, Rabbit, Kafka
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 消息接口与相关方法, 支持 Nsq, Rabbit, Kafka
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -92,7 +91,7 @@ func (m *MQNsqService) Consumer(topic string) []byte {
 	consumer.SetLogger(nil, 0)
 
 	consumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
-		Infof("[NSQ]消费消息:%+v", m)
+		InfoF("[NSQ]消费消息:%+v", m)
 		ch <- m.Body
 		m.Finish()
 		return nil
@@ -121,7 +120,7 @@ func (m *MQRabbitService) Producer(topic string, data []byte) {
 		return
 	}
 	//defer mq.Destroy()
-	Infof(fmt.Sprintf("[生产消息] topic : %s -->  %s", topic, string(data)))
+	InfoF(fmt.Sprintf("[生产消息] topic : %s -->  %s", topic, string(data)))
 	err = mq.PublishPub(data)
 	if err != nil {
 		Error("[生产消息] 失败 ： " + err.Error())
@@ -239,7 +238,7 @@ func (r *RabbitMQ) RegistryConsumeSimple() (msg <-chan amqp.Delivery) {
 	return
 }
 
-// NewRabbitMQPubSub 订阅模式创建 rabbitMq实例  (目前用的fanout模式)
+// NewRabbitMQPubSub 订阅模式创建 rabbitMq实例
 func NewRabbitMQPubSub(exchangeName, amqpUrl string) (*RabbitMQ, error) {
 	mq, err := NewRabbitMQ("", exchangeName, "", amqpUrl)
 	if mq == nil || err != nil {
@@ -451,7 +450,7 @@ func (m *MQKafkaService) Producer(topic string, data []byte) {
 		Error("send msg failed, err:", err)
 		return
 	}
-	Infof("pid:%v offset:%v\n", pid, offset)
+	InfoF("pid:%v offset:%v\n", pid, offset)
 }
 
 func (m *MQKafkaService) Consumer(topic string) []byte {
@@ -476,7 +475,7 @@ func (m *MQKafkaService) Consumer(topic string) []byte {
 		wg.Add(1)
 		go func(sarama.PartitionConsumer) { // 为每个分区开一个go协程取值
 			for msg := range pc.Messages() { // 阻塞直到有值发送过来，然后再继续等待
-				Infof("Partition:%d, Offset:%d, key:%s, value:%s\n", msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
+				InfoF("Partition:%d, Offset:%d, key:%s, value:%s\n", msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
 				ch <- msg.Value
 			}
 			defer pc.AsyncClose()

@@ -1,9 +1,8 @@
 /*
-	Description : 一些扫描方法,一些website host方法
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 一些扫描方法,一些website host方法
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -47,7 +46,7 @@ func (scan *HostScanUrl) Run() ([]string, int) {
 	CloseLog()
 	scan.do(scan.Host, 0)
 	urls := make([]string, 0)
-	for k, _ := range scan.UrlSet {
+	for k := range scan.UrlSet {
 		urls = append(urls, urlStr(k))
 	}
 	if ApplicationTerminalOut {
@@ -138,7 +137,7 @@ func (scan *HostScanExtLinks) Run() ([]string, int) {
 		}
 	}
 	urls := make([]string, 0)
-	for k, _ := range urlSet {
+	for k := range urlSet {
 		urls = append(urls, k)
 	}
 	return urls, count

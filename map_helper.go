@@ -2,7 +2,6 @@
 	Description : map相关的方法
 	Author : ManGe
 	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
 */
 
 package gathertool
@@ -15,7 +14,7 @@ import (
 )
 
 // orderMap 固定顺序map
-type orderMap[K comparable, V SliceType] struct {
+type orderMap[K, V comparable] struct {
 	mux     sync.Mutex // TODO 使用读写锁
 	data    map[K]V
 	keyList []K
@@ -23,7 +22,7 @@ type orderMap[K comparable, V SliceType] struct {
 }
 
 // OrderMap ues: OrderMap[K, V]()
-func OrderMap[K comparable, V SliceType]() *orderMap[K, V] {
+func OrderMap[K, V comparable]() *orderMap[K, V] {
 	obj := &orderMap[K, V]{
 		mux:     sync.Mutex{},
 		data:    make(map[K]V),

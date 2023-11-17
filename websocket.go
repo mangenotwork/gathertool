@@ -1,9 +1,8 @@
 /*
-	Description : websocket的连接, 模拟websocket客户端
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : websocket的连接, 模拟websocket客户端
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 

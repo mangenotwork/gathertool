@@ -1,9 +1,8 @@
 /*
-	Description : ssh 连接等相关的方法
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : ssh 连接等相关的方法
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -35,12 +34,12 @@ func SSHClient(user string, pass string, addr string) (*ssh.Client, error) {
 	if nil != err {
 		return nil, err
 	}
-	clientConn, chans, reqs, err := ssh.NewClientConn(sshConn, addr, config)
+	clientConn, chanList, reqs, err := ssh.NewClientConn(sshConn, addr, config)
 	if nil != err {
 		_ = sshConn.Close()
 		return nil, err
 	}
-	client := ssh.NewClient(clientConn, chans, reqs)
+	client := ssh.NewClient(clientConn, chanList, reqs)
 	return client, nil
 }
 
@@ -77,7 +76,7 @@ func WindowsSendCommand(command []string) (opStr string) {
 	if len(command) < 1 {
 		return ""
 	}
-	cmd := exec.CommandContext(ctx, command[0], command[1:len(command)]...)
+	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 	stdout, stdoutErr := cmd.StdoutPipe()
 	if stdoutErr != nil {
 		Error("ERR stdout : ", stdoutErr)

@@ -1,9 +1,8 @@
 /*
-	Description : mongoDB相关的操作
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : mongoDB相关的操作
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -100,7 +99,7 @@ func (m *Mongo) GetCollection(dbname, name string) {
 // document:可以是 Struct, 是 Slice
 func (m *Mongo) Insert(document interface{}) error {
 	if m.Collection == nil {
-		return fmt.Errorf("Collection is nil;")
+		return fmt.Errorf("collection is none")
 	}
 	v := reflect.ValueOf(document)
 

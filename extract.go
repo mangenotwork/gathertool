@@ -1,9 +1,8 @@
 /*
-	Description : HTML内容提取； json内容提取
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : HTML内容提取； json内容提取
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -176,7 +175,7 @@ func IsJson(str string) bool {
 }
 
 // IsHaveKey map[string]interface{} 是否存在 输入的key
-func IsHaveKey[T SliceType](data map[T]any, key T) bool {
+func IsHaveKey[T comparable](data map[T]any, key T) bool {
 	_, ok := data[key]
 	return ok
 }

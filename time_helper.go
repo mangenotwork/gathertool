@@ -1,9 +1,8 @@
 /*
-	Description : 时间相关的操作
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
-*/
+*	Description : 时间相关的操作
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
 package gathertool
 
@@ -265,7 +264,7 @@ func NowToEnd() (int64, error) {
 // Leaps 闰年的天数
 var Leaps = []int{0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
-// PyearS 平年天数
+// Pyears 平年天数
 var Pyears = []int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 // IsLeap 是否是闰年

@@ -1,9 +1,21 @@
 /*
-	Description : Tcp的连接 (Tcp客户端); 应用场景是模拟Tcp客户端;
-	Author : ManGe
-	Mail : 2912882908@qq.com
-	Github : https://github.com/mangenotwork/gathertool
+*	Description : Tcp的连接 (Tcp客户端); 应用场景是模拟Tcp客户端;
+*	Author 		: ManGe
+*	Mail 		: 2912882908@qq.com
+**/
 
+package gathertool
+
+import (
+	"fmt"
+	"io"
+	"log"
+	"net"
+	"strings"
+	"time"
+)
+
+/*
 // ===== Use
 func main(){
 	client := gt.NewTcpClient()
@@ -27,19 +39,7 @@ func f(client *gt.TcpClient){
 		}
 	}()
 }
-
 */
-
-package gathertool
-
-import (
-	"fmt"
-	"io"
-	"log"
-	"net"
-	"strings"
-	"time"
-)
 
 // TcpClient Tcp客户端
 type TcpClient struct {
@@ -166,7 +166,7 @@ type WhoisInfo struct {
 
 func Whois(host string) *WhoisInfo {
 	hostList := strings.Split(host, ".")
-	host = strings.Join(hostList[len(hostList)-2:len(hostList)], ".")
+	host = strings.Join(hostList[len(hostList)-2:], ".")
 	info := &WhoisInfo{}
 	rootRse := whois(RootWhoisServers, host)
 	info.Root = rootRse
