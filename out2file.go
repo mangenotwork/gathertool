@@ -1,5 +1,5 @@
 /*
-*	Description : csv的相关方法
+*	Description : 输出数据到文本相关的操作； 其中含csv的相关方法， excel，文本操作等
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/

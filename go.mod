@@ -7,13 +7,14 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/gomodule/redigo v1.8.9
+	github.com/gorilla/websocket v1.5.1
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/streadway/amqp v1.0.0
 	github.com/xuri/excelize/v2 v2.7.0
 	go.mongodb.org/mongo-driver v1.5.2
-	golang.org/x/crypto v0.5.0
-	golang.org/x/net v0.5.0
-	golang.org/x/text v0.6.0
+	golang.org/x/crypto v0.14.0
+	golang.org/x/net v0.17.0
+	golang.org/x/text v0.13.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -50,6 +51,6 @@ require (
 	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
