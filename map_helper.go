@@ -309,7 +309,6 @@ func (m *orderMap[K, V]) MysqlInsert(db Mysql, table string) error {
 	return db.insert(table, fieldDataMap)
 }
 
-// TODO 支持泛型
 type Set map[any]struct{}
 
 func NewSet() Set {
@@ -329,43 +328,53 @@ func (s Set) Delete(key any) {
 	delete(s, key)
 }
 
-// TODO 支持泛型
-type Stack struct {
-	data map[any]any
+func (s Set) DebugPrint() {
+	for k := range s {
+		Debug(k)
+	}
 }
 
-func NewStack() *Stack {
-	s := new(Stack)
-	s.data = make(map[any]any)
-	return s
+type Stack[K comparable] struct {
+	data map[int]K
 }
 
-func (s *Stack) Push(data interface{}) {
+func NewStack[K comparable]() *Stack[K] {
+	return &Stack[K]{
+		data: make(map[int]K),
+	}
+}
+
+func (s *Stack[K]) Push(data K) {
 	s.data[len(s.data)] = data
 }
 
-func (s *Stack) Pop() {
-	delete(s.data, len(s.data)-1)
-}
-
-func (s *Stack) String() string {
-	info := ""
-	for i := 0; i < len(s.data); i++ {
-		info = info + "[" + StringValue(s.data[i]) + "]"
+func (s *Stack[K]) Pop() K {
+	if len(s.data) < 1 {
+		var k K
+		return k
 	}
-	return info
+	l := len(s.data) - 1
+	k := s.data[l]
+	delete(s.data, l)
+	return k
 }
 
-func MapCopy(data map[any]any) (copy map[any]any) {
-	copy = make(map[any]any, len(data))
+func (s *Stack[K]) DebugPrint() {
+	for i := 0; i < len(s.data); i++ {
+		Debug(s.data)
+	}
+}
+
+func MapCopy[K, V comparable](data map[K]V) (copy map[K]V) {
+	copy = make(map[K]V, len(data))
 	for k, v := range data {
 		copy[k] = v
 	}
 	return
 }
 
-func MapMergeCopy(src ...map[any]any) (copy map[any]any) {
-	copy = make(map[any]any)
+func MapMergeCopy[K, V comparable](src ...map[K]V) (copy map[K]V) {
+	copy = make(map[K]V)
 	for _, m := range src {
 		for k, v := range m {
 			copy[k] = v

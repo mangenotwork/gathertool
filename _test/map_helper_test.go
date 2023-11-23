@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-// go test -v -run=TestOderMap
-func TestOderMap(t *testing.T) {
+// go test -v -run=TestMapHelperOderMap
+func TestMapHelperOderMap(t *testing.T) {
 	intMap := gathertool.OrderMap[int, int]()
 	intMap.Add(1, 1)
 	t.Log(intMap.Get(1))
@@ -50,4 +50,40 @@ func TestOderMap(t *testing.T) {
 	t.Log(stringMap.BackPop())
 	stringMap.DebugPrint()
 
+}
+
+// go test -v -run=TestMapHelperSet
+func TestMapHelperSet(t *testing.T) {
+	s := gathertool.NewSet()
+	s.Add(1)
+	s.Add(1)
+	s.DebugPrint()
+	s.Add(2)
+	s.DebugPrint()
+	t.Log(s.Has(3))
+	t.Log(s.Has(1))
+	s.Delete(1)
+	s.DebugPrint()
+}
+
+// go test -v -run=TestMapHelperStack
+func TestMapHelperStack(t *testing.T) {
+	s := gathertool.NewStack[string]()
+	s.Push("a")
+	s.Push("b")
+	s.DebugPrint()
+	t.Log(s.Pop())
+	s.DebugPrint()
+}
+
+// go test -v -run=TestMapHelper
+func TestMapHelper(t *testing.T) {
+	map1 := map[int]string{1: "a", 2: "b"}
+	map2 := gathertool.MapCopy(map1)
+	t.Log(map2)
+	t.Log(gathertool.MapMergeCopy(map1, map[int]string{3: "c", 2: "b"}))
+
+	t.Log(gathertool.Map2Slice(map1))
+
+	t.Log(gathertool.Slice2Map([]any{"a", 1, "b", 2}))
 }
