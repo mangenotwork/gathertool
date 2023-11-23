@@ -689,3 +689,21 @@ func toNumberSystem26(n int) string {
 	}
 	return s
 }
+
+// StringValueMysql 用于mysql字符拼接使用
+func StringValueMysql(i any) string {
+	if i == nil {
+		return ""
+	}
+	if reflect.ValueOf(i).Kind() == reflect.String {
+		str := i.(string)
+		str = strings.Replace(str, `"`, `\"`, -1)
+		if len(str) > 1 && string(str[len(str)-1]) == `\` {
+			str += `\`
+		}
+		return `"` + str + `"`
+	}
+	var buf bytes.Buffer
+	stringValue(reflect.ValueOf(i), 0, &buf)
+	return buf.String()
+}

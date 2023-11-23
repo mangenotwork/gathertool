@@ -440,7 +440,7 @@ func PBKDF2(str, salt []byte, iterations, keySize int) []byte {
 }
 
 // jwtEncrypt
-func jwtEncrypt(token *jwt.Token, data map[string]interface{}, secret string) (string, error) {
+func jwtEncrypt(token *jwt.Token, data map[string]any, secret string) (string, error) {
 	claims := make(jwt.MapClaims)
 	for k, v := range data {
 		claims[k] = v
@@ -450,7 +450,7 @@ func jwtEncrypt(token *jwt.Token, data map[string]interface{}, secret string) (s
 }
 
 // JwtEncrypt jwt Encrypt
-func JwtEncrypt(data map[string]interface{}, secret, method string) (string, error) {
+func JwtEncrypt(data map[string]any, secret, method string) (string, error) {
 	switch method {
 	case "256":
 		return jwtEncrypt(jwt.New(jwt.SigningMethodHS256), data, secret)
@@ -462,26 +462,26 @@ func JwtEncrypt(data map[string]interface{}, secret, method string) (string, err
 	return "", fmt.Errorf("未知method; method= 256 or 384 or 512 ")
 }
 
-func JwtEncrypt256(data map[string]interface{}, secret string) (string, error) {
+func JwtEncrypt256(data map[string]any, secret string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	return jwtEncrypt(token, data, secret)
 }
 
-func JwtEncrypt384(data map[string]interface{}, secret string) (string, error) {
+func JwtEncrypt384(data map[string]any, secret string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS384)
 	return jwtEncrypt(token, data, secret)
 }
 
-func JwtEncrypt512(data map[string]interface{}, secret string) (string, error) {
+func JwtEncrypt512(data map[string]any, secret string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS512)
 	return jwtEncrypt(token, data, secret)
 }
 
 // JwtDecrypt jwt decrypt
-func JwtDecrypt(tokenString, secret string) (data map[string]interface{}, err error) {
-	data = make(map[string]interface{})
+func JwtDecrypt(tokenString, secret string) (data map[string]any, err error) {
+	data = make(map[string]any)
 	var secretFunc = func() jwt.Keyfunc { //按照这样的规则解析
-		return func(t *jwt.Token) (interface{}, error) {
+		return func(t *jwt.Token) (any, error) {
 			return []byte(secret), nil
 		}
 	}

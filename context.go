@@ -137,7 +137,7 @@ type Context struct {
 	Html string
 
 	// 请求上下文参数
-	Param map[string]interface{}
+	Param map[string]any
 
 	StateCode int
 }
@@ -348,9 +348,9 @@ func (c *Context) RespBodyHtml() string {
 	).Replace(html)
 }
 
-// RespBodyMap 请求到的Body转换为map[string]interface{}类型
-func (c *Context) RespBodyMap() map[string]interface{} {
-	var tempMap map[string]interface{}
+// RespBodyMap 请求到的Body转换为map[string]any类型
+func (c *Context) RespBodyMap() map[string]any {
+	var tempMap map[string]any
 	err := json.Unmarshal(c.RespBody, &tempMap)
 	if err != nil {
 		Error(err)
@@ -359,9 +359,9 @@ func (c *Context) RespBodyMap() map[string]interface{} {
 	return tempMap
 }
 
-// RespBodyArr 请求到的Body转换为[]interface{}类型
-func (c *Context) RespBodyArr() []interface{} {
-	var tempArr []interface{}
+// RespBodyArr 请求到的Body转换为[]any类型
+func (c *Context) RespBodyArr() []any {
+	var tempArr []any
 	err := json.Unmarshal(c.RespBody, &tempArr)
 	if err != nil {
 		Error(err)
@@ -637,12 +637,12 @@ func (c *Context) CloseRetry() {
 }
 
 // GetParam 获取上下文参数
-func (c *Context) GetParam(key string) interface{} {
+func (c *Context) GetParam(key string) any {
 	return c.Param[key]
 }
 
 // AddParam 添加上下文参数
-func (c *Context) AddParam(key string, val interface{}) {
+func (c *Context) AddParam(key string, val any) {
 	c.Param[key] = val
 }
 

@@ -1,5 +1,5 @@
 /*
-*	Description : 数据类型相关的操作
+*	Description : 字符串，数据类型转换，字符编码等等相关的操作方法
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -7,8 +7,6 @@
 package gathertool
 
 import (
-	"archive/tar"
-	"archive/zip"
 	"bytes"
 	"compress/gzip"
 	"crypto/md5"
@@ -22,9 +20,7 @@ import (
 	"log"
 	"math"
 	"net"
-	"os"
 	"path"
-	"path/filepath"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -40,6 +36,32 @@ import (
 	"golang.org/x/text/transform"
 )
 
+// Json2Map json -> map
+func Json2Map(str string) (map[string]any, error) {
+	var tempMap map[string]any
+	err := json.Unmarshal([]byte(str), &tempMap)
+	return tempMap, err
+}
+
+// Any2Map any -> map[string]any
+func Any2Map(data any) map[string]any {
+	if v, ok := data.(map[string]any); ok {
+		return v
+	}
+	if reflect.ValueOf(data).Kind() == reflect.String {
+		dataMap, err := Json2Map(data.(string))
+		if err == nil {
+			return dataMap
+		}
+	}
+	return nil
+}
+
+// Any2String any -> string
+func Any2String(data any) string {
+	return StringValue(data)
+}
+
 // StringValue 任何类型返回值字符串形式
 func StringValue(i any) string {
 	if i == nil {
@@ -53,25 +75,6 @@ func StringValue(i any) string {
 	return buf.String()
 }
 
-// StringValueMysql 用于mysql字符拼接使用
-func StringValueMysql(i any) string {
-	if i == nil {
-		return ""
-	}
-	if reflect.ValueOf(i).Kind() == reflect.String {
-		str := i.(string)
-		str = strings.Replace(str, `"`, `\"`, -1)
-		if len(str) > 1 && string(str[len(str)-1]) == `\` {
-			str += `\`
-		}
-		return `"` + str + `"`
-	}
-	var buf bytes.Buffer
-	stringValue(reflect.ValueOf(i), 0, &buf)
-	return buf.String()
-}
-
-// stringValue 任何类型返回值字符串形式的实现方法，私有
 func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
@@ -128,6 +131,9 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 		buf.WriteString("\n" + strings.Repeat(" ", indent) + "}")
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		buf.WriteString(strconv.FormatInt(v.Int(), 10))
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		buf.WriteString(strconv.FormatUint(v.Uint(), 10))
 
 	case reflect.Float32, reflect.Float64:
@@ -151,50 +157,8 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 	}
 }
 
-// MD5 MD5
-func MD5(str string) string {
-	h := md5.New()
-	h.Write([]byte(str))
-	return hex.EncodeToString(h.Sum(nil))
-}
-
-// Json2Map json -> map
-func Json2Map(str string) (map[string]interface{}, error) {
-	var tempMap map[string]interface{}
-	err := json.Unmarshal([]byte(str), &tempMap)
-	if err != nil {
-		return nil, err
-	}
-	return tempMap, nil
-}
-
-// Map2Json map -> json
-func Map2Json(m interface{}) (string, error) {
-	jsonStr, err := json.Marshal(m)
-	return string(jsonStr), err
-}
-
-// Any2Map interface{} -> map[string]interface{}
-func Any2Map(data interface{}) map[string]interface{} {
-	if v, ok := data.(map[string]interface{}); ok {
-		return v
-	}
-	if reflect.ValueOf(data).Kind() == reflect.String {
-		dataMap, err := Json2Map(data.(string))
-		if err == nil {
-			return dataMap
-		}
-	}
-	return nil
-}
-
-// Any2String interface{} -> string
-func Any2String(data interface{}) string {
-	return StringValue(data)
-}
-
-// Any2Int interface{} -> int
-func Any2Int(data interface{}) int {
+// Any2Int any -> int
+func Any2Int(data any) int {
 	var t2 int
 	switch data.(type) {
 	case uint:
@@ -240,21 +204,21 @@ func Any2Int(data interface{}) int {
 	return t2
 }
 
-// Any2Int64 interface{} -> int64
-func Any2Int64(data interface{}) int64 {
+// Any2Int64 any -> int64
+func Any2Int64(data any) int64 {
 	return int64(Any2Int(data))
 }
 
-// Any2Arr interface{} -> []interface{}
-func Any2Arr(data interface{}) []interface{} {
-	if v, ok := data.([]interface{}); ok {
+// Any2Arr any -> []any
+func Any2Arr(data any) []any {
+	if v, ok := data.([]any); ok {
 		return v
 	}
 	return nil
 }
 
-// Any2Float64 interface{} -> float64
-func Any2Float64(data interface{}) float64 {
+// Any2Float64 any -> float64
+func Any2Float64(data any) float64 {
 	if v, ok := data.(float64); ok {
 		return v
 	}
@@ -264,9 +228,9 @@ func Any2Float64(data interface{}) float64 {
 	return 0
 }
 
-// Any2Strings interface{} -> []string
-func Any2Strings(data interface{}) []string {
-	listValue, ok := data.([]interface{})
+// Any2Strings any -> []string
+func Any2Strings(data any) []string {
+	listValue, ok := data.([]any)
 	if !ok {
 		return nil
 	}
@@ -277,8 +241,8 @@ func Any2Strings(data interface{}) []string {
 	return keyStringValues
 }
 
-// Any2Json interface{} -> json string
-func Any2Json(data interface{}) (string, error) {
+// Any2Json any -> json string
+func Any2Json(data any) (string, error) {
 	jsonStr, err := json.Marshal(data)
 	return string(jsonStr), err
 }
@@ -311,40 +275,6 @@ func Hex2Int64(s string) int64 {
 	}
 	n2 := uint8(n)
 	return int64(*(*int8)(unsafe.Pointer(&n2)))
-}
-
-// CleaningStr 清理字符串前后空白 和回车 换行符号
-func CleaningStr(str string) string {
-	str = strings.Replace(str, "\n", "", -1)
-	str = strings.Replace(str, "\r", "", -1)
-	str = strings.Replace(str, "\\n", "", -1)
-	//str = strings.Replace(str, "\"", "", -1)
-	str = strings.TrimSpace(str)
-	str = StrDeleteSpace(str)
-	return str
-}
-
-// StrDeleteSpace 删除字符串前后的空格
-func StrDeleteSpace(str string) string {
-	strList := []byte(str)
-	spaceCount, count := 0, len(strList)
-	for i := 0; i <= len(strList)-1; i++ {
-		if strList[i] == 32 {
-			spaceCount++
-		} else {
-			break
-		}
-	}
-	strList = strList[spaceCount:]
-	spaceCount, count = 0, len(strList)
-	for i := count - 1; i >= 0; i-- {
-		if strList[i] == 32 {
-			spaceCount++
-		} else {
-			break
-		}
-	}
-	return string(strList[:count-spaceCount])
 }
 
 // Str2Int64 string -> int64
@@ -487,22 +417,20 @@ func Byte2Float64(b []byte) float64 {
 	return math.Float64frombits(binary.LittleEndian.Uint64(b))
 }
 
-// Struct2Map  struct -> map[string]interface{}
-func Struct2Map(obj interface{}) map[string]interface{} {
+// Struct2Map  struct -> map[string]any
+func Struct2Map(obj any) map[string]any {
 	rt, rv := reflect.TypeOf(obj), reflect.ValueOf(obj)
 	if rt != nil && rt.Kind() != reflect.Struct {
-		return make(map[string]interface{})
+		return make(map[string]any)
 	}
-	out := make(map[string]interface{}, rt.NumField())
+	out := make(map[string]any, rt.NumField())
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
-		// Unexported fields, access not allowed
 		if field.PkgPath != "" {
 			continue
 		}
 		var fieldName string
 		if tagVal, ok := field.Tag.Lookup("json"); ok {
-			// Honor the special "-" in json attribute
 			if strings.HasPrefix(tagVal, "-") {
 				continue
 			}
@@ -518,7 +446,7 @@ func Struct2Map(obj interface{}) map[string]interface{} {
 	return out
 }
 
-func valueToInterface(value reflect.Value) interface{} {
+func valueToInterface(value reflect.Value) any {
 	if !value.IsValid() {
 		return nil
 	}
@@ -534,7 +462,7 @@ func valueToInterface(value reflect.Value) interface{} {
 
 	case reflect.Array:
 	case reflect.Slice:
-		arr := make([]interface{}, 0, value.Len())
+		arr := make([]any, 0, value.Len())
 		for i := 0; i < value.Len(); i++ {
 			val := valueToInterface(value.Index(i))
 			if val != nil {
@@ -544,7 +472,7 @@ func valueToInterface(value reflect.Value) interface{} {
 		return arr
 
 	case reflect.Map:
-		m := make(map[string]interface{}, value.Len())
+		m := make(map[string]any, value.Len())
 		for _, k := range value.MapKeys() {
 			v := value.MapIndex(k)
 			m[k.String()] = valueToInterface(v)
@@ -558,8 +486,41 @@ func valueToInterface(value reflect.Value) interface{} {
 	return nil
 }
 
+// CleaningStr 清理字符串前后空白 和回车 换行符号
+func CleaningStr(str string) string {
+	str = strings.Replace(str, "\n", "", -1)
+	str = strings.Replace(str, "\r", "", -1)
+	str = strings.Replace(str, "\\n", "", -1)
+	str = strings.TrimSpace(str)
+	str = StrDeleteSpace(str)
+	return str
+}
+
+// StrDeleteSpace 删除字符串前后的空格
+func StrDeleteSpace(str string) string {
+	strList := []byte(str)
+	spaceCount, count := 0, len(strList)
+	for i := 0; i <= len(strList)-1; i++ {
+		if strList[i] == 32 {
+			spaceCount++
+		} else {
+			break
+		}
+	}
+	strList = strList[spaceCount:]
+	spaceCount, count = 0, len(strList)
+	for i := count - 1; i >= 0; i-- {
+		if strList[i] == 32 {
+			spaceCount++
+		} else {
+			break
+		}
+	}
+	return string(strList[:count-spaceCount])
+}
+
 // EncodeByte encode byte
-func EncodeByte(v interface{}) []byte {
+func EncodeByte(v any) []byte {
 	switch value := v.(type) {
 	case int, int8, int16, int32:
 		return Int2Byte(value.(int))
@@ -578,8 +539,8 @@ func EncodeByte(v interface{}) []byte {
 }
 
 // DecodeByte  decode byte
-func DecodeByte(b []byte) (interface{}, error) {
-	var values interface{}
+func DecodeByte(b []byte) (any, error) {
+	var values any
 	buf := bytes.NewBuffer(b)
 	err := binary.Read(buf, binary.BigEndian, values)
 	return values, err
@@ -664,8 +625,8 @@ func DeepCopy[T any](dst, src T) error {
 // Struct2MapV2 Struct  ->  map
 // hasValue=true表示字段值不管是否存在都转换成map
 // hasValue=false表示字段为空或者不为0则转换成map
-func Struct2MapV2(obj interface{}, hasValue bool) (map[string]interface{}, error) {
-	mp := make(map[string]interface{})
+func Struct2MapV2(obj any, hasValue bool) (map[string]any, error) {
+	mp := make(map[string]any)
 	value := reflect.ValueOf(obj).Elem()
 	typeOf := reflect.TypeOf(obj).Elem()
 	for i := 0; i < value.NumField(); i++ {
@@ -716,10 +677,10 @@ func Struct2MapV2(obj interface{}, hasValue bool) (map[string]interface{}, error
 }
 
 // Struct2MapV3 struct -> map
-func Struct2MapV3(obj interface{}) map[string]interface{} {
+func Struct2MapV3(obj any) map[string]any {
 	obj1 := reflect.TypeOf(obj)
 	obj2 := reflect.ValueOf(obj)
-	var data = make(map[string]interface{})
+	var data = make(map[string]any)
 	for i := 0; i < obj1.NumField(); i++ {
 		data[obj1.Field(i).Name] = obj2.Field(i).Interface()
 	}
@@ -735,15 +696,6 @@ func PanicToError(fn func()) (err error) {
 	}()
 	fn()
 	return
-}
-
-// MapStr2Any map[string]string -> map[string]interface{}
-func MapStr2Any(m map[string]string) map[string]interface{} {
-	dest := make(map[string]interface{})
-	for k, v := range m {
-		dest[k] = interface{}(v)
-	}
-	return dest
 }
 
 // ByteToBinaryString  字节 -> 二进制字符串
@@ -983,96 +935,6 @@ func HZGB2312To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "HZGB2312", src)
 }
 
-func IsContain[T comparable](items []T, item T) bool {
-	for i := 0; i < len(items); i++ {
-		if items[i] == item {
-			return true
-		}
-	}
-	return false
-}
-
-// FileMd5  file md5   文件md5
-func FileMd5(path string) (string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-	md5hash := md5.New()
-	if _, err := io.Copy(md5hash, f); err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", md5hash.Sum(nil)), nil
-}
-
-// PathExists 目录不存在则创建
-func PathExists(path string) {
-	_, err := os.Stat(path)
-	if err != nil && os.IsNotExist(err) {
-		_ = os.MkdirAll(path, 0777)
-	}
-}
-
-// StrDuplicates  数组，切片去重和去空串
-func StrDuplicates(a []string) []string {
-	m := make(map[string]struct{})
-	ret := make([]string, 0, len(a))
-	for i := 0; i < len(a); i++ {
-		if a[i] == "" {
-			continue
-		}
-		if _, ok := m[a[i]]; !ok {
-			m[a[i]] = struct{}{}
-			ret = append(ret, a[i])
-		}
-	}
-	return ret
-}
-
-// IsElementStr 判断字符串是否与数组里的某个字符串相同
-func IsElementStr(listData []string, element string) bool {
-	for _, k := range listData {
-		if k == element {
-			return true
-		}
-	}
-	return false
-}
-
-// GetNowPath 获取当前运行路径
-func GetNowPath() string {
-	pathData, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if runtime.GOOS == "windows" {
-		return strings.Replace(pathData, "\\", "/", -1)
-	}
-	return pathData
-}
-
-// FileMd5sum 文件 Md5
-func FileMd5sum(fileName string) string {
-	fin, err := os.OpenFile(fileName, os.O_RDONLY, 0644)
-	if err != nil {
-		Info(fileName, err)
-		return ""
-	}
-	defer func() {
-		_ = fin.Close()
-	}()
-	Buf, bufErr := os.ReadFile(fileName)
-	if bufErr != nil {
-		Info(fileName, bufErr)
-		return ""
-	}
-	m := md5.Sum(Buf)
-	return hex.EncodeToString(m[:16])
-}
-
 // SearchBytesIndex []byte 字节切片 循环查找
 func SearchBytesIndex(bSrc []byte, b byte) int {
 	for i := 0; i < len(bSrc); i++ {
@@ -1091,20 +953,6 @@ func IF[T any](condition bool, a, b T) T {
 	return b
 }
 
-// CopySlice Copy slice
-func CopySlice[T comparable](s []T) []T {
-	return append(s[:0:0], s...)
-}
-
-func IsInSlice[T comparable](s []T, v T) bool {
-	for i := range s {
-		if s[i] == v {
-			return true
-		}
-	}
-	return false
-}
-
 // ReplaceAllToOne 批量统一替换字符串
 func ReplaceAllToOne(str string, from []string, to string) string {
 	arr := make([]string, len(from)*2)
@@ -1114,29 +962,6 @@ func ReplaceAllToOne(str string, from []string, to string) string {
 	}
 	r := strings.NewReplacer(arr...)
 	return r.Replace(str)
-}
-
-func Exists(path string) bool {
-	if stat, err := os.Stat(path); stat != nil && !os.IsNotExist(err) {
-		return true
-	}
-	return false
-}
-
-func IsDir(path string) bool {
-	s, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return s.IsDir()
-}
-
-func IsFile(path string) bool {
-	s, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return !s.IsDir()
 }
 
 // 字节换算
@@ -1323,275 +1148,6 @@ func GetMD5Encode(data string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// GetAllFile 获取目录下的所有文件
-func GetAllFile(pathname string) ([]string, error) {
-	s := make([]string, 0)
-	rd, err := os.ReadDir(pathname)
-	if err != nil {
-		Error("read dir fail:", err)
-		return s, err
-	}
-	for _, fi := range rd {
-		if !fi.IsDir() {
-			fullName := pathname + "/" + fi.Name()
-			s = append(s, fullName)
-		}
-	}
-	return s, nil
-}
-
-func subString(str string, start, end int) string {
-	rs := []rune(str)
-	length := len(rs)
-	if start < 0 || start > length {
-		Error("start is wrong")
-		return ""
-	}
-	if end < start || end > length {
-		Error("end is wrong")
-		return ""
-	}
-	return string(rs[start:end])
-}
-
-// DeCompressZIP zip解压文件
-func DeCompressZIP(zipFile, dest string) error {
-	reader, err := zip.OpenReader(zipFile)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = reader.Close()
-	}()
-	for _, file := range reader.File {
-		rc, err := file.Open()
-		if err != nil {
-			return err
-		}
-		filename := dest + file.Name
-		err = os.MkdirAll(subString(filename, 0, strings.LastIndex(filename, "/")), 0755)
-		if err != nil {
-			return err
-		}
-		w, err := os.Create(filename)
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(w, rc)
-		if err != nil {
-			return err
-		}
-		_ = w.Close()
-		_ = rc.Close()
-	}
-	return nil
-}
-
-// DeCompressTAR tar 解压文件
-func DeCompressTAR(tarFile, dest string) error {
-	file, err := os.Open(tarFile)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer func() {
-		_ = file.Close()
-	}()
-	tr := tar.NewReader(file)
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-		filename := dest + hdr.Name
-		err = os.MkdirAll(subString(filename, 0, strings.LastIndex(filename, "/")), 0755)
-		if err != nil {
-			return err
-		}
-		w, err := os.Create(filename)
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(w, tr)
-		if err != nil {
-			return err
-		}
-		_ = w.Close()
-	}
-	return nil
-}
-
-// DecompressionZipFile zip压缩文件
-func DecompressionZipFile(src, dest string) error {
-	reader, err := zip.OpenReader(src)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = reader.Close()
-	}()
-	for _, file := range reader.File {
-		filePath := path.Join(dest, file.Name)
-		if file.FileInfo().IsDir() {
-			_ = os.MkdirAll(filePath, os.ModePerm)
-		} else {
-			if err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-				return err
-			}
-			inFile, err := file.Open()
-			if err != nil {
-				return err
-			}
-			outFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-			if err != nil {
-				return err
-			}
-			_, err = io.Copy(outFile, inFile)
-			if err != nil {
-				return err
-			}
-			_ = inFile.Close()
-			_ = outFile.Close()
-		}
-	}
-	return nil
-}
-
-// CompressFiles 压缩很多文件
-// files 文件数组，可以是不同dir下的文件或者文件夹
-// dest 压缩文件存放地址
-func CompressFiles(files []string, dest string) error {
-	d, _ := os.Create(dest)
-	defer func() {
-		_ = d.Close()
-	}()
-	w := zip.NewWriter(d)
-	defer func() {
-		_ = w.Close()
-	}()
-	for _, file := range files {
-		err := compressFiles(file, "", w)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func compressFiles(filePath string, prefix string, zw *zip.Writer) error {
-	file, err := os.Open(filePath)
-	info, err := file.Stat()
-	if err != nil {
-		return err
-	}
-	if info.IsDir() {
-		prefix = prefix + "/" + info.Name()
-		fileInfos, err := file.Readdir(-1)
-		if err != nil {
-			return err
-		}
-		for _, fi := range fileInfos {
-			f := file.Name() + "/" + fi.Name()
-			if err != nil {
-				return err
-			}
-			err = compressFiles(f, prefix, zw)
-			if err != nil {
-				return err
-			}
-		}
-	} else {
-		header, err := zip.FileInfoHeader(info)
-		header.Name = prefix + "/" + header.Name
-		if err != nil {
-			return err
-		}
-		writer, err := zw.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(writer, file)
-		_ = file.Close()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// CompressDirZip 压缩目录
-func CompressDirZip(src, outFile string) error {
-	// 预防：旧文件无法覆盖
-	_ = os.RemoveAll(outFile)
-	// 创建：zip文件
-	zipFile, err := os.Create(outFile)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = zipFile.Close()
-	}()
-	// 打开：zip文件
-	archive := zip.NewWriter(zipFile)
-	defer func() {
-		_ = archive.Close()
-	}()
-	// 遍历路径信息
-	return filepath.Walk(src, func(path string, info os.FileInfo, _ error) error {
-		// 如果是源路径，提前进行下一个遍历
-		if path == src {
-			return nil
-		}
-		// 获取：文件头信息
-		header, _ := zip.FileInfoHeader(info)
-		header.Name = strings.TrimPrefix(path, src+`/`)
-		// 判断：文件是不是文件夹
-		if info.IsDir() {
-			header.Name += `/`
-		} else {
-			// 设置：zip的文件压缩算法
-			header.Method = zip.Deflate
-		}
-		// 创建：压缩包头部信息
-		writer, _ := archive.CreateHeader(header)
-		if !info.IsDir() {
-			file, _ := os.Open(path)
-			defer func() {
-				_ = file.Close()
-			}()
-			_, _ = io.Copy(writer, file)
-		}
-		return nil
-	})
-}
-
-// OutJsonFile 将data输出到json文件
-func OutJsonFile(data interface{}, fileName string) error {
-	var (
-		f   *os.File
-		err error
-	)
-	if Exists(fileName) { //如果文件存在
-		f, err = os.OpenFile(fileName, os.O_APPEND, 0666) //打开文件
-	} else {
-		f, err = os.Create(fileName) //创建文件
-	}
-	if err != nil {
-		return err
-	}
-	str, err := Any2Json(data)
-	if err != nil {
-		return err
-	}
-	_, err = io.WriteString(f, str)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // ===================================================  雪花Id
 
 type IdWorker struct {
@@ -1754,4 +1310,11 @@ func UInt32ToIP(ip uint32) net.IP {
 	b[2] = byte((ip >> 16) & 0xFF)
 	b[3] = byte((ip >> 24) & 0xFF)
 	return net.IPv4(b[3], b[2], b[1], b[0])
+}
+
+// MD5 MD5
+func MD5(str string) string {
+	h := md5.New()
+	h.Write([]byte(str))
+	return hex.EncodeToString(h.Sum(nil))
 }

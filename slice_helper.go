@@ -1,5 +1,5 @@
 /*
-*	Description : 切片工具
+*	Description : 切片相关
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -318,4 +318,53 @@ func (sliceTool) ShuffleInt(a []int) []int {
 		a[i], a[j] = a[j], a[i]
 	})
 	return a
+}
+
+// CopySlice Copy slice
+func CopySlice[T comparable](s []T) []T {
+	return append(s[:0:0], s...)
+}
+
+func IsInSlice[T comparable](s []T, v T) bool {
+	for i := range s {
+		if s[i] == v {
+			return true
+		}
+	}
+	return false
+}
+
+// StrDuplicates  数组，切片去重和去空串
+func StrDuplicates(a []string) []string {
+	m := make(map[string]struct{})
+	ret := make([]string, 0, len(a))
+	for i := 0; i < len(a); i++ {
+		if a[i] == "" {
+			continue
+		}
+		if _, ok := m[a[i]]; !ok {
+			m[a[i]] = struct{}{}
+			ret = append(ret, a[i])
+		}
+	}
+	return ret
+}
+
+func IsContain[T comparable](items []T, item T) bool {
+	for i := 0; i < len(items); i++ {
+		if items[i] == item {
+			return true
+		}
+	}
+	return false
+}
+
+// IsElementStr 判断字符串是否与数组里的某个字符串相同
+func IsElementStr(listData []string, element string) bool {
+	for _, k := range listData {
+		if k == element {
+			return true
+		}
+	}
+	return false
 }

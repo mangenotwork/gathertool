@@ -55,7 +55,7 @@ var LevelMap = map[Level]string{
 // Log 日志
 func (l *logger) Log(level Level, args string, times int) {
 	var buffer bytes.Buffer
-	buffer.WriteString(time.Now().Format("2006-01-02 15:04:05.000 "))
+	buffer.WriteString(time.Now().Format(TimeMilliTemplate))
 	buffer.WriteString(LevelMap[level])
 	_, file, line, _ := runtime.Caller(times)
 	fileList := strings.Split(file, "/")

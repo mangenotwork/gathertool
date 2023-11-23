@@ -74,7 +74,7 @@ func GetPointClassHTML(htmlStr, label, val string) ([]string, error) {
 // json:  {a:[{b:1},{b:2}]}
 // find=/a/[0]  =>   {b:1}
 // find=a/[0]/b  =>   1
-func JsonFind(jsonStr, find string) (interface{}, error) {
+func JsonFind(jsonStr, find string) (any, error) {
 	if !IsJson(jsonStr) {
 		return nil, fmt.Errorf("不是标准的Json格式")
 	}
@@ -82,7 +82,7 @@ func JsonFind(jsonStr, find string) (interface{}, error) {
 	jxLen := len(jxList)
 	var (
 		data  = Any2Map(jsonStr)
-		value interface{}
+		value any
 		err   error
 	)
 	for i := 0; i < jxLen; i++ {
@@ -116,11 +116,11 @@ func JsonFind2Json(jsonStr, find string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return Map2Json(value)
+	return Any2Json(value)
 }
 
-// JsonFind2Map 寻找json,输出 map[string]interface{}
-func JsonFind2Map(jsonStr, find string) (map[string]interface{}, error) {
+// JsonFind2Map 寻找json,输出 map[string]any
+func JsonFind2Map(jsonStr, find string) (map[string]any, error) {
 	value, err := JsonFind(jsonStr, find)
 	if err != nil {
 		return nil, err
@@ -128,8 +128,8 @@ func JsonFind2Map(jsonStr, find string) (map[string]interface{}, error) {
 	return Any2Map(value), nil
 }
 
-// JsonFind2Arr 寻找json,输出 []interface{}
-func JsonFind2Arr(jsonStr, find string) ([]interface{}, error) {
+// JsonFind2Arr 寻找json,输出 []any
+func JsonFind2Arr(jsonStr, find string) ([]any, error) {
 	value, err := JsonFind(jsonStr, find)
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func JsonFind2Int64(jsonStr, find string) (int64, error) {
 
 // IsJson 是否是json格式
 func IsJson(str string) bool {
-	var tempMap map[string]interface{}
+	var tempMap map[string]any
 	err := json.Unmarshal([]byte(str), &tempMap)
 	if err != nil {
 		return false
@@ -174,15 +174,15 @@ func IsJson(str string) bool {
 	return true
 }
 
-// IsHaveKey map[string]interface{} 是否存在 输入的key
+// IsHaveKey map[string]any 是否存在 输入的key
 func IsHaveKey[T comparable](data map[T]any, key T) bool {
 	_, ok := data[key]
 	return ok
 }
 
-// Any2Map interface{} -> map[string]interface{}
-func interface2Map(data interface{}) (map[string]interface{}, error) {
-	if v, ok := data.(map[string]interface{}); ok {
+// Any2Map any -> map[string]any
+func interface2Map(data any) (map[string]any, error) {
+	if v, ok := data.(map[string]any); ok {
 		return v, nil
 	}
 	if reflect.ValueOf(data).Kind() == reflect.String {

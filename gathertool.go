@@ -25,14 +25,14 @@ import (
 )
 
 // Get 执行get请求，请求内容在上下文 *Context 里
-func Get(url string, vs ...interface{}) (*Context, error) {
+func Get(url string, vs ...any) (*Context, error) {
 	ctx := NewGet(url, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
 // NewGet 定义一个get请求对象，请求需执行 XX.Do()
-func NewGet(url string, vs ...interface{}) *Context {
+func NewGet(url string, vs ...any) *Context {
 	request, err := http.NewRequest(GET, urlStr(url), nil)
 	if err != nil {
 		Error(err)
@@ -45,14 +45,14 @@ func NewGet(url string, vs ...interface{}) *Context {
 }
 
 // Post 执行post请求，请求内容在上下文 *Context 里
-func Post(url string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
+func Post(url string, data []byte, contentType string, vs ...any) (*Context, error) {
 	ctx := NewPost(url, data, contentType, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
 // NewPost 定义一个post请求对象，请求需执行 XX.Do()
-func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Context {
+func NewPost(url string, data []byte, contentType string, vs ...any) *Context {
 	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
 		Error(err)
@@ -70,7 +70,7 @@ func NewPost(url string, data []byte, contentType string, vs ...interface{}) *Co
 }
 
 // PostJson 执行post请求，请求参数为json，请求内容在上下文 *Context 里
-func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
+func PostJson(url string, jsonStr string, vs ...any) (*Context, error) {
 	ctx := NewPost(url, []byte(jsonStr), "application/json; charset=UTF-8", vs...)
 	ctx.Do()
 	return ctx, ctx.Err
@@ -80,14 +80,14 @@ func PostJson(url string, jsonStr string, vs ...interface{}) (*Context, error) {
 type FormData map[string]string
 
 // PostForm 执行post请求，请求参数为from data，请求内容在上下文 *Context 里
-func PostForm(url string, data map[string]string, vs ...interface{}) (*Context, error) {
+func PostForm(url string, data map[string]string, vs ...any) (*Context, error) {
 	ctx := NewPostForm(url, data, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
 // NewPostForm 定义一个post请求对象，请求参数为from data，请求需执行 XX.Do()
-func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context {
+func NewPostForm(u string, data map[string]string, vs ...any) *Context {
 	postData := url.Values{}
 	for k, v := range data {
 		postData.Add(k, v)
@@ -101,7 +101,7 @@ func NewPostForm(u string, data map[string]string, vs ...interface{}) *Context {
 }
 
 // PostFile 定义一个post上传文件的请求对象，请求需执行 XX.Do()
-func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
+func PostFile(url, paramName, filePath string, vs ...any) *Context {
 	f, err := os.Open(filePath)
 	if err != nil {
 		Error(err)
@@ -148,14 +148,14 @@ func PostFile(url, paramName, filePath string, vs ...interface{}) *Context {
 }
 
 // Put 执行put请求，请求内容在上下文 *Context 里
-func Put(url string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
+func Put(url string, data []byte, contentType string, vs ...any) (*Context, error) {
 	ctx := NewPut(url, data, contentType, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
 // NewPut 定义一个put请求对象，请求需执行 XX.Do()
-func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Context {
+func NewPut(url string, data []byte, contentType string, vs ...any) *Context {
 	request, err := http.NewRequest(PUT, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
 		Error(err)
@@ -169,14 +169,14 @@ func NewPut(url string, data []byte, contentType string, vs ...interface{}) *Con
 }
 
 // Delete 执行delete请求，请求内容在上下文 *Context 里
-func Delete(url string, vs ...interface{}) (*Context, error) {
+func Delete(url string, vs ...any) (*Context, error) {
 	ctx := NewDelete(url, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
 // NewDelete 定义一个delete请求对象，请求需执行 XX.Do()
-func NewDelete(url string, vs ...interface{}) *Context {
+func NewDelete(url string, vs ...any) *Context {
 	request, err := http.NewRequest(DELETE, urlStr(url), nil)
 	if err != nil {
 		Error(err)
@@ -189,14 +189,14 @@ func NewDelete(url string, vs ...interface{}) *Context {
 }
 
 // Options 执行options请求，请求内容在上下文 *Context 里
-func Options(url string, vs ...interface{}) (*Context, error) {
+func Options(url string, vs ...any) (*Context, error) {
 	ctx := NewOptions(url, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
 // NewOptions 定义一个options请求对象，请求需执行 XX.Do()
-func NewOptions(url string, vs ...interface{}) *Context {
+func NewOptions(url string, vs ...any) *Context {
 	request, err := http.NewRequest(OPTIONS, urlStr(url), nil)
 	if err != nil {
 		Error(err)
@@ -209,7 +209,7 @@ func NewOptions(url string, vs ...interface{}) *Context {
 }
 
 // Upload 下载文件
-func Upload(url, savePath string, vs ...interface{}) (*Context, error) {
+func Upload(url, savePath string, vs ...any) (*Context, error) {
 	c := NewGet(urlStr(url), vs)
 	c.Upload(savePath)
 	if c.Err != nil {
