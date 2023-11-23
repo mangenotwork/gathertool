@@ -531,7 +531,7 @@ func (c *Context) Upload(filePath string) func() {
 	//重试验证
 	c.times++
 	if c.times > c.MaxTimes {
-		Infof("请求失败操过", c.MaxTimes, "次了")
+		InfoF("请求失败操过", c.MaxTimes, "次了")
 		return nil
 	}
 

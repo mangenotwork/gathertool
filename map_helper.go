@@ -1,5 +1,6 @@
 /*
-	Description : map相关的方法
+	Description : map相关的方法, 其中实现了固定顺序map用于需要固定map场景等, 实现了Set用于去重等，
+					实现了Stack用于栈操作等，实现了map与slice的转换，map的深浅copy
 	Author : ManGe
 	Mail : 2912882908@qq.com
 */
@@ -8,16 +9,20 @@ package gathertool
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"math/rand"
 	"reflect"
+	"sort"
 	"sync"
+	"time"
 )
 
 // orderMap 固定顺序map
 type orderMap[K, V comparable] struct {
-	mux     sync.Mutex // TODO 使用读写锁
+	mux     sync.Mutex // TODO 优化 使用读写锁
 	data    map[K]V
-	keyList []K
+	keyList []K // TODO 优化 使用链表
 	size    int
 }
 
@@ -117,21 +122,123 @@ func (m *orderMap[K, V]) Reverse() *orderMap[K, V] {
 	return m
 }
 
-// TODO 转json
+func (m *orderMap[K, V]) Json() (string, error) {
+	return Any2Json(m.data)
+}
 
-// TODO debug打印
+func (m *orderMap[K, V]) DebugPrint() {
+	m.RangeAt(func(id int, k K, v V) {
+		DebugF("item:%d key:%v value:%v", id, k, v)
+	})
+}
 
-// TODO 插入值指定位置
+// Insert 插入值指定位置
+func (m *orderMap[K, V]) Insert(k K, v V, position int) error {
+	m.Add(k, v)
+	return m.Move(k, position)
+}
 
-// TODO 值移动指定位置操作
+// Move 值移动指定位置操作
+func (m *orderMap[K, V]) Move(k K, position int) error {
+	if position >= m.size {
+		return errors.New("position >= map len")
+	}
+	has := false
+	for i := 0; i < m.size; i++ {
+		if m.keyList[i] == k {
+			m.keyList = append(m.keyList[0:i], m.keyList[i+1:]...)
+			has = true
+			break
+		}
+	}
+	if has {
+		m.keyList = append(m.keyList[:position+1], m.keyList[position:]...)
+		m.keyList[position] = k
+	}
+	return nil
+}
 
-// TODO 取指定位置的值
+func (m *orderMap[K, V]) GetAtPosition(position int) (K, V, error) {
+	if position >= m.size {
+		var (
+			k K
+			v V
+		)
+		return k, v, errors.New("position >= map len")
+	}
+	k := m.keyList[position]
+	v := m.data[k]
+	return k, v, nil
+}
 
-// TODO 首位读取并移除
+// Pop 首位读取并移除
+func (m *orderMap[K, V]) Pop() (K, V, error) {
+	if m.size < 1 {
+		var (
+			k K
+			v V
+		)
+		return k, v, errors.New("map size is 0")
+	}
+	k := m.keyList[0]
+	v := m.data[k]
+	m.Del(k)
+	return k, v, nil
+}
 
-// TODO 末尾读取并移除
+// BackPop 末尾读取并移除
+func (m *orderMap[K, V]) BackPop() (K, V, error) {
+	if m.size < 1 {
+		var (
+			k K
+			v V
+		)
+		return k, v, errors.New("map size is 0")
+	}
+	k := m.keyList[m.size-1]
+	v := m.data[k]
+	m.Del(k)
+	return k, v, nil
+}
 
-// TODO 洗牌
+// Shuffle 洗牌
+func (m *orderMap[K, V]) Shuffle() {
+	if m.size <= 1 {
+		return
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(m.size, func(i, j int) {
+		m.keyList[i], m.keyList[j] = m.keyList[j], m.keyList[i]
+	})
+}
+
+// SortDesc 根据k排序 desc
+func (m *orderMap[K, V]) SortDesc() {
+	sort.Slice(m.keyList, func(i, j int) bool {
+		if i > j {
+			return true
+		}
+		return false
+	})
+}
+
+// SortAsc 根据k排序 asc
+func (m *orderMap[K, V]) SortAsc() {
+	sort.Slice(m.keyList, func(i, j int) bool {
+		if i < j {
+			return true
+		}
+		return false
+	})
+}
+
+func (m *orderMap[K, V]) CopyMap() map[K]V {
+	temp := make(map[K]V, m.size)
+	m.Range(func(k K, v V) {
+		temp[k] = v
+	})
+	return temp
+}
 
 // MysqlNewTable 给mysql提供创建新的固定map顺序为字段的表
 func (m *orderMap[K, V]) MysqlNewTable(db Mysql, table string) error {

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// go test -v
+// go test -v -run=TestOderMap
 func TestOderMap(t *testing.T) {
 	intMap := gathertool.OrderMap[int, int]()
 	intMap.Add(1, 1)
@@ -31,4 +31,23 @@ func TestOderMap(t *testing.T) {
 		t.Log(id, k, v)
 	})
 	t.Log(stringMap.KeyList())
+
+	t.Log(stringMap.Json())
+
+	t.Log(stringMap.Move("a", 2))
+	stringMap.DebugPrint()
+	t.Log(stringMap.Move("a", 3))
+	t.Log(stringMap.Insert("d", 4, 1))
+	stringMap.DebugPrint()
+
+	t.Log("洗牌  ------> ")
+	stringMap.Shuffle()
+	stringMap.DebugPrint()
+
+	t.Log(stringMap.GetAtPosition(2))
+	t.Log(stringMap.Pop())
+	stringMap.DebugPrint()
+	t.Log(stringMap.BackPop())
+	stringMap.DebugPrint()
+
 }
