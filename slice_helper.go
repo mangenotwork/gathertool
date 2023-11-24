@@ -1,5 +1,5 @@
 /*
-*	Description : 切片相关
+*	Description : 切片相关 TODO 支持泛型 优化代码 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -367,4 +367,14 @@ func IsElementStr(listData []string, element string) bool {
 		}
 	}
 	return false
+}
+
+// SearchBytesIndex []byte 字节切片 循环查找
+func SearchBytesIndex(bSrc []byte, b byte) int {
+	for i := 0; i < len(bSrc); i++ {
+		if bSrc[i] == b {
+			return i
+		}
+	}
+	return -1
 }

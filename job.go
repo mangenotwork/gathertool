@@ -1,5 +1,5 @@
 /*
-*	Description : 并发工作任务
+*	Description : 并发工作任务  TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -35,9 +35,9 @@ type Task struct {
 	Url       string
 	JsonParam string
 	HeaderMap *http.Header
-	Data      map[string]interface{} // 上下文传递的数据
-	Urls      []*ReqUrl              // 多步骤使用
-	Type      string                 // "", "upload", "do"
+	Data      map[string]any // 上下文传递的数据
+	Urls      []*ReqUrl      // 多步骤使用
+	Type      string         // "", "upload", "do"
 	SavePath  string
 	SaveDir   string
 	FileName  string
@@ -47,7 +47,7 @@ type Task struct {
 // NewTask 新建任务
 func NewTask() *Task {
 	return &Task{
-		Data:      make(map[string]interface{}),
+		Data:      make(map[string]any),
 		Urls:      make([]*ReqUrl, 0),
 		once:      &sync.Once{},
 		HeaderMap: &http.Header{},
@@ -64,9 +64,9 @@ func (task *Task) GetDataStr(key string) string {
 	return ""
 }
 
-func (task *Task) AddData(key string, value interface{}) *Task {
+func (task *Task) AddData(key string, value any) *Task {
 	task.once.Do(func() {
-		task.Data = make(map[string]interface{})
+		task.Data = make(map[string]any)
 	})
 	task.Data[key] = value
 	return task
@@ -82,7 +82,7 @@ func (task *Task) SetJsonParam(jsonStr string) *Task {
 	return task
 }
 
-func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
+func CrawlerTask(url, jsonParam string, vs ...any) *Task {
 	header := &http.Header{}
 
 	for _, v := range vs {
@@ -106,7 +106,7 @@ func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 		Url:       url,
 		JsonParam: jsonParam,
 		HeaderMap: header,
-		Data:      make(map[string]interface{}),
+		Data:      make(map[string]any),
 		Type:      "do",
 	}
 }
@@ -115,7 +115,7 @@ func CrawlerTask(url, jsonParam string, vs ...interface{}) *Task {
 type ReqUrl struct {
 	Url    string
 	Method string
-	Params map[string]interface{}
+	Params map[string]any
 }
 
 // NewQueue 新建一个队列
@@ -267,7 +267,7 @@ type Err2Retry bool
 // StartJobGet 并发执行Get,直到队列任务为空
 // jobNumber 并发数，
 // queue 全局队列，
-func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}) {
+func StartJobGet(jobNumber int, queue TodoQueue, vs ...any) {
 
 	var (
 		client    *http.Client
@@ -349,7 +349,7 @@ func StartJobGet(jobNumber int, queue TodoQueue, vs ...interface{}) {
 }
 
 // StartJobPost 开始运行并发Post
-func StartJobPost(jobNumber int, queue TodoQueue, vs ...interface{}) {
+func StartJobPost(jobNumber int, queue TodoQueue, vs ...any) {
 	var (
 		client    *http.Client
 		succeed   SucceedFunc

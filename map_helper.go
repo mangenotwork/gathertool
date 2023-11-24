@@ -283,7 +283,7 @@ func (m *orderMap[K, V]) MysqlNewTable(db Mysql, table string) error {
 func (m *orderMap[K, V]) MysqlInsert(db Mysql, table string) error {
 	var (
 		line         = m.Len()
-		fieldDataMap = make(map[string]interface{})
+		fieldDataMap = make(map[string]any)
 	)
 	if table == "" {
 		return TABLE_IS_NULL

@@ -20,9 +20,7 @@ import (
 	"log"
 	"math"
 	"net"
-	"path"
 	"reflect"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -417,73 +415,102 @@ func Byte2Float64(b []byte) float64 {
 	return math.Float64frombits(binary.LittleEndian.Uint64(b))
 }
 
-// Struct2Map  struct -> map[string]any
-func Struct2Map(obj any) map[string]any {
-	rt, rv := reflect.TypeOf(obj), reflect.ValueOf(obj)
-	if rt != nil && rt.Kind() != reflect.Struct {
-		return make(map[string]any)
-	}
-	out := make(map[string]any, rt.NumField())
-	for i := 0; i < rt.NumField(); i++ {
-		field := rt.Field(i)
-		if field.PkgPath != "" {
-			continue
-		}
-		var fieldName string
-		if tagVal, ok := field.Tag.Lookup("json"); ok {
-			if strings.HasPrefix(tagVal, "-") {
-				continue
+// Struct2Map Struct  ->  map
+// hasValue=true表示字段值不管是否存在都转换成map
+// hasValue=false表示字段为空或者不为0则转换成map
+func Struct2Map(obj any, hasValue bool) (map[string]any, error) {
+	mp := make(map[string]any)
+	value := reflect.ValueOf(obj).Elem()
+	typeOf := reflect.TypeOf(obj).Elem()
+	for i := 0; i < value.NumField(); i++ {
+		switch value.Field(i).Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if hasValue {
+				if value.Field(i).Int() != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).Int()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).Int()
 			}
-			fieldName = tagVal
-		} else {
-			fieldName = field.Name
-		}
-		val := valueToInterface(rv.Field(i))
-		if val != nil {
-			out[fieldName] = val
+
+		case reflect.String:
+			if hasValue {
+				if len(value.Field(i).String()) != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).String()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).String()
+			}
+
+		case reflect.Float32, reflect.Float64:
+			if hasValue {
+				if len(value.Field(i).String()) != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).Float()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).Float()
+			}
+
+		case reflect.Bool:
+			if hasValue {
+				if len(value.Field(i).String()) != 0 {
+					mp[typeOf.Field(i).Name] = value.Field(i).Bool()
+				}
+			} else {
+				mp[typeOf.Field(i).Name] = value.Field(i).Bool()
+			}
+
+		default:
+			return mp, fmt.Errorf("数据类型不匹配")
 		}
 	}
-	return out
+	return mp, nil
 }
 
-func valueToInterface(value reflect.Value) any {
-	if !value.IsValid() {
-		return nil
+// Byte2Bit []byte -> []uint8 (bit)
+func Byte2Bit(b []byte) []uint8 {
+	bits := make([]uint8, 0)
+	for _, v := range b {
+		bits = bits2Uint(bits, uint(v), 8)
 	}
+	return bits
+}
 
-	switch value.Type().Kind() {
-	case reflect.Struct:
-		return Struct2Map(value.Interface())
-
-	case reflect.Ptr:
-		if !value.IsNil() {
-			return valueToInterface(value.Elem())
-		}
-
-	case reflect.Array:
-	case reflect.Slice:
-		arr := make([]any, 0, value.Len())
-		for i := 0; i < value.Len(); i++ {
-			val := valueToInterface(value.Index(i))
-			if val != nil {
-				arr = append(arr, val)
-			}
-		}
-		return arr
-
-	case reflect.Map:
-		m := make(map[string]any, value.Len())
-		for _, k := range value.MapKeys() {
-			v := value.MapIndex(k)
-			m[k.String()] = valueToInterface(v)
-		}
-		return m
-
-	default:
-		return value.Interface()
+// bits2Uint bits2Uint
+func bits2Uint(bits []uint8, ui uint, l int) []uint8 {
+	a := make([]uint8, l)
+	for i := l - 1; i >= 0; i-- {
+		a[i] = uint8(ui & 1)
+		ui >>= 1
 	}
+	if bits != nil {
+		return append(bits, a...)
+	}
+	return a
+}
 
-	return nil
+// Bit2Byte []uint8 -> []byte
+func Bit2Byte(b []uint8) []byte {
+	if len(b)%8 != 0 {
+		for i := 0; i < len(b)%8; i++ {
+			b = append(b, 0)
+		}
+	}
+	by := make([]byte, 0)
+	for i := 0; i < len(b); i += 8 {
+		by = append(b, byte(bitsToUint(b[i:i+8])))
+	}
+	return by
+}
+
+// bitsToUint bitsToUint
+func bitsToUint(bits []uint8) uint {
+	v := uint(0)
+	for _, i := range bits {
+		v = v<<1 | uint(i)
+	}
+	return v
 }
 
 // CleaningStr 清理字符串前后空白 和回车 换行符号
@@ -539,74 +566,11 @@ func EncodeByte(v any) []byte {
 }
 
 // DecodeByte  decode byte
-func DecodeByte(b []byte) (any, error) {
-	var values any
+func DecodeByte(b []byte) ([]byte, error) {
+	rse := make([]byte, 0)
 	buf := bytes.NewBuffer(b)
-	err := binary.Read(buf, binary.BigEndian, values)
-	return values, err
-}
-
-// Byte2Bit []byte -> []uint8 (bit)
-func Byte2Bit(b []byte) []uint8 {
-	bits := make([]uint8, 0)
-	for _, v := range b {
-		bits = bits2Uint(bits, uint(v), 8)
-	}
-	return bits
-}
-
-// bits2Uint bits2Uint
-func bits2Uint(bits []uint8, ui uint, l int) []uint8 {
-	a := make([]uint8, l)
-	for i := l - 1; i >= 0; i-- {
-		a[i] = uint8(ui & 1)
-		ui >>= 1
-	}
-	if bits != nil {
-		return append(bits, a...)
-	}
-	return a
-}
-
-// Bit2Byte []uint8 -> []byte
-func Bit2Byte(b []uint8) []byte {
-	if len(b)%8 != 0 {
-		for i := 0; i < len(b)%8; i++ {
-			b = append(b, 0)
-		}
-	}
-	by := make([]byte, 0)
-	for i := 0; i < len(b); i += 8 {
-		by = append(b, byte(bitsToUint(b[i:i+8])))
-	}
-	return by
-}
-
-// bitsToUint bitsToUint
-func bitsToUint(bits []uint8) uint {
-	v := uint(0)
-	for _, i := range bits {
-		v = v<<1 | uint(i)
-	}
-	return v
-}
-
-// FileSizeFormat 字节的单位转换 保留两位小数
-func FileSizeFormat(fileSize int64) (size string) {
-	if fileSize < 1024 {
-		//return strconv.FormatInt(fileSize, 10) + "B"
-		return fmt.Sprintf("%.2fB", float64(fileSize)/float64(1))
-	} else if fileSize < (1024 * 1024) {
-		return fmt.Sprintf("%.2fKB", float64(fileSize)/float64(1024))
-	} else if fileSize < (1024 * 1024 * 1024) {
-		return fmt.Sprintf("%.2fMB", float64(fileSize)/float64(1024*1024))
-	} else if fileSize < (1024 * 1024 * 1024 * 1024) {
-		return fmt.Sprintf("%.2fGB", float64(fileSize)/float64(1024*1024*1024))
-	} else if fileSize < (1024 * 1024 * 1024 * 1024 * 1024) {
-		return fmt.Sprintf("%.2fTB", float64(fileSize)/float64(1024*1024*1024*1024))
-	} else { //if fileSize < (1024 * 1024 * 1024 * 1024 * 1024 * 1024)
-		return fmt.Sprintf("%.2fEB", float64(fileSize)/float64(1024*1024*1024*1024*1024))
-	}
+	err := binary.Read(buf, binary.BigEndian, rse)
+	return rse, err
 }
 
 // deepCopy 深copy
@@ -620,71 +584,6 @@ func deepCopy[T any](dst, src T) error {
 
 func DeepCopy[T any](dst, src T) error {
 	return deepCopy(dst, src)
-}
-
-// Struct2MapV2 Struct  ->  map
-// hasValue=true表示字段值不管是否存在都转换成map
-// hasValue=false表示字段为空或者不为0则转换成map
-func Struct2MapV2(obj any, hasValue bool) (map[string]any, error) {
-	mp := make(map[string]any)
-	value := reflect.ValueOf(obj).Elem()
-	typeOf := reflect.TypeOf(obj).Elem()
-	for i := 0; i < value.NumField(); i++ {
-		switch value.Field(i).Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			if hasValue {
-				if value.Field(i).Int() != 0 {
-					mp[typeOf.Field(i).Name] = value.Field(i).Int()
-				}
-			} else {
-				mp[typeOf.Field(i).Name] = value.Field(i).Int()
-			}
-
-		case reflect.String:
-			if hasValue {
-				if len(value.Field(i).String()) != 0 {
-					mp[typeOf.Field(i).Name] = value.Field(i).String()
-				}
-			} else {
-				mp[typeOf.Field(i).Name] = value.Field(i).String()
-			}
-
-		case reflect.Float32, reflect.Float64:
-			if hasValue {
-				if len(value.Field(i).String()) != 0 {
-					mp[typeOf.Field(i).Name] = value.Field(i).Float()
-				}
-			} else {
-				mp[typeOf.Field(i).Name] = value.Field(i).Float()
-			}
-
-		case reflect.Bool:
-			if hasValue {
-				if len(value.Field(i).String()) != 0 {
-					mp[typeOf.Field(i).Name] = value.Field(i).Bool()
-				}
-			} else {
-				mp[typeOf.Field(i).Name] = value.Field(i).Bool()
-			}
-
-		default:
-			return mp, fmt.Errorf("数据类型不匹配")
-		}
-	}
-
-	return mp, nil
-}
-
-// Struct2MapV3 struct -> map
-func Struct2MapV3(obj any) map[string]any {
-	obj1 := reflect.TypeOf(obj)
-	obj2 := reflect.ValueOf(obj)
-	var data = make(map[string]any)
-	for i := 0; i < obj1.NumField(); i++ {
-		data[obj1.Field(i).Name] = obj2.Field(i).Interface()
-	}
-	return data
 }
 
 // PanicToError panic -> error
@@ -723,6 +622,51 @@ func P2E() {
 			Error("Panic error: %v", r)
 		}
 	}()
+}
+
+// IP2Binary IP str -> binary int64
+func IP2Binary(ip string) string {
+	rse := IP2Int64(ip)
+	return strconv.FormatInt(rse, 2)
+}
+
+// UInt32ToIP  uint32 -> net.IP
+func UInt32ToIP(ip uint32) net.IP {
+	var b [4]byte
+	b[0] = byte(ip & 0xFF)
+	b[1] = byte((ip >> 8) & 0xFF)
+	b[2] = byte((ip >> 16) & 0xFF)
+	b[3] = byte((ip >> 24) & 0xFF)
+	return net.IPv4(b[3], b[2], b[1], b[0])
+}
+
+// IP2Int64 IP str -> int64
+func IP2Int64(ip string) int64 {
+	address := net.ParseIP(ip)
+	if address == nil {
+		Error("ip地址不正确")
+		return 0
+	}
+	bits := strings.Split(ip, ".")
+	b0, b1, b2, b3 := 0, 0, 0, 0
+	if len(bits) >= 1 {
+		b0, _ = strconv.Atoi(bits[0])
+	}
+	if len(bits) >= 2 {
+		b1, _ = strconv.Atoi(bits[1])
+	}
+	if len(bits) >= 3 {
+		b2, _ = strconv.Atoi(bits[2])
+	}
+	if len(bits) >= 4 {
+		b3, _ = strconv.Atoi(bits[3])
+	}
+	var sum int64
+	sum += int64(b0) << 24
+	sum += int64(b1) << 16
+	sum += int64(b2) << 8
+	sum += int64(b3)
+	return sum
 }
 
 // Charset 字符集类型
@@ -935,16 +879,6 @@ func HZGB2312To(dstCharset string, src string) (dst string, err error) {
 	return convert(dstCharset, "HZGB2312", src)
 }
 
-// SearchBytesIndex []byte 字节切片 循环查找
-func SearchBytesIndex(bSrc []byte, b byte) int {
-	for i := 0; i < len(bSrc); i++ {
-		if bSrc[i] == b {
-			return i
-		}
-	}
-	return -1
-}
-
 // IF 三元表达式
 func IF[T any](condition bool, a, b T) T {
 	if condition {
@@ -1071,16 +1005,6 @@ func ConvertGBK2Str(gbkStr string) string {
 		ret = gbkStr
 	}
 	return ret
-}
-
-// AbPathByCaller 获取当前执行文件绝对路径（go run）
-func AbPathByCaller() string {
-	var abPath string
-	_, filename, _, ok := runtime.Caller(0)
-	if ok {
-		abPath = path.Dir(filename)
-	}
-	return path.Join(abPath, "../../../")
 }
 
 // ByteToGBK   byte -> gbk byte
@@ -1265,51 +1189,6 @@ func IDStr() string {
 
 func IDMd5() string {
 	return Get16MD5Encode(IDStr())
-}
-
-// IP2Int64 IP str ==> int64
-func IP2Int64(ip string) int64 {
-	address := net.ParseIP(ip)
-	if address == nil {
-		Error("ip地址不正确")
-		return 0
-	}
-	bits := strings.Split(ip, ".")
-	b0, b1, b2, b3 := 0, 0, 0, 0
-	if len(bits) >= 1 {
-		b0, _ = strconv.Atoi(bits[0])
-	}
-	if len(bits) >= 2 {
-		b1, _ = strconv.Atoi(bits[1])
-	}
-	if len(bits) >= 3 {
-		b2, _ = strconv.Atoi(bits[2])
-	}
-	if len(bits) >= 4 {
-		b3, _ = strconv.Atoi(bits[3])
-	}
-	var sum int64
-	sum += int64(b0) << 24
-	sum += int64(b1) << 16
-	sum += int64(b2) << 8
-	sum += int64(b3)
-	return sum
-}
-
-// IP2Binary IP str ==> binary int64
-func IP2Binary(ip string) string {
-	rse := IP2Int64(ip)
-	return strconv.FormatInt(rse, 2)
-}
-
-// UInt32ToIP  uint32 ==> net.IP
-func UInt32ToIP(ip uint32) net.IP {
-	var b [4]byte
-	b[0] = byte(ip & 0xFF)
-	b[1] = byte((ip >> 8) & 0xFF)
-	b[2] = byte((ip >> 16) & 0xFF)
-	b[3] = byte((ip >> 24) & 0xFF)
-	return net.IPv4(b[3], b[2], b[1], b[0])
 }
 
 // MD5 MD5

@@ -1,5 +1,5 @@
 /*
-*	Description : 网络连接相关的方法，有ssh,tcp,udp,websocket,Whois查询, DNS查询等
+*	Description : 网络连接相关的方法，有ssh,tcp,udp,websocket,Whois查询, DNS查询等 TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/

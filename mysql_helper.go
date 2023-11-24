@@ -1,5 +1,5 @@
 /*
-*	Description : mysql 相关方法
+*	Description : mysql 相关方法  测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -163,7 +163,7 @@ type TableInfo struct {
 	Type    string
 	Null    string
 	Key     string
-	Default interface{}
+	Default any
 	Extra   string
 }
 
@@ -280,9 +280,9 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 	}
 
 	columnLength := len(columns)
-	cache := make([]interface{}, columnLength) //临时存储每行数据
-	for index := range cache {                 //为每一列初始化一个指针
-		var a interface{}
+	cache := make([]any, columnLength) //临时存储每行数据
+	for index := range cache {         //为每一列初始化一个指针
+		var a any
 		cache[index] = &a
 	}
 
@@ -291,7 +291,7 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 		_ = rows.Scan(cache...)
 		item := make(map[string]string)
 		for i, data := range cache {
-			d := *data.(*interface{})
+			d := *data.(*any)
 			if d == nil {
 				item[columns[i]] = ""
 				continue
@@ -366,7 +366,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 }
 
 // insert 插入操作
-func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
+func (m *Mysql) insert(table string, fieldData map[string]any) error {
 	var insertSql bytes.Buffer
 	_, _ = m.Describe(table)
 	describe := m.tableTemp[table]
@@ -406,7 +406,7 @@ func (m *Mysql) insert(table string, fieldData map[string]interface{}) error {
 }
 
 // Insert 新增数据
-func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
+func (m *Mysql) Insert(table string, fieldData map[string]any) error {
 	var line = len(fieldData)
 
 	if table == "" {
@@ -432,7 +432,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 }
 
 // InsertAt 新增数据 如果没有表则先创建表
-func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error {
+func (m *Mysql) InsertAt(table string, fieldData map[string]any) error {
 	var line = len(fieldData)
 
 	if table == "" {
@@ -527,9 +527,9 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	}
 
 	columnLength := len(columns)
-	cache := make([]interface{}, columnLength) //临时存储每行数据
-	for index := range cache {                 //为每一列初始化一个指针
-		var a interface{}
+	cache := make([]any, columnLength) //临时存储每行数据
+	for index := range cache {         //为每一列初始化一个指针
+		var a any
 		cache[index] = &a
 	}
 
@@ -538,7 +538,7 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 		_ = rows.Scan(cache...)
 		item := make(map[string]string)
 		for i, data := range cache {
-			d := *data.(*interface{})
+			d := *data.(*any)
 			if d == nil {
 				item[columns[i]] = ""
 				continue
@@ -561,7 +561,7 @@ func (m *Mysql) Delete(sql string) error {
 }
 
 // ToVarChar  写入mysql 的字符类型
-func (m *Mysql) ToVarChar(data interface{}) string {
+func (m *Mysql) ToVarChar(data any) string {
 	var txt bytes.Buffer
 	txt.WriteString(`"`)
 	txt.WriteString(Any2String(data))
@@ -570,7 +570,7 @@ func (m *Mysql) ToVarChar(data interface{}) string {
 }
 
 // dataType2Mysql
-func dataType2Mysql(value interface{}) string {
+func dataType2Mysql(value any) string {
 	typ := reflect.ValueOf(value)
 	switch typ.Kind() {
 	case reflect.Bool:

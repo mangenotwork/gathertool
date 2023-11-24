@@ -1,5 +1,5 @@
 /*
-*	Description : 消息接口与相关方法, 支持 Nsq, Rabbit, Kafka
+*	Description : 消息接口与相关方法, 支持 Nsq, Rabbit, Kafka  TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/

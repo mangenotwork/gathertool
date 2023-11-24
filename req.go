@@ -1,5 +1,5 @@
 /*
-*	Description : 请求相关
+*	Description : 请求相关  TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -48,7 +48,7 @@ type ReqTimeOutMs int
 type Sleep time.Duration
 
 // Request 请求
-func Request(url, method string, data []byte, contentType string, vs ...interface{}) (*Context, error) {
+func Request(url, method string, data []byte, contentType string, vs ...any) (*Context, error) {
 	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
 		Error("err->", err)
@@ -61,7 +61,7 @@ func Request(url, method string, data []byte, contentType string, vs ...interfac
 }
 
 // NewRequest 请求
-func NewRequest(url, method string, data []byte, contentType string, vs ...interface{}) *Context {
+func NewRequest(url, method string, data []byte, contentType string, vs ...any) *Context {
 	request, err := http.NewRequest(method, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
 		Error("err->", err)
@@ -149,7 +149,7 @@ func (c Cookie) Delete(key string) Cookie {
 }
 
 // Req 初始化请求
-func Req(request *http.Request, vs ...interface{}) *Context {
+func Req(request *http.Request, vs ...any) *Context {
 	var (
 		client       *http.Client
 		maxTimes     RetryTimes = 10
@@ -325,7 +325,7 @@ func Req(request *http.Request, vs ...interface{}) *Context {
 		IsLog:       isLog,
 		isRetry:     isRetry,
 		sleep:       sleep,
-		Param:       make(map[string]interface{}),
+		Param:       make(map[string]any),
 	}
 }
 
@@ -336,7 +336,7 @@ func SearchDomain(ip string) {
 }
 
 // SearchPort 扫描ip的端口
-func SearchPort(ipStr string, vs ...interface{}) {
+func SearchPort(ipStr string, vs ...any) {
 	timeOut := 4 * time.Second
 	for _, v := range vs {
 		switch vv := v.(type) {

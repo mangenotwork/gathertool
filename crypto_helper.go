@@ -1,5 +1,5 @@
 /*
-*	Description : 加密解码相关封装方法
+*	Description : 加密解码相关封装方法  TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/

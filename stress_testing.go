@@ -1,5 +1,5 @@
 /*
-*	Description : 接口压力测试， 并输出结果
+*	Description : 接口压力测试， 并输出结果 TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -72,7 +72,7 @@ func (s *StressUrl) OpenRetry() {
 }
 
 // Run 运行压测
-func (s *StressUrl) Run(vs ...interface{}) {
+func (s *StressUrl) Run(vs ...any) {
 	//解析可变参
 	var (
 		succeedFunc  SucceedFunc

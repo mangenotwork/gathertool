@@ -1,5 +1,5 @@
 /*
-*	Description : redis 相关方法
+*	Description : redis 相关方法  TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -62,7 +62,7 @@ func NewSSHInfo(addr, user, password string) *SSHConnInfo {
 }
 
 // NewRedis 新建Redis客户端对象
-func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds, error) {
+func NewRedis(host, port, password string, db int, vs ...any) (*Rds, error) {
 	var sshConnInfo SSHConnInfo
 	for _, v := range vs {
 		switch vv := v.(type) {
@@ -86,7 +86,7 @@ func NewRedis(host, port, password string, db int, vs ...interface{}) (*Rds, err
 }
 
 // NewRedisPool 新建Redis连接池对象
-func NewRedisPool(host, port, password string, db, maxIdle, maxActive, idleTimeoutSec int, vs ...interface{}) *Rds {
+func NewRedisPool(host, port, password string, db, maxIdle, maxActive, idleTimeoutSec int, vs ...any) *Rds {
 	var sshConnInfo SSHConnInfo
 	for _, v := range vs {
 		switch vv := v.(type) {
@@ -282,7 +282,7 @@ func RedisDELKeys(rds *Rds, keys string, jobNumber int) {
 // 使用List实现消息队列
 
 // MqProducer Redis消息队列生产方
-func (r *Rds) MqProducer(mqName string, data interface{}) error {
+func (r *Rds) MqProducer(mqName string, data any) error {
 	args := redis.Args{}.Add(mqName)
 	args = args.Add(data)
 	_, err := r.GetConn().Do("LPUSH", args...)
@@ -290,7 +290,7 @@ func (r *Rds) MqProducer(mqName string, data interface{}) error {
 }
 
 // MqConsumer Redis消息队列消费方
-func (r *Rds) MqConsumer(mqName string) (reply interface{}, err error) {
+func (r *Rds) MqConsumer(mqName string) (reply any, err error) {
 	if r.MqLen(mqName) < 1 {
 		return nil, fmt.Errorf("data len is 0")
 	}
@@ -306,59 +306,59 @@ func (r *Rds) MqLen(mqName string) int64 {
 	return number
 }
 
-func (r *Rds) ToString(reply interface{}, err error) (string, error) {
+func (r *Rds) ToString(reply any, err error) (string, error) {
 	return redis.String(reply, err)
 }
 
-func (r *Rds) ToInt(reply interface{}, err error) (int, error) {
+func (r *Rds) ToInt(reply any, err error) (int, error) {
 	return redis.Int(reply, err)
 }
 
-func (r *Rds) ToInt64(reply interface{}, err error) (int64, error) {
+func (r *Rds) ToInt64(reply any, err error) (int64, error) {
 	return redis.Int64(reply, err)
 }
 
-func (r *Rds) ToBool(reply interface{}, err error) (bool, error) {
+func (r *Rds) ToBool(reply any, err error) (bool, error) {
 	return redis.Bool(reply, err)
 }
 
-func (r *Rds) ToBytes(reply interface{}, err error) ([]byte, error) {
+func (r *Rds) ToBytes(reply any, err error) ([]byte, error) {
 	return redis.Bytes(reply, err)
 }
 
-func (r *Rds) ToByteSlices(reply interface{}, err error) ([][]byte, error) {
+func (r *Rds) ToByteSlices(reply any, err error) ([][]byte, error) {
 	return redis.ByteSlices(reply, err)
 }
 
-func (r *Rds) ToFloat64(reply interface{}, err error) (float64, error) {
+func (r *Rds) ToFloat64(reply any, err error) (float64, error) {
 	return redis.Float64(reply, err)
 }
 
-func (r *Rds) ToFloat64s(reply interface{}, err error) ([]float64, error) {
+func (r *Rds) ToFloat64s(reply any, err error) ([]float64, error) {
 	return redis.Float64s(reply, err)
 }
 
-func (r *Rds) ToInt64Map(reply interface{}, err error) (map[string]int64, error) {
+func (r *Rds) ToInt64Map(reply any, err error) (map[string]int64, error) {
 	return redis.Int64Map(reply, err)
 }
 
-func (r *Rds) ToInt64s(reply interface{}, err error) ([]int64, error) {
+func (r *Rds) ToInt64s(reply any, err error) ([]int64, error) {
 	return redis.Int64s(reply, err)
 }
 
-func (r *Rds) ToIntMap(reply interface{}, err error) (map[string]int, error) {
+func (r *Rds) ToIntMap(reply any, err error) (map[string]int, error) {
 	return redis.IntMap(reply, err)
 }
 
-func (r *Rds) ToInts(reply interface{}, err error) ([]int, error) {
+func (r *Rds) ToInts(reply any, err error) ([]int, error) {
 	return redis.Ints(reply, err)
 }
 
-func (r *Rds) ToStringMap(reply interface{}, err error) (map[string]string, error) {
+func (r *Rds) ToStringMap(reply any, err error) (map[string]string, error) {
 	return redis.StringMap(reply, err)
 }
 
-func (r *Rds) ToStrings(reply interface{}, err error) ([]string, error) {
+func (r *Rds) ToStrings(reply any, err error) ([]string, error) {
 	return redis.Strings(reply, err)
 }
 
@@ -405,7 +405,7 @@ func (r *Rds) addGetKey(ksyList map[string]int, cursor, match, matchSplit string
 	//获取新的游标
 	newCursor := string(res[0].([]byte))
 	allKey := res[1]
-	allKeyData := allKey.([]interface{})
+	allKeyData := allKey.([]any)
 	for _, v := range allKeyData {
 		keyData := string(v.([]byte))
 		//没有:的key 则不集合
@@ -469,7 +469,7 @@ func (r *Rds) addSearchKey(ksyList map[string]int, cursor, match string) (map[st
 	//获取新的游标
 	newCursor := string(res[0].([]byte))
 	allKey := res[1]
-	allKeyData := allKey.([]interface{})
+	allKeyData := allKey.([]any)
 	for _, v := range allKeyData {
 		keyData := string(v.([]byte))
 		ksyList[keyData] = 0
@@ -569,7 +569,7 @@ func (r *Rds) Get(key string) (string, error) {
 }
 
 // Set SET新建String
-func (r *Rds) Set(key string, value interface{}) error {
+func (r *Rds) Set(key string, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -580,7 +580,7 @@ func (r *Rds) Set(key string, value interface{}) error {
 }
 
 // SetEx SETEX 新建String 含有时间
-func (r *Rds) SetEx(key string, ttl int64, value interface{}) error {
+func (r *Rds) SetEx(key string, ttl int64, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -592,7 +592,7 @@ func (r *Rds) SetEx(key string, ttl int64, value interface{}) error {
 
 // PSetEx PSETEX key milliseconds value
 // 这个命令和 SETEX 命令相似，但它以毫秒为单位设置 key 的生存时间，而不是像 SETEX 命令那样，以秒为单位。
-func (r *Rds) PSetEx(key string, ttl int64, value interface{}) error {
+func (r *Rds) PSetEx(key string, ttl int64, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -605,7 +605,7 @@ func (r *Rds) PSetEx(key string, ttl int64, value interface{}) error {
 // SetNx key value
 // 将 key 的值设为 value ，当且仅当 key 不存在。
 // 若给定的 key 已经存在，则 SETNX 不做任何动作。
-func (r *Rds) SetNx(key string, value interface{}) error {
+func (r *Rds) SetNx(key string, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -618,7 +618,7 @@ func (r *Rds) SetNx(key string, value interface{}) error {
 // SetRange SETRANGE key offset value
 // 用 value 参数覆写(overwrite)给定 key 所储存的字符串值，从偏移量 offset 开始。
 // 不存在的 key 当作空白字符串处理。
-func (r *Rds) SetRange(key string, offset int64, value interface{}) error {
+func (r *Rds) SetRange(key string, offset int64, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -631,7 +631,7 @@ func (r *Rds) SetRange(key string, offset int64, value interface{}) error {
 // Append APPEND key value
 // 如果 key 已经存在并且是一个字符串， APPEND 命令将 value 追加到 key 原来的值的末尾。
 // 如果 key 不存在， APPEND 就简单地将给定 key 设为 value ，就像执行 SET key value 一样。
-func (r *Rds) Append(key string, value interface{}) error {
+func (r *Rds) Append(key string, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -721,7 +721,7 @@ func (r *Rds) GetRange(key string, start, end int64) (string, error) {
 // GetSet GETSET key value
 // 将给定 key 的值设为 value ，并返回 key 的旧值(old value)。
 // 当 key 存在但不是字符串类型时，返回一个错误。
-func (r *Rds) GetSet(key string, value interface{}) (string, error) {
+func (r *Rds) GetSet(key string, value any) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}
@@ -767,7 +767,7 @@ func (r *Rds) IncrByFloat(key, increment float64) (float64, error) {
 // MGet MGET key [key ...]
 // 返回所有(一个或多个)给定 key 的值。
 // 如果给定的 key 里面，有某个 key 不存在，那么这个 key 返回特殊值 nil 。因此，该命令永不失败。
-func (r *Rds) MGet(key []interface{}) ([]string, error) {
+func (r *Rds) MGet(key []any) ([]string, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -784,7 +784,7 @@ func (r *Rds) MGet(key []interface{}) ([]string, error) {
 // 如果某个给定 key 已经存在，那么 MSET 会用新值覆盖原来的旧值，如果这不是你所希望的效果，
 // 请考虑使用 MSETNX 命令：它只会在所有给定 key 都不存在的情况下进行设置操作。
 // MSET 是一个原子性(atomic)操作，所有给定 key 都会在同一时间内被设置，某些给定 key 被更新而另一些给定 key 没有改变的情况，不可能发生。
-func (r *Rds) MSet(values []interface{}) error {
+func (r *Rds) MSet(values []any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -802,7 +802,7 @@ func (r *Rds) MSet(values []interface{}) error {
 // 即使只有一个给定 key 已存在， MSETNX 也会拒绝执行所有给定 key 的设置操作。
 // MSETNX 是原子性的，因此它可以用作设置多个不同 key 表示不同字段(field)的唯一性逻辑对象(unique logic object)，
 // 所有字段要么全被设置，要么全不被设置。
-func (r *Rds) MSetNx(values []interface{}) error {
+func (r *Rds) MSetNx(values []any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -822,7 +822,7 @@ func (r *Rds) MSetNx(values []interface{}) error {
 // List ===============================================================================================================
 
 // LRange LRANGE 获取List value
-func (r *Rds) LRange(key string) ([]interface{}, error) {
+func (r *Rds) LRange(key string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -832,7 +832,7 @@ func (r *Rds) LRange(key string) ([]interface{}, error) {
 
 // LRangeST LRANGE key start stop
 // 返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定。
-func (r *Rds) LRangeST(key string, start, stop int64) ([]interface{}, error) {
+func (r *Rds) LRangeST(key string, start, stop int64) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -842,7 +842,7 @@ func (r *Rds) LRangeST(key string, start, stop int64) ([]interface{}, error) {
 }
 
 // LPush LPUSH 新创建list 将一个或多个值 value 插入到列表 key 的表头
-func (r *Rds) LPush(key string, values []interface{}) error {
+func (r *Rds) LPush(key string, values []any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -860,7 +860,7 @@ func (r *Rds) LPush(key string, values []interface{}) error {
 // 如果有多个 value 值，那么各个 value 值按从左到右的顺序依次插入到表尾：比如对一个空列表 mylist 执行
 // RPUSH mylist a b c ，得出的结果列表为 a b c ，等同于执行命令 RPUSH mylist a 、 RPUSH mylist b 、 RPUSH mylist c 。
 // 新创建List  将一个或多个值 value 插入到列表 key 的表尾(最右边)。
-func (r *Rds) RPush(key string, values []interface{}) error {
+func (r *Rds) RPush(key string, values []any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -940,7 +940,7 @@ func (r *Rds) ListLPOP(key string) (string, error) {
 // LPusHx LPUSHX key value
 // 将值 value 插入到列表 key 的表头，当且仅当 key 存在并且是一个列表。
 // 和 LPUSH 命令相反，当 key 不存在时， LPUSHX 命令什么也不做。
-func (r *Rds) LPusHx(key string, value interface{}) error {
+func (r *Rds) LPusHx(key string, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -956,7 +956,7 @@ func (r *Rds) LPusHx(key string, value interface{}) error {
 // count > 0 : 从表头开始向表尾搜索，移除与 value 相等的元素，数量为 count 。
 // count < 0 : 从表尾开始向表头搜索，移除与 value 相等的元素，数量为 count 的绝对值。
 // count = 0 : 移除表中所有与 value 相等的值。
-func (r *Rds) LRem(key string, count int64, value interface{}) error {
+func (r *Rds) LRem(key string, count int64, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -969,7 +969,7 @@ func (r *Rds) LRem(key string, count int64, value interface{}) error {
 // LSet LSET key index value
 // 将列表 key 下标为 index 的元素的值设置为 value 。
 // 当 index 参数超出范围，或对一个空列表( key 不存在)进行 LSET 时，返回一个错误。
-func (r *Rds) LSet(key string, index int64, value interface{}) error {
+func (r *Rds) LSet(key string, index int64, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1022,7 +1022,7 @@ func (r *Rds) RPopLPush(key, destination string) (string, error) {
 
 // RPushX RPUSHX key value
 // 将值 value 插入到列表 key 的表尾，当且仅当 key 存在并且是一个列表。
-func (r *Rds) RPushX(key string, value interface{}) error {
+func (r *Rds) RPushX(key string, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1064,7 +1064,7 @@ func (r *Rds) HGetAllInt64(key string) (map[string]int64, error) {
 // HSet HSET 新建Hash 单个field
 // 如果 key 不存在，一个新的哈希表被创建并进行 HSET 操作。
 // 如果域 field 已经存在于哈希表中，旧值将被覆盖。
-func (r *Rds) HSet(key, field string, value interface{}) (int64, error) {
+func (r *Rds) HSet(key, field string, value any) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
@@ -1077,7 +1077,7 @@ func (r *Rds) HSet(key, field string, value interface{}) (int64, error) {
 // HMSET key field value [field value ...]
 // 同时将多个 field-value (域-值)对设置到哈希表 key 中。
 // 此命令会覆盖哈希表中已存在的域。
-func (r *Rds) HMSet(key string, values map[interface{}]interface{}) error {
+func (r *Rds) HMSet(key string, values map[any]any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1094,7 +1094,7 @@ func (r *Rds) HMSet(key string, values map[interface{}]interface{}) error {
 // HSetNx HSETNX key field value
 // 给hash追加field value
 // 将哈希表 key 中的域 field 的值设置为 value ，当且仅当域 field 不存在。
-func (r *Rds) HSetNx(key, field string, value interface{}) error {
+func (r *Rds) HSetNx(key, field string, value any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1230,7 +1230,7 @@ func (r *Rds) HVaLs(key string) ([]string, error) {
 // SMemeRs SMEMBERS key
 // 返回集合 key 中的所有成员。
 // 获取Set value 返回集合 key 中的所有成员。
-func (r *Rds) SMemeRs(key string) ([]interface{}, error) {
+func (r *Rds) SMemeRs(key string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1239,7 +1239,7 @@ func (r *Rds) SMemeRs(key string) ([]interface{}, error) {
 }
 
 // SAdd SADD 新创建Set  将一个或多个 member 元素加入到集合 key 当中，已经存在于集合的 member 元素将被忽略。
-func (r *Rds) SAdd(key string, values []interface{}) error {
+func (r *Rds) SAdd(key string, values []any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1266,7 +1266,7 @@ func (r *Rds) SCard(key string) error {
 // SDiff SDIFF key [key ...]
 // 返回一个集合的全部成员，该集合是所有给定集合之间的差集。
 // 不存在的 key 被视为空集。
-func (r *Rds) SDiff(keys []string) ([]interface{}, error) {
+func (r *Rds) SDiff(keys []string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1282,7 +1282,7 @@ func (r *Rds) SDiff(keys []string) ([]interface{}, error) {
 // 这个命令的作用和 SDIFF 类似，但它将结果保存到 destination 集合，而不是简单地返回结果集。
 // 如果 destination 集合已经存在，则将其覆盖。
 // destination 可以是 key 本身。
-func (r *Rds) SDiffStore(key string, keys []string) ([]interface{}, error) {
+func (r *Rds) SDiffStore(key string, keys []string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1297,7 +1297,7 @@ func (r *Rds) SDiffStore(key string, keys []string) ([]interface{}, error) {
 // SInter SINTER key [key ...]
 // 返回一个集合的全部成员，该集合是所有给定集合的交集。
 // 不存在的 key 被视为空集。
-func (r *Rds) SInter(keys []string) ([]interface{}, error) {
+func (r *Rds) SInter(keys []string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1313,7 +1313,7 @@ func (r *Rds) SInter(keys []string) ([]interface{}, error) {
 // 这个命令类似于 SINTER 命令，但它将结果保存到 destination 集合，而不是简单地返回结果集。
 // 如果 destination 集合已经存在，则将其覆盖。
 // destination 可以是 key 本身。
-func (r *Rds) SInterStore(key string, keys []string) ([]interface{}, error) {
+func (r *Rds) SInterStore(key string, keys []string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1330,7 +1330,7 @@ func (r *Rds) SInterStore(key string, keys []string) ([]interface{}, error) {
 // 返回值:
 // 如果 member 元素是集合的成员，返回 1 。
 // 如果 member 元素不是集合的成员，或 key 不存在，返回 0 。
-func (r *Rds) SIsMember(key string, value interface{}) (resBool bool, err error) {
+func (r *Rds) SIsMember(key string, value any) (resBool bool, err error) {
 	if r.Conn == nil {
 		return false, RdsNotConnError
 	}
@@ -1356,7 +1356,7 @@ func (r *Rds) SIsMember(key string, value interface{}) (resBool bool, err error)
 // 当 destination 集合已经包含 member 元素时， SMOVE 命令只是简单地将 source 集合中的 member 元素删除。
 // 当 source 或 destination 不是集合类型时，返回一个错误。
 // 返回值: 成功移除，返回 1 。失败0
-func (r *Rds) SMove(key, destination string, member interface{}) (resBool bool, err error) {
+func (r *Rds) SMove(key, destination string, member any) (resBool bool, err error) {
 	if r.Conn == nil {
 		return false, RdsNotConnError
 	}
@@ -1389,7 +1389,7 @@ func (r *Rds) SPop(key string) (string, error) {
 // 如果 count 为正数，且小于集合基数，那么命令返回一个包含 count 个元素的数组，数组中的元素各不相同。
 // 如果 count 大于等于集合基数，那么返回整个集合。
 // 如果 count 为负数，那么命令返回一个数组，数组中的元素可能会重复出现多次，而数组的长度为 count 的绝对值。
-func (r *Rds) SRandMember(key string, count int64) ([]interface{}, error) {
+func (r *Rds) SRandMember(key string, count int64) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1400,7 +1400,7 @@ func (r *Rds) SRandMember(key string, count int64) ([]interface{}, error) {
 
 // SRem SREM key member [member ...]
 // 移除集合 key 中的一个或多个 member 元素，不存在的 member 元素会被忽略。
-func (r *Rds) SRem(key string, member []interface{}) error {
+func (r *Rds) SRem(key string, member []any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1415,7 +1415,7 @@ func (r *Rds) SRem(key string, member []interface{}) error {
 
 // SUnion SUNION key [key ...]
 // 返回一个集合的全部成员，该集合是所有给定集合的并集。
-func (r *Rds) SUnion(keys []string) ([]interface{}, error) {
+func (r *Rds) SUnion(keys []string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1429,7 +1429,7 @@ func (r *Rds) SUnion(keys []string) ([]interface{}, error) {
 
 // SUnionStore SUNIONSTORE destination key [key ...]
 // 这个命令类似于 SUNION 命令，但它将结果保存到 destination 集合，而不是简单地返回结果集。
-func (r *Rds) SUnionStore(key string, keys []string) ([]interface{}, error) {
+func (r *Rds) SUnionStore(key string, keys []string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1446,7 +1446,7 @@ func (r *Rds) SUnionStore(key string, keys []string) ([]interface{}, error) {
 // ZSet ===============================================================================================================
 
 // ZRange ZRANGE 获取ZSet value 返回集合 有序集成员的列表。
-func (r *Rds) ZRange(key string) ([]interface{}, error) {
+func (r *Rds) ZRange(key string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1458,7 +1458,7 @@ func (r *Rds) ZRange(key string) ([]interface{}, error) {
 // ZRangeST ZRANGE key start stop [WITHSCORES]
 // 返回有序集 key 中，指定区间内的成员。
 // 其中成员的位置按 score 值递增(从小到大)来排序。
-func (r *Rds) ZRangeST(key string, start, stop int64) ([]interface{}, error) {
+func (r *Rds) ZRangeST(key string, start, stop int64) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1471,7 +1471,7 @@ func (r *Rds) ZRangeST(key string, start, stop int64) ([]interface{}, error) {
 // 返回有序集 key 中，指定区间内的成员。
 // 其中成员的位置按 score 值递减(从大到小)来排列。
 // 具有相同 score 值的成员按字典序的逆序(reverse lexicographical order)排列。
-func (r *Rds) ZRevRange(key string, start, stop int64) ([]interface{}, error) {
+func (r *Rds) ZRevRange(key string, start, stop int64) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1481,7 +1481,7 @@ func (r *Rds) ZRevRange(key string, start, stop int64) ([]interface{}, error) {
 }
 
 // ZAdd ZADD 新创建ZSet 将一个或多个 member 元素及其 score 值加入到有序集 key 当中。
-func (r *Rds) ZAdd(key string, weight interface{}, field interface{}) error {
+func (r *Rds) ZAdd(key string, weight any, field any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1534,7 +1534,7 @@ func (r *Rds) ZIncrBy(key, member string, increment int64) (string, error) {
 // 区间及无限
 // min 和 max 可以是 -inf 和 +inf ，这样一来，你就可以在不知道有序集的最低和最高 score 值的情况下，使用 ZRANGEBYSCORE 这类命令。
 // 默认情况下，区间的取值使用闭区间 (小于等于或大于等于)，你也可以通过给参数前增加 ( 符号来使用可选的开区间 (小于或大于)。
-func (r *Rds) ZRangeByScore(key string, min, max, offset, count int64) ([]interface{}, error) {
+func (r *Rds) ZRangeByScore(key string, min, max, offset, count int64) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1544,7 +1544,7 @@ func (r *Rds) ZRangeByScore(key string, min, max, offset, count int64) ([]interf
 }
 
 // ZRangeByScoreAll 获取所有
-func (r *Rds) ZRangeByScoreAll(key string) ([]interface{}, error) {
+func (r *Rds) ZRangeByScoreAll(key string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1556,7 +1556,7 @@ func (r *Rds) ZRangeByScoreAll(key string) ([]interface{}, error) {
 // ZRevRangeByScore key max min [WITHSCORES] [LIMIT offset count]
 // 返回有序集 key 中， score 值介于 max 和 min 之间(默认包括等于 max 或 min )的所有的成员。有序集成员按 score 值递减(从大到小)的次序排列。
 // 具有相同 score 值的成员按字典序的逆序(reverse lexicographical order )排列。
-func (r *Rds) ZRevRangeByScore(key string, min, max, offset, count int64) ([]interface{}, error) {
+func (r *Rds) ZRevRangeByScore(key string, min, max, offset, count int64) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1566,7 +1566,7 @@ func (r *Rds) ZRevRangeByScore(key string, min, max, offset, count int64) ([]int
 }
 
 // ZRevRangeByScoreAll 获取所有
-func (r *Rds) ZRevRangeByScoreAll(key string) ([]interface{}, error) {
+func (r *Rds) ZRevRangeByScoreAll(key string) ([]any, error) {
 	if r.Conn == nil {
 		return nil, RdsNotConnError
 	}
@@ -1578,7 +1578,7 @@ func (r *Rds) ZRevRangeByScoreAll(key string) ([]interface{}, error) {
 // ZRank ZRANK key member
 // 返回有序集 key 中成员 member 的排名。其中有序集成员按 score 值递增(从小到大)顺序排列。
 // 排名以 0 为底，也就是说， score 值最小的成员排名为 0 。
-func (r *Rds) ZRank(key string, member interface{}) (int64, error) {
+func (r *Rds) ZRank(key string, member any) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
@@ -1589,7 +1589,7 @@ func (r *Rds) ZRank(key string, member interface{}) (int64, error) {
 
 // ZRem ZREM key member [member ...]
 // 移除有序集 key 中的一个或多个成员，不存在的成员将被忽略。
-func (r *Rds) ZRem(key string, member []interface{}) error {
+func (r *Rds) ZRem(key string, member []any) error {
 	if r.Conn == nil {
 		return RdsNotConnError
 	}
@@ -1631,7 +1631,7 @@ func (r *Rds) ZRemRangeByScore(key string, min, max int64) error {
 // 返回有序集 key 中成员 member 的排名。其中有序集成员按 score 值递减(从大到小)排序。
 // 排名以 0 为底，也就是说， score 值最大的成员排名为 0 。
 // 使用 ZRANK 命令可以获得成员按 score 值递增(从小到大)排列的排名。
-func (r *Rds) ZRevRank(key string, member interface{}) (int64, error) {
+func (r *Rds) ZRevRank(key string, member any) (int64, error) {
 	if r.Conn == nil {
 		return 0, RdsNotConnError
 	}
@@ -1642,7 +1642,7 @@ func (r *Rds) ZRevRank(key string, member interface{}) (int64, error) {
 
 // ZScore ZSCORE key member
 // 返回有序集 key 中，成员 member 的 score
-func (r *Rds) ZScore(key string, member interface{}) (string, error) {
+func (r *Rds) ZScore(key string, member any) (string, error) {
 	if r.Conn == nil {
 		return "", RdsNotConnError
 	}

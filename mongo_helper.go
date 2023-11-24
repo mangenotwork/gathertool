@@ -1,5 +1,5 @@
 /*
-*	Description : mongoDB相关的操作
+*	Description : mongoDB相关的操作  TODO 重构与测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -97,7 +97,7 @@ func (m *Mongo) GetCollection(dbname, name string) {
 
 // Insert 插入数据
 // document:可以是 Struct, 是 Slice
-func (m *Mongo) Insert(document interface{}) error {
+func (m *Mongo) Insert(document any) error {
 	if m.Collection == nil {
 		return fmt.Errorf("collection is none")
 	}
@@ -112,7 +112,7 @@ func (m *Mongo) Insert(document interface{}) error {
 	}
 
 	if v.Kind() == reflect.Slice {
-		insertManyResult, err := m.Collection.InsertMany(context.TODO(), document.([]interface{}))
+		insertManyResult, err := m.Collection.InsertMany(context.TODO(), document.([]any))
 		if err != nil {
 			return err
 		}
@@ -142,7 +142,7 @@ func MongoConn() {
 	ash := Trainer{"aa", 10, "Pallet Town"}
 	misty := Trainer{"Misty", 10, "Cerulean City"}
 	brock := Trainer{"Brock", 15, "Pewter City"}
-	trainers := []interface{}{ash, misty, brock}
+	trainers := []any{ash, misty, brock}
 	_ = m.Insert(trainers)
 }
 
@@ -186,7 +186,7 @@ func MongoConn1() {
 	// ===== 插入多个文档 collection.InsertMany() 函数会采用一个slice对象
 	//misty := Trainer{"Misty", 10, "Cerulean City"}
 	//brock := Trainer{"Brock", 15, "Pewter City"}
-	//trainers := []interface{}{misty, brock}
+	//trainers := []any{misty, brock}
 	//insertManyResult, err := collection.InsertMany(context.TODO(), trainers)
 	//if err != nil {
 	//	Error(err)

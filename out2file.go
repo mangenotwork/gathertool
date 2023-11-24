@@ -1,5 +1,5 @@
 /*
-*	Description : 输出数据到文本相关的操作； 其中含csv的相关方法， excel，文本操作等
+*	Description : 输出数据到文本相关的操作； 其中含csv的相关方法， excel，文本操作等  TODO 测试
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -12,6 +12,7 @@ import (
 	"crypto/md5"
 	"encoding/csv"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -86,7 +87,7 @@ func FileExists(name string) bool {
 }
 
 // OutJsonFile 将data输出到json文件
-func OutJsonFile(data interface{}, fileName string) error {
+func OutJsonFile(data any, fileName string) error {
 	var (
 		f   *os.File
 		err error
@@ -406,4 +407,32 @@ func PathExists(path string) {
 	if err != nil && os.IsNotExist(err) {
 		_ = os.MkdirAll(path, 0777)
 	}
+}
+
+// FileSizeFormat 字节的单位转换 保留两位小数
+func FileSizeFormat(fileSize int64) (size string) {
+	if fileSize < 1024 {
+		//return strconv.FormatInt(fileSize, 10) + "B"
+		return fmt.Sprintf("%.2fB", float64(fileSize)/float64(1))
+	} else if fileSize < (1024 * 1024) {
+		return fmt.Sprintf("%.2fKB", float64(fileSize)/float64(1024))
+	} else if fileSize < (1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fMB", float64(fileSize)/float64(1024*1024))
+	} else if fileSize < (1024 * 1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fGB", float64(fileSize)/float64(1024*1024*1024))
+	} else if fileSize < (1024 * 1024 * 1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fTB", float64(fileSize)/float64(1024*1024*1024*1024))
+	} else { //if fileSize < (1024 * 1024 * 1024 * 1024 * 1024 * 1024)
+		return fmt.Sprintf("%.2fEB", float64(fileSize)/float64(1024*1024*1024*1024*1024))
+	}
+}
+
+// AbPathByCaller 获取当前执行文件绝对路径（go run）
+func AbPathByCaller() string {
+	var abPath string
+	_, filename, _, ok := runtime.Caller(0)
+	if ok {
+		abPath = path.Dir(filename)
+	}
+	return path.Join(abPath, "../../../")
 }
