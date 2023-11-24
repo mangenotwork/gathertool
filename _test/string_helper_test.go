@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestStringHelperTypeConversionTest(t *testing.T) {
+func TestStringHelperTypeConversion(t *testing.T) {
 	t.Log(gathertool.StringValue(1))
 	t.Log(gathertool.StringValue(2.22))
 	t.Log(gathertool.StringValue(true))
@@ -126,6 +126,6 @@ func TestStringHelperTypeConversionTest(t *testing.T) {
 
 }
 
-func TestStringHelperTest(t *testing.T) {
+func TestStringHelper(t *testing.T) {
 	t.Log(gathertool.MD5("asdsad"))
 }
