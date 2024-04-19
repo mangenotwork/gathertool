@@ -7,7 +7,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/gomodule/redigo v1.8.9
-	github.com/gorilla/websocket v1.5.1
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/streadway/amqp v1.0.0
 	github.com/xuri/excelize/v2 v2.7.0
@@ -17,6 +16,7 @@ require (
 	golang.org/x/text v0.13.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v3 v3.0.1
+	gorm.io/gorm v1.25.9
 )
 
 require (

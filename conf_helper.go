@@ -39,7 +39,7 @@ func (c *conf) Init() error {
 	//读取yaml文件到缓存中
 	config, err := os.ReadFile(c.Path)
 	if err != nil {
-		Errorf("读取配置文件 %v 失败", c.Path)
+		ErrorF("读取配置文件 %v 失败", c.Path)
 		return err
 	}
 	return yaml.Unmarshal(config, c.Data)
