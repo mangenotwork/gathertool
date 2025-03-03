@@ -1,6 +1,6 @@
 ## 简介
-- gathertool是golang脚本化开发集成库，目的是提高对应场景脚本程序开发的效率；
-- gathertool也是一款轻量级爬虫库，特色是分离了请求事件，通俗点理解就是对请求过程状态进行事件处理。
+- gathertool是golang脚本化开发集成库，目的是提高爬虫，数据处理，接口测试，模拟请求等对应场景脚本程序开发的效率；
+- gathertool也是一款轻量级爬虫库，特色是抽象了请求事件，通俗点理解就是对请求过程状态进行事件处理。
 - gathertool也是接口测试&压力测试库，在接口测试脚本开发上有明显的效率优势，
 - gathertool还集成了对三方中间件的操作，DB操作等。
 
@@ -13,7 +13,7 @@
 
 ## 介绍
  gathertool是一个高度封装工具库，包含了http/s的请求，Mysql数据库方法，数据类型处理方法，数据提取方法，websocket相关方法，
-TCP|UDP相关方法，NoSql相关方法，开发常用方法等;  可以用于爬虫程序，接口&压力测试程序，常见网络协议调试程序，数据提取与存储程序等；
+TCP|UDP相关方法，NoSql相关方法，开发常用方法等;  可以用于爬虫程序，接口&压力测试程序，常见网络协议调试程序，数据提取与存储程序等； 
  gathertool的请求特点: 会在请求阶段执行各个事件如请求失败后的重试事件,请求前后的事件，请求成功事件等等, 可以根据请求状态码自定义这些事件；
 gathertool还拥有很好的可扩展性， 适配传入任意自定义http请求对象， 能适配各种代理对象等等；
 gathertool还拥有抓取数据存储功能, 比如存储到mysql, redis, mongo, pgsql等等; 还有很多创新的地方文档会根据具体方法进行介绍；
@@ -43,6 +43,17 @@ func main(){
 ```
 
 #### 含请求事件请求
+
+- StartFunc 开始事件，请求开始前执行的方法类型
+
+- SucceedFunc 成功事件，请求成功后执行的方法类型
+
+- FailedFunc 失败事件，请求失败执行的方法类型
+
+- RetryFunc 重试事件，重试请求前执行的方法类型，是否重试来自上次请求的状态码来确定，见StatusCodeMap;
+
+- EndFunc 结束事件，请求流程结束后执行的方法类型
+
 ```go
 import gt "github.com/mangenotwork/gathertool"
 
@@ -295,8 +306,25 @@ func main(){
 
 
 ## TODO
+- 规范库的注释，使其goland等编译器能更好适配注释显示
 - Redis连接方法改为连接池
 - 关闭重试
+- 需要白盒测试每个方法
+- 提供通过html定位加正则获取内容的方法
+- 多增加测试代码和使用注释
+- 整理实例
+- 正则提取增加  section, dl, dt, dd 标签
+
+## BUG
+- 固定map调用不了  .\main.go:124:16: undefined: gt.OrderMap
+- panic
+```azure
+panic: runtime error: index out of range [1] with length 1
+
+goroutine 1 [running]:
+github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c000, 0x3fe5})
+        D:/go/pkg/mod/github.com/mangenotwork/gathertool@v0.4.7/reg.go:32 +0x135
+```
 
 
 ## 三方引用 感谢这些开源项目
@@ -402,7 +430,6 @@ func main(){
 
 #### v0.4.8 
 ```
-TODO
 1. 升级到go版本1.19并进行优化
 2. 多类型重复的方法改为泛型，减轻代码量
 3. 增加测试代码和大量测试
@@ -410,11 +437,7 @@ TODO
 5. 更新和优化文档
 ```
 
-- 2024
-
 #### v0.5.1
 ```
-- 2024年之后版本
-
-
+规范了库的注释，使其更加的实用，适配goland编辑器的注释显示，减少使用该库更的理解成本。
 ```

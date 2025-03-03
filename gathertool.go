@@ -24,14 +24,30 @@ import (
 	"strings"
 )
 
-// Get 执行get请求，请求内容在上下文 *Context 里
+// Get 执行GET请求，请求结果在 Context 对象里，请求错误会直接抛出
+//
+// url : 请求链接地址
+//
+// vs : 更多可选参数见 Req
+//
+// Example:
+//
+//	ctx,err := Get("https://xxx.xxx")
 func Get(url string, vs ...any) (*Context, error) {
 	ctx := NewGet(url, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
-// NewGet 定义一个get请求对象，请求需执行 XX.Do()
+// NewGet 定义一个GET请求的 Context ，但是不执行，执行需要调用 Context.Do
+//
+// url : 请求链接地址
+//
+// vs : 更多可选参数见 Req
+//
+// Example:
+//
+//	NewGet("https://xxx.xxx").Do()
 func NewGet(url string, vs ...any) *Context {
 	request, err := http.NewRequest(GET, urlStr(url), nil)
 	if err != nil {
@@ -44,14 +60,38 @@ func NewGet(url string, vs ...any) *Context {
 	return Req(request, vs...)
 }
 
-// Post 执行post请求，请求内容在上下文 *Context 里
+// Post 执行POST请求，请求结果在 Context 对象里，请求错误会直接抛出
+//
+// url : 请求链接地址
+//
+// data : 请求的body
+//
+// contentType : 请求的content-type,如application/json; charset=UTF-8
+//
+// vs : 更多可选参数见 Req
+//
+// Example:
+//
+//	ctx,err := Post("https://xxx.xxx", []byte("xx"), "application/json")
 func Post(url string, data []byte, contentType string, vs ...any) (*Context, error) {
 	ctx := NewPost(url, data, contentType, vs...)
 	ctx.Do()
 	return ctx, ctx.Err
 }
 
-// NewPost 定义一个post请求对象，请求需执行 XX.Do()
+// NewPost 定义一个POST请求的 Context ，但是不执行，执行需要调用 Context.Do
+//
+// url : 请求链接地址
+//
+// data : 请求的body
+//
+// contentType : 请求的content-type,如application/json; charset=UTF-8
+//
+// vs : 更多可选参数见 Req
+//
+// Example:
+//
+//	ctx := NewPost("https://xxx.xxx", []byte("xx"), "application/json")
 func NewPost(url string, data []byte, contentType string, vs ...any) *Context {
 	request, err := http.NewRequest(POST, urlStr(url), bytes.NewBuffer(data))
 	if err != nil {
@@ -69,7 +109,15 @@ func NewPost(url string, data []byte, contentType string, vs ...any) *Context {
 	return Req(request, vs...)
 }
 
-// PostJson 执行post请求，请求参数为json，请求内容在上下文 *Context 里
+// PostJson 执行Content-Type=json的POST请求，请求结果在 Context 对象里，请求错误会直接抛出
+//
+// url : 请求链接地址
+//
+// jsonStr : 请求body,应为json字符串
+//
+// Example:
+//
+//	ctx,err := PostJson("https://xxx.xxx", `{"xx":"xx"}`)
 func PostJson(url string, jsonStr string, vs ...any) (*Context, error) {
 	ctx := NewPost(url, []byte(jsonStr), "application/json; charset=UTF-8", vs...)
 	ctx.Do()

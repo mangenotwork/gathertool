@@ -38,6 +38,7 @@ func SimpleGet1() {
 	)
 	// 执行创建的请求
 	ctx.Do()
+
 }
 
 // SimpleGet2 最简单的get请求实例， 写法二： 上下文处理；

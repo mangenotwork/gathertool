@@ -32,19 +32,19 @@ import (
 // RetryTimes 重试次数
 type RetryTimes int
 
-// StartFunc 请求开始前执行的方法类型
+// StartFunc 开始事件，请求开始前执行的方法类型
 type StartFunc func(c *Context)
 
-// SucceedFunc 请求成功后执行的方法类型
+// SucceedFunc 成功事件，请求成功后执行的方法类型
 type SucceedFunc func(c *Context)
 
-// FailedFunc 请求失败执行的方法类型
+// FailedFunc 失败事件，请求失败执行的方法类型
 type FailedFunc func(c *Context)
 
-// RetryFunc 重试请求前执行的方法类型，是否重试来自上次请求的状态码来确定，见StatusCodeMap;
+// RetryFunc 重试事件，重试请求前执行的方法类型，是否重试来自上次请求的状态码来确定，见StatusCodeMap;
 type RetryFunc func(c *Context)
 
-// EndFunc 请求流程结束后执行的方法类型
+// EndFunc 结束事件，请求流程结束后执行的方法类型
 type EndFunc func(c *Context)
 
 // IsLog 是否开启全局日志
@@ -56,7 +56,14 @@ type IsRetry bool
 // ProxyUrl 全局代理地址，一个代理，多个代理请使用代理池ProxyPool
 type ProxyUrl string
 
-// Context 请求上下文
+// Context 请求上下文对象,提供了基础的请求实体,扩展了重试,随机延迟请求,定义了请求事件的处理
+//
+// 重试: 在请求失败后进行重试，重试次数，重试前可通过 RetryFunc 进行自定义操作，通常可进行更换代理，增加延时等等
+//
+// 随机延迟请求: 在反爬加入大数据和AI技术后，可以通过随机延迟策略模拟人为操作,当然了智能反爬是通过多维度的但这个功能还是必要的
+//
+// 请求事件: 对一个请求抽象出来了5个事件，可以灵活根据事件进行处理请求遇到的各种场景。
+// 5个事件分别是 StartFunc SucceedFunc FailedFunc RetryFunc EndFunc
 type Context struct {
 	// Token
 	Token string
