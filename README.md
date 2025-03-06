@@ -329,7 +329,7 @@ goroutine 1 [running]:
 github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c000, 0x3fe5})
         D:/go/pkg/mod/github.com/mangenotwork/gathertool@v0.4.7/reg.go:32 +0x135
 ```
-
+- Any2Float64 不支持字符串转float64
 
 ## 三方引用 感谢这些开源项目
 - github.com/Shopify/sarama
