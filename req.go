@@ -36,7 +36,13 @@ const (
 	DELETE  = "DELETE"
 	PATCH   = "PATCH"
 	OPTIONS = "OPTIONS"
-	ANY     = ""
+)
+
+const RequestStateError = -1 // 自定义请求错误的状态为-1,表示请求未发出就出现错误失败了
+
+const (
+	HttpPrefix  = "http://"
+	HttpsPrefix = "https://"
 )
 
 var (
@@ -88,6 +94,10 @@ func urlStr(url string) string {
 		return url
 	}
 	return "https://" + url
+}
+
+func reqErr(caseUrl string, err error) error {
+	return fmt.Errorf(caseUrl, " 请求错误， err: ", err.Error())
 }
 
 func IsUrl(url string) bool {

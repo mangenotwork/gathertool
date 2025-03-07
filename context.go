@@ -13,6 +13,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -288,7 +289,7 @@ func (c *Context) Do() func() {
 	switch v {
 	case "success":
 		body, err := io.ReadAll(c.Resp.Body)
-		if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
+		if err != nil && err != io.EOF && errors.Is(err, io.ErrUnexpectedEOF) {
 			Error(err)
 			return nil
 		}
@@ -475,9 +476,9 @@ func NewProxyIP(ip string, port int, user, pass string, isTls bool) *ProxyIP {
 
 // String 代理IP输出
 func (p *ProxyIP) String() string {
-	h := "http://"
-	if p.IsTLS {
-		h = "https://"
+	h := HttpsPrefix
+	if !p.IsTLS {
+		h = HttpPrefix
 	}
 	return fmt.Sprintf("%s%s:%s@%s:%d", h, p.User, p.Pass, p.IP, p.Post)
 }
@@ -547,21 +548,25 @@ func (c *Context) Upload(filePath string) func() {
 
 	// 是否超时
 	// Go 1.6 以下
-	if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") {
-		if c.RetryFunc != nil {
-			c.RetryFunc(c)
-			return c.Do()
+	// 不支持向下兼容golang版本，下面代码将被注释
+	/*
+		if c.Err != nil && strings.Contains(c.Err.Error(), "(Client.Timeout exceeded while awaiting headers)") {
+			if c.RetryFunc != nil {
+				c.RetryFunc(c)
+				return c.Do()
+			}
+			return nil
 		}
-		return nil
-	}
+	*/
 
 	// 自 Go 1.6开始， 所有的超时导致的网络错误都可以通过net.Error的Timeout()方法检查。
-	if err, ok := c.Err.(net.Error); ok && err.Timeout() {
-		if c.RetryFunc != nil {
-			c.RetryFunc(c)
-			return c.Do()
+	var netErr net.Error
+	if errors.As(c.Err, &netErr) && netErr.Timeout() {
+		if c.RetryFunc == nil {
+			return nil
 		}
-		return nil
+		c.RetryFunc(c)
+		return c.Do()
 	}
 
 	// 其他错误
@@ -658,6 +663,11 @@ func (c *Context) DelParam(key string) {
 	delete(c.Param, key)
 }
 
+type CookiePoolEr interface {
+	Add(cookie *http.Cookie)
+	Get() *http.Cookie
+}
+
 // CookiePool  cookie池
 type cookiePool struct {
 	cookie []*http.Cookie
@@ -669,7 +679,7 @@ var CookiePool *cookiePool
 var _cookiePoolOnce sync.Once
 
 // NewCookiePool 实例化cookie池
-func NewCookiePool() *cookiePool {
+func NewCookiePool() CookiePoolEr {
 	_cookiePoolOnce.Do(func() {
 		CookiePool = &cookiePool{
 			cookie: make([]*http.Cookie, 0),

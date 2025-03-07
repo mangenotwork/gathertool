@@ -1,5 +1,5 @@
 /*
-*	Description : 配置文件 yaml  TODO 测试
+*	Description : 配置文件 yaml  TODO 扩展到所有能支持的配置文件
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -10,10 +10,8 @@ import (
 	"fmt"
 	"os"
 
-	yaml "gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3"
 )
-
-// TODO 扩展到所有能支持的配置文件
 
 var Config *conf
 
