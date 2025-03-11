@@ -501,8 +501,10 @@ func (r *Rds) Ttl(key string) int64 {
 func (r *Rds) DUMP(key string) bool {
 	InfoFTimes(3, "[Redis Log] execute : DUMP %s", key)
 	data, err := redis.String(r.Conn.Do("DUMP", key))
-	if err != nil || data == "0" {
+	if err != nil {
 		ErrorTimes(3, "GET error", err.Error())
+		return false
+	} else if data == "0" {
 		return false
 	}
 	return true

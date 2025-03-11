@@ -611,10 +611,6 @@ func handleClientRequest2(client net.Conn) {
 		}
 	}()
 	Info("socket 请求 : ", client.RemoteAddr(), " --> ", client.LocalAddr())
-	if client == nil {
-		return
-
-	}
 	defer func() {
 		_ = client.Close()
 	}()

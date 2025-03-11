@@ -21,10 +21,10 @@ import (
 )
 
 var (
-	ShowTablesSql   = "SHOW TABLES"
-	TABLE_NAME_NULL = fmt.Errorf("table name is null")
-	TABLE_IS_NULL   = fmt.Errorf("table is null")
-	HOST_IS_NULL    = fmt.Errorf("host is null")
+	ShowTablesSql    = "SHOW TABLES"
+	ErrTableNameNull = fmt.Errorf("table name is null")
+	ErrTableIsNull   = fmt.Errorf("table is null")
+	ErrHostISNull    = fmt.Errorf("host is null")
 )
 
 var MysqlDB = &Mysql{}
@@ -40,7 +40,7 @@ type Mysql struct {
 	maxIdleConn int
 	DB          *sql.DB
 	log         bool
-	tableTemp   map[string]*tableDescribe //表结构缓存
+	tableTemp   map[string]*TableDescribe //表结构缓存
 	once        *sync.Once
 	allTN       *allTableName // 所有表名
 }
@@ -57,7 +57,7 @@ func NewMysqlDB(host string, port int, user, password, database string) (err err
 // NewMysql 创建一个mysql对象
 func NewMysql(host string, port int, user, password, database string) (*Mysql, error) {
 	if len(host) < 1 {
-		return nil, HOST_IS_NULL
+		return nil, ErrHostISNull
 	}
 	if port < 1 {
 		port = 3369
@@ -74,7 +74,7 @@ func NewMysql(host string, port int, user, password, database string) (*Mysql, e
 		once:        &sync.Once{},
 	}
 	m.once.Do(func() {
-		m.tableTemp = make(map[string]*tableDescribe)
+		m.tableTemp = make(map[string]*TableDescribe)
 	})
 	return m, nil
 }
@@ -167,7 +167,7 @@ type TableInfo struct {
 	Extra   string
 }
 
-type tableDescribe struct {
+type TableDescribe struct {
 	Base map[string]string
 }
 
@@ -210,7 +210,7 @@ func (a *allTableName) isHave(name string) bool {
 }
 
 // Describe 获取表结构
-func (m *Mysql) Describe(table string) (*tableDescribe, error) {
+func (m *Mysql) Describe(table string) (*TableDescribe, error) {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
@@ -218,11 +218,11 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 		return v, nil
 	}
 	if table == "" {
-		return &tableDescribe{}, TABLE_NAME_NULL
+		return &TableDescribe{}, ErrTableNameNull
 	}
 	rows, err := m.DB.Query("DESCRIBE " + table)
 	if err != nil {
-		return &tableDescribe{}, err
+		return &TableDescribe{}, err
 	}
 
 	fieldMap := make(map[string]string)
@@ -248,7 +248,7 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 		fieldMap[result.Field] = fieldType
 	}
 	_ = rows.Close()
-	td := &tableDescribe{
+	td := &TableDescribe{
 		Base: fieldMap,
 	}
 	// 缓存
@@ -327,7 +327,7 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 	)
 
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrTableIsNull
 	}
 
 	if line < 1 {
@@ -410,7 +410,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]any) error {
 	var line = len(fieldData)
 
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrHostISNull
 	}
 
 	if line < 1 {
@@ -436,7 +436,7 @@ func (m *Mysql) InsertAt(table string, fieldData map[string]any) error {
 	var line = len(fieldData)
 
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrTableIsNull
 	}
 
 	if line < 1 {

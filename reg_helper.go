@@ -723,14 +723,14 @@ func IsDNSName(str string) bool { return isHave(runFuncName(), str) }
 // IsIPv4 是否是ipv4
 func IsIPv4(str string) bool { return isHave(runFuncName(), str) }
 
-// IsWindowsPath 是否是windos路径
+// IsWindowsPath 是否是windows路径
 func IsWindowsPath(str string) bool { return isHave(runFuncName(), str) }
 
 // IsUnixPath 是否是unix路径
 func IsUnixPath(str string) bool { return isHave(runFuncName(), str) }
 
-func isArrayStr(s string, slist []string) bool {
-	for _, value := range slist {
+func isArrayStr(s string, sList []string) bool {
+	for _, value := range sList {
 		if s == value {
 			return true
 		}

@@ -205,6 +205,7 @@ func (scan *HostScanBadLink) do(caseUrl string, df int) {
 	ctx, err := Get(caseUrl)
 	if err != nil {
 		ctx.StateCode = 404
+		return
 	}
 	if ApplicationTerminalOut {
 		fmt.Print(".")

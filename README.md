@@ -318,6 +318,7 @@ func main(){
 - 多增加测试代码和使用注释
 - 整理实例
 - 正则提取增加  section, dl, dt, dd 标签
+- 去掉 gorm.io/gorm
 
 ## BUG
 - 固定map调用不了  .\main.go:124:16: undefined: gt.OrderMap
@@ -332,13 +333,15 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
 - Any2Float64 不支持字符串转float64
 
 ## 三方引用 感谢这些开源项目
-- github.com/Shopify/sarama
+- github.com/Shopify/sarama 
 - github.com/dgrijalva/jwt-go 
-- github.com/garyburd/redigo
+- github.com/go-sql-driver/mysql 
+- github.com/gomodule/redigo 
 - github.com/nsqio/go-nsq 
-- github.com/streadway/amqp
-- github.com/xuri/excelize/v2
-- go.mongodb.org/mongo-driver
+- github.com/streadway/amqp 
+- github.com/xuri/excelize/v2 
+- go.mongodb.org/mongo-driver 
+- gopkg.in/gomail.v2 
 - gopkg.in/yaml.v3 
 
 ## 里程碑

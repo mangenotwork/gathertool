@@ -271,6 +271,9 @@ func CompressFiles(files []string, dest string) error {
 
 func compressFiles(filePath string, prefix string, zw *zip.Writer) error {
 	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
 	info, err := file.Stat()
 	if err != nil {
 		return err
@@ -283,9 +286,6 @@ func compressFiles(filePath string, prefix string, zw *zip.Writer) error {
 		}
 		for _, fi := range fileInfos {
 			f := file.Name() + "/" + fi.Name()
-			if err != nil {
-				return err
-			}
 			err = compressFiles(f, prefix, zw)
 			if err != nil {
 				return err
@@ -293,10 +293,10 @@ func compressFiles(filePath string, prefix string, zw *zip.Writer) error {
 		}
 	} else {
 		header, err := zip.FileInfoHeader(info)
-		header.Name = prefix + "/" + header.Name
 		if err != nil {
 			return err
 		}
+		header.Name = prefix + "/" + header.Name
 		writer, err := zw.CreateHeader(header)
 		if err != nil {
 			return err

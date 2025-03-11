@@ -7,7 +7,7 @@ import (
 
 // go test -v -run=TestMapHelperOderMap
 func TestMapHelperOderMap(t *testing.T) {
-	intMap := gathertool.OrderMap[int, int]()
+	intMap := gathertool.NewOrderMap[int, int]()
 	intMap.Add(1, 1)
 	t.Log(intMap.Get(1))
 	intMap.Del(1)
@@ -16,7 +16,7 @@ func TestMapHelperOderMap(t *testing.T) {
 	intMap.RangeAt(func(id, k, v int) {
 		t.Log(id, k, v)
 	})
-	stringMap := gathertool.OrderMap[string, int]()
+	stringMap := gathertool.NewOrderMap[string, int]()
 	stringMap.Add("a", 1)
 	t.Log(stringMap.Get("a"))
 	stringMap.Del("a")
