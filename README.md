@@ -331,6 +331,9 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
         D:/go/pkg/mod/github.com/mangenotwork/gathertool@v0.4.7/reg.go:32 +0x135
 ```
 - Any2Float64 不支持字符串转float64
+- 下载的函数名错误 Upload 执行GET下载请求
+- 缺少url提取文件名，文件后缀的函数
+- 类型转换缺少空值判断
 
 ## 三方引用 感谢这些开源项目
 - github.com/Shopify/sarama 
