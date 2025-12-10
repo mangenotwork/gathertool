@@ -85,6 +85,7 @@ func TickerRun(t time.Duration, runFirst bool, f func()) {
 	}
 }
 
+// Timestamp2Date timestamp -> "2006-01-02 15:04:05"
 func Timestamp2Date(timestamp int64) string {
 	tm := time.Unix(timestamp, 0)
 	return tm.Format(TimeTemplate)
@@ -128,6 +129,7 @@ func IsTodayList(timestamp int64) string {
 	return t.Format(TimeFormatList)
 }
 
+// Timestamp2Week 获取timestamp是周几
 func Timestamp2Week(timestamp int64) string {
 	tm := time.Unix(timestamp, 0)
 	tm.Weekday()
@@ -150,6 +152,7 @@ func Timestamp2Week(timestamp int64) string {
 	return "周一"
 }
 
+// Timestamp2WeekXinQi 获取timestamp是星期几
 func Timestamp2WeekXinQi(timestamp int64) string {
 	tm := time.Unix(timestamp, 0)
 	tm.Weekday()
@@ -183,4 +186,87 @@ func LatestDate(date int) []string {
 		outList = append(outList, time.Unix(nowInt, 0).Format("2006-01-02"))
 	}
 	return outList
+}
+
+// GetCurrentMonthRange 获取当前月的时间范围（月初1号0点 ~ 月末最后一刻）
+// 返回：
+//
+//	firstDay：当月1号 00:00:00
+//	lastDay：当月最后一天 23:59:59.999999999
+func GetCurrentMonthRange() (firstDay, lastDay time.Time) {
+	now := time.Now() // 当前时间（当地时区）
+
+	// 年、月不变，日设为1，时/分/秒/纳秒设为0
+	firstDay = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+
+	// 先获取下个月1号0点，再减1天得到当月最后一天0点，最后减1纳秒得到23:59:59.999999999
+	nextMonthFirstDay := firstDay.AddDate(0, 1, 0)             // 下个月1号0点
+	lastDayStart := nextMonthFirstDay.AddDate(0, 0, -1)        // 当月最后一天0点
+	lastDay = lastDayStart.Add(24*time.Hour - time.Nanosecond) // 最后一天23:59:59.999999999
+
+	return firstDay, lastDay
+}
+
+// GetCurrentWeekRange 获取当前周的时间范围（周一凌晨 ~ 周日23:59:59）
+// 返回：
+//
+//	monday ：本周一 00:00:00
+//	sundayEnd：本周日 23:59:59.999999999
+func GetCurrentWeekRange() (monday, sundayEnd time.Time) {
+	now := time.Now() // 当前时间（当地时区）
+
+	// 计算当前是星期几（转换为：周一=1，周二=2，...，周日=7）
+	currentWeekday := int(now.Weekday())
+	if currentWeekday == 0 { // 若为周日（0），转为7
+		currentWeekday = 7
+	}
+
+	// 计算距离本周一的天数差
+	daysToMonday := currentWeekday - 1
+
+	// 计算本周一的凌晨（00:00:00）
+	monday = now.AddDate(0, 0, -daysToMonday).Truncate(24 * time.Hour)
+
+	// 计算本周日的23:59:59.999999999（当天最后一刻）
+	sundayDate := monday.AddDate(0, 0, 6) // 周一加6天 = 周日（日期）
+	sundayEnd = time.Date(
+		sundayDate.Year(),
+		sundayDate.Month(),
+		sundayDate.Day(),
+		23, 59, 59, 999999999, // 时:分:秒:纳秒（当天最后一刻）
+		now.Location(), // 保持与当前时间相同的时区
+	)
+
+	return monday, sundayEnd
+}
+
+// GetTodayRange 按东八区（Asia/Shanghai）获取当天自然日范围（00:00:00 至 23:59:59.999999999）
+// 返回：
+//
+//	start：当天00:00:00（东八区）
+//	end：当天23:59:59.999999999（东八区）
+func GetTodayRange() (start, end time.Time) {
+	// 指定时区为东八区（Asia/Shanghai）
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	now := time.Now().In(loc)
+
+	// 计算东八当天凌晨（00:00:00）
+	start = time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		0, 0, 0, 0,
+		loc, // 明确使用东八
+	)
+
+	// 计算东八当天结束（23:59:59.999999999）
+	end = time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		23, 59, 59, 999999999,
+		loc, // 明确使用东八
+	)
+
+	return start, end
 }

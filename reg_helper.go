@@ -14,6 +14,7 @@ import (
 	"unicode"
 )
 
+// RegFindAll 正则匹配字符串
 func RegFindAll(regStr, rest string) [][]string {
 	reg := regexp.MustCompile(regStr)
 	List := reg.FindAllStringSubmatch(rest, -1)
@@ -21,6 +22,7 @@ func RegFindAll(regStr, rest string) [][]string {
 	return List
 }
 
+// RegFindAllTxt 正则匹配字符串只返回匹配到的文本
 func RegFindAllTxt(regStr, rest string) (dataList []string) {
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(rest, -1)
@@ -288,7 +290,7 @@ func RegHtmlTable(str string, property ...string) []string {
 	return regFind(runFuncName(), str, property...)
 }
 
-func RegHtmlTableOlny(str string, property ...string) []string {
+func RegHtmlTableOnly(str string, property ...string) []string {
 	return regFind(runFuncName(), str, property...)
 }
 

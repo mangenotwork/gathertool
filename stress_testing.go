@@ -1,5 +1,5 @@
 /*
-*	Description : 接口压力测试， 并输出结果 TODO 测试
+*	Description : 接口压力测试， 并输出结果
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -67,6 +67,7 @@ func (s *StressUrl) SetJson(str string) {
 	s.JsonData = str
 }
 
+// OpenRetry 开启重试请求
 func (s *StressUrl) OpenRetry() {
 	s.isRetry = true
 }

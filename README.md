@@ -364,7 +364,7 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
   - 类型转换缺少空值判断 <todo>
 8. 新增:  <todo>
   - 正则提取增加  section, dl, dt, dd 标签 <todo>
-  - 去掉 gorm.io/gorm, mongo-driver <todo>
+  - 去掉 gorm.io/gorm, mongo-driver, github.com/gomodule/redigo
   - html解析需要引入属性值包含关系 <todo>
   - 下载资源需要打印下载url, 以及检查下载大小，如果是0则抛出错误 <todo>
 ```

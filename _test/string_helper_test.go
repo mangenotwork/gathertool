@@ -6,9 +6,9 @@ import (
 )
 
 func TestStringHelperTypeConversion(t *testing.T) {
-	t.Log(gathertool.StringValue(1))
-	t.Log(gathertool.StringValue(2.22))
-	t.Log(gathertool.StringValue(true))
+	t.Log(gathertool.Any2String(1))
+	t.Log(gathertool.Any2String(2.22))
+	t.Log(gathertool.Any2String(true))
 	t.Log(gathertool.Any2String([]int{1, 2}))
 
 	t.Log(gathertool.Json2Map("{\"a\":2,\"3\":4}"))

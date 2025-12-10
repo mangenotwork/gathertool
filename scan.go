@@ -14,11 +14,11 @@ import (
 
 var ApplicationTerminalOut = true
 
+// ApplicationTerminalOutClose 关闭在终端打印的扫描信息
 func ApplicationTerminalOutClose() {
 	ApplicationTerminalOut = false
 }
 
-// HostToolEr TODO HostToolEr
 type HostToolEr interface {
 	Run() ([]string, int)
 }
@@ -32,6 +32,7 @@ type HostScanUrl struct {
 	MaxCount int64
 }
 
+// NewHostScanUrl 创建扫描站点
 func NewHostScanUrl(host string, depth int) *HostScanUrl {
 	return &HostScanUrl{
 		Host:     host,
@@ -42,6 +43,7 @@ func NewHostScanUrl(host string, depth int) *HostScanUrl {
 	}
 }
 
+// Run 执行扫描
 func (scan *HostScanUrl) Run() ([]string, int) {
 	CloseLog()
 	scan.do(scan.Host, 0)
@@ -102,6 +104,7 @@ type HostScanExtLinks struct {
 	Host string
 }
 
+// NewHostScanExtLinks 创建站点链接采集，只支持get请求
 func NewHostScanExtLinks(host string) *HostScanExtLinks {
 	return &HostScanExtLinks{
 		Host: host,
@@ -151,6 +154,7 @@ type HostScanBadLink struct {
 	UrlSet    map[string]struct{} // 检查页面重复
 }
 
+// NewHostScanBadLink 创建站点死链接扫描，只支持get请求
 func NewHostScanBadLink(host string, depth int) *HostScanBadLink {
 	return &HostScanBadLink{
 		Host:      host,
@@ -233,6 +237,7 @@ type HostPageSpeedCheck struct {
 	UrlSet    map[string]struct{} // 检查页面重复
 }
 
+// NewHostPageSpeedCheck 创建站点所有url测速，只支持get请求
 func NewHostPageSpeedCheck(host string, depth int) *HostPageSpeedCheck {
 	return &HostPageSpeedCheck{
 		Host:      host,

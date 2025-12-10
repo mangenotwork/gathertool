@@ -22,6 +22,9 @@ func TestTimeHelperTest(t *testing.T) {
 	t.Log(gathertool.Timestamp2Week(gathertool.Timestamp()))
 	t.Log(gathertool.Timestamp2WeekXinQi(gathertool.Timestamp()))
 	t.Log(gathertool.LatestDate(10))
+	t.Log(gathertool.GetCurrentMonthRange())
+	t.Log(gathertool.GetCurrentWeekRange())
+	t.Log(gathertool.GetTodayRange())
 }
 
 func TestTimeHelperTickerRunTest(t *testing.T) {
