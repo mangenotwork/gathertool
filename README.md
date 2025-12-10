@@ -310,15 +310,10 @@ func main(){
 将你的宝贵经验提交进来。
 
 ## TODO
-- 规范库的注释，使其goland等编译器能更好适配注释显示
 - Redis连接方法改为连接池
 - 关闭重试
-- 需要白盒测试每个方法
 - 提供通过html定位加正则获取内容的方法
-- 多增加测试代码和使用注释
-- 整理实例
-- 正则提取增加  section, dl, dt, dd 标签
-- 去掉 gorm.io/gorm
+- 引入请求工作与队列的功能，在广度爬取场景使用
 
 ## BUG
 - 固定map调用不了  .\main.go:124:16: undefined: gt.OrderMap
@@ -330,10 +325,7 @@ goroutine 1 [running]:
 github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c000, 0x3fe5})
         D:/go/pkg/mod/github.com/mangenotwork/gathertool@v0.4.7/reg.go:32 +0x135
 ```
-- Any2Float64 不支持字符串转float64
-- 下载的函数名错误 Upload 执行GET下载请求
-- 缺少url提取文件名，文件后缀的函数
-- 类型转换缺少空值判断
+
 
 ## 三方引用 感谢这些开源项目
 - github.com/Shopify/sarama 
@@ -441,13 +433,19 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
 #### v0.4.8 
 ```
 1. 升级到go版本1.19并进行优化
-2. 多类型重复的方法改为泛型，减轻代码量
-3. 增加测试代码和大量测试
-4. 优化项目文件结构
-5. 更新和优化文档
-```
-
-#### v0.5.1
-```
-规范了库的注释，使其更加的实用，适配goland编辑器的注释显示，减少使用该库更的理解成本。
+2. 多类型重复的方法改为泛型，减轻代码量  <todo>
+3. 增加测试代码和大量测试与整理实例 <todo>
+4. 优化项目文件结构，规范库的注释 <todo>
+5. 更新和优化文档  <todo>
+6. 修复 panic <todo>
+7. 修复问题: <todo>
+  - Any2Float64 不支持字符串转float64 <todo>
+  - 下载的函数名错误 Upload 执行GET下载请求 <todo>
+  - 缺少url提取文件名，文件后缀的函数 <todo>
+  - 类型转换缺少空值判断 <todo>
+8. 新增:  <todo>
+  - 正则提取增加  section, dl, dt, dd 标签 <todo>
+  - 去掉 gorm.io/gorm <todo>
+  - html解析需要引入属性值包含关系 <todo>
+  - 下载资源需要打印下载url, 以及检查下载大小，如果是0则抛出错误 <todo>
 ```
