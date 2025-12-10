@@ -18,6 +18,7 @@ import (
 )
 
 var randObj = rand.New(rand.NewSource(time.Now().UnixNano()))
+var TableIsNULL = fmt.Errorf("table is null")
 
 func SliceContains[V comparable](a []V, v V) bool {
 	l := len(a)
@@ -361,7 +362,7 @@ func (m *OrderMap[K, V]) MysqlNewTable(db Mysql, table string) error {
 		line      = m.Len()
 	)
 	if table == "" {
-		return TABLE_IS_NULL
+		return TableIsNULL
 	}
 	if line < 1 {
 		return fmt.Errorf("fiedls len is 0")
@@ -400,7 +401,7 @@ func (m *OrderMap[K, V]) MysqlInsert(db Mysql, table string) error {
 		fieldDataMap = make(map[string]any)
 	)
 	if table == "" {
-		return TABLE_IS_NULL
+		return TableIsNULL
 	}
 	if line < 1 {
 		return fmt.Errorf("fiedls len is 0")

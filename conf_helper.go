@@ -20,6 +20,7 @@ type conf struct {
 	Data map[string]any
 }
 
+// NewConf 读取配置，只支持yaml
 func NewConf(appConfigPath string) error {
 	Config = &conf{
 		Path: appConfigPath,

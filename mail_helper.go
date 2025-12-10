@@ -1,5 +1,5 @@
 /*
-*	Description : 邮件的方法，应用场景有抓取完成通知. TODO 测试
+*	Description : 邮件的方法，应用场景有抓取完成通知. TODO 改为通知，新增webhook
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
