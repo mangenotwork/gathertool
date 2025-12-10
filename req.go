@@ -1,5 +1,5 @@
 /*
-*	Description : 请求相关  TODO 测试
+*	Description : 请求相关
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -90,20 +90,22 @@ func urlStr(url string) string {
 	if l < 1 {
 		panic("url is null")
 	}
-	if l > 8 && (url[:7] == "http://" || url[:8] == "https://") {
+	if l > 8 && (url[:7] == HttpPrefix || url[:8] == HttpsPrefix) {
 		return url
 	}
-	return "https://" + url
+	return HttpsPrefix + url
 }
 
 func reqErr(caseUrl string, err error) error {
 	return fmt.Errorf(caseUrl, " 请求错误， err: ", err.Error())
 }
 
+// IsUrl 验证url是否有效
 func IsUrl(url string) bool {
 	return isUrl(url)
 }
 
+// UrlStr 将不含http前缀的url进行规范
 func UrlStr(url string) string {
 	return urlStr(url)
 }
@@ -146,16 +148,19 @@ func NewCookie(data map[string]string) Cookie {
 	return data
 }
 
-// Set Cookie Set
 func (c Cookie) Set(key, value string) Cookie {
 	c[key] = value
 	return c
 }
 
-// Delete Cookie Delete
 func (c Cookie) Delete(key string) Cookie {
 	delete(c, key)
 	return c
+}
+
+func (c Cookie) Get(key string) (string, bool) {
+	v, ok := c[key]
+	return v, ok
 }
 
 // Req 初始化请求
@@ -393,6 +398,7 @@ func SearchPort(ipStr string, vs ...any) {
 
 var pingTerminalPrint = true
 
+// ClosePingTerminalPrint 关闭ping在终端的打印
 func ClosePingTerminalPrint() {
 	pingTerminalPrint = false
 }
@@ -479,11 +485,17 @@ func checkSum(msg []byte) uint16 {
 
 func defaultRetry(ctx *Context) {
 	Info("2s后准备重试......")
+	if ctx.Err != nil {
+		Error(ctx.Err)
+	}
 	time.Sleep(2 * time.Second)
 }
 
 func defaultSucceed(ctx *Context) {
-	//Info("请求成功")
+	if ctx.Err != nil {
+		Error(ctx.Err)
+	}
+	Info("请求成功")
 }
 
 type SSLCertificateInfo struct {

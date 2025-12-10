@@ -1,13 +1,13 @@
 package test
 
 import (
-	"github.com/mangenotwork/gathertool"
+	gt "github.com/mangenotwork/gathertool"
 	"testing"
 )
 
 // go test -v -run=TestMapHelperOderMap
 func TestMapHelperOderMap(t *testing.T) {
-	intMap := gathertool.NewOrderMap[int, int]()
+	intMap := gt.NewOrderMap[int, int]()
 	intMap.Add(1, 1)
 	t.Log(intMap.Get(1))
 	intMap.Del(1)
@@ -16,7 +16,7 @@ func TestMapHelperOderMap(t *testing.T) {
 	intMap.RangeAt(func(id, k, v int) {
 		t.Log(id, k, v)
 	})
-	stringMap := gathertool.NewOrderMap[string, int]()
+	stringMap := gt.NewOrderMap[string, int]()
 	stringMap.Add("a", 1)
 	t.Log(stringMap.Get("a"))
 	stringMap.Del("a")
@@ -54,7 +54,7 @@ func TestMapHelperOderMap(t *testing.T) {
 
 // go test -v -run=TestMapHelperSet
 func TestMapHelperSet(t *testing.T) {
-	s := gathertool.NewSet()
+	s := gt.NewSet()
 	s.Add(1)
 	s.Add(1)
 	s.DebugPrint()
@@ -68,7 +68,7 @@ func TestMapHelperSet(t *testing.T) {
 
 // go test -v -run=TestMapHelperStack
 func TestMapHelperStack(t *testing.T) {
-	s := gathertool.NewStack[string]()
+	s := gt.NewStack[string]()
 	s.Push("a")
 	s.Push("b")
 	s.DebugPrint()
@@ -79,11 +79,11 @@ func TestMapHelperStack(t *testing.T) {
 // go test -v -run=TestMapHelper
 func TestMapHelper(t *testing.T) {
 	map1 := map[int]string{1: "a", 2: "b"}
-	map2 := gathertool.MapCopy(map1)
+	map2 := gt.MapCopy(map1)
 	t.Log(map2)
-	t.Log(gathertool.MapMergeCopy(map1, map[int]string{3: "c", 2: "b"}))
+	t.Log(gt.MapMergeCopy(map1, map[int]string{3: "c", 2: "b"}))
 
-	t.Log(gathertool.Map2Slice(map1))
+	t.Log(gt.Map2Slice(map1))
 
-	t.Log(gathertool.Slice2Map([]any{"a", 1, "b", 2}))
+	t.Log(gt.Slice2Map([]any{"a", 1, "b", 2}))
 }

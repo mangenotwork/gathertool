@@ -1,5 +1,5 @@
 /*
-*	Description : 一些扫描方法,一些website host方法 TODO：测试
+*	Description : 一些扫描方法,一些website host方法
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/

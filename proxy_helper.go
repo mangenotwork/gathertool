@@ -1,5 +1,5 @@
 /*
-*	Description : HTTP&HTTPs代理并拦截HTTP的数据包; socket5代理  TODO 测试
+*	Description : HTTP&HTTPs代理并拦截HTTP的数据包; socket5代理
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -595,6 +595,7 @@ func SocketProxy(addr string) {
 	if err != nil {
 		Panic(err)
 	}
+	Info("start socket5 proxy server")
 	for {
 		client, err := l.Accept()
 		if err != nil {

@@ -1,5 +1,5 @@
 /*
-*	Description : 正则   TODO 测试
+*	Description : 正则提取数据，删除数据，修改数据等等
 *	Author 		: ManGe
 *	Mail 		: 2912882908@qq.com
 **/
@@ -27,10 +27,9 @@ func RegFindAllTxt(regStr, rest string) (dataList []string) {
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(rest, -1)
 	for _, v := range resList {
-		if len(v) < 1 {
-			continue
+		if len(v) >= 2 {
+			dataList = append(dataList, v[1])
 		}
-		dataList = append(dataList, v[1])
 	}
 	return
 }
@@ -64,7 +63,7 @@ var regMap = map[string]string{
 	"RegHtmlSelect":      `(?is:<select.*?</select>)`,
 	"RegHtmlTable":       `(?is:<table.*?</table>)`,
 	"RegHtmlButton":      `(?is:<button.*?</button>)`,
-	"RegHtmlTableOlny":   `(?is:<table>.*?</table>)`,
+	"RegHtmlTableOnly":   `(?is:<table>.*?</table>)`,
 	"RegHtmlDiv":         `(?is:<div.*?</div>)`,
 	"RegHtmlOption":      `(?is:<option.*?</option>)`,
 
@@ -79,12 +78,12 @@ var regMap = map[string]string{
 	"RegHtmlSpanTxt":        `(?is:<span.*?>(.*?)</span>)`,
 	"RegHtmlSrcTxt":         `(?is:src=\"(.*?)\")`,
 	"RegHtmlHrefTxt":        `(?is:href=\"(.*?)\")`,
-	"RegHtmlHTxt1":          `(?is:<h1.*?>(.*?)</h1>)`,
-	"RegHtmlHTxt2":          `(?is:<h2.*?>(.*?)</h2>)`,
-	"RegHtmlHTxt3":          `(?is:<h3.*?>(.*?)</h3>)`,
-	"RegHtmlHTxt4":          `(?is:<h4.*?>(.*?)</h4>)`,
-	"RegHtmlHTxt5":          `(?is:<h5.*?>(.*?)</h5>)`,
-	"RegHtmlHTxt6":          `(?is:<h6.*?>(.*?)</h6>)`,
+	"RegHtmlH1Txt":          `(?is:<h1.*?>(.*?)</h1>)`,
+	"RegHtmlH2Txt":          `(?is:<h2.*?>(.*?)</h2>)`,
+	"RegHtmlH3Txt":          `(?is:<h3.*?>(.*?)</h3>)`,
+	"RegHtmlH4Txt":          `(?is:<h4.*?>(.*?)</h4>)`,
+	"RegHtmlH5Txt":          `(?is:<h5.*?>(.*?)</h5>)`,
+	"RegHtmlH6Txt":          `(?is:<h6.*?>(.*?)</h6>)`,
 	"RegHtmlCodeTxt":        `(?is:<code.*?>(.*?)</code>)`,
 	"RegHtmlUlTxt":          `(?is:<ul.*?>(.*?)</ul>)`,
 	"RegHtmlLiTxt":          `(?is:<li.*?>(.*?)</li>)`,
@@ -118,15 +117,15 @@ var regMap = map[string]string{
 	"IsDomain":        `[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?`,
 	"IsURL":           `//([\w-]+\.)+[\w-]+(/[\w-./?%&=]*)?$`,
 	"IsPhone":         `^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$`,
-	"IsLandline":      `^(\(\d{3,4}-)|\d{3.4}-)?\d{7,8}$`,
+	"IsLandline":      `^(\(?\d{3,4}-)?\d{7,8}$`,
 	"AccountRational": `^[a-zA-Z][a-zA-Z0-9_]{4,15}$`,
-	"IsXMLFile":       `^*+\\.[x|X][m|M][l|L]$`,
+	"IsXMLFile":       `^.*\.[xX][mM][lL]$`,
 	"IsUUID3":         `^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$`,
 	"IsUUID4":         `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`,
 	"IsUUID5":         `^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`,
 	"IsRGB":           `^rgb\\(\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*\\)$`,
-	"IsFullWidth":     `[^\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]`,
-	"IsHalfWidth":     `[\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]`,
+	"IsFullWidth":     `[^\x{0020}-\x{007E}\x{FF61}-\x{FF9F}\x{FFA0}-\x{FFDC}\x{FFE8}-\x{FFEE}0-9a-zA-Z]`,
+	"IsHalfWidth":     `[\x{0020}-\x{007E}\x{FF61}-\x{FF9F}\x{FFA0}-\x{FFDC}\x{FFE8}-\x{FFEE}0-9a-zA-Z]`,
 	"IsBase64":        `^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{4})$`,
 	"IsLatitude":      `^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$`,
 	"IsLongitude":     `^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$`,
@@ -298,9 +297,28 @@ func RegHtmlButton(str string, property ...string) []string {
 	return regFind(runFuncName(), str, property...)
 }
 
-func RegHtmlH(str, typeH string, property ...string) []string {
-	funcName := runFuncName()
-	return regFind(funcName+typeH, str, property...)
+func RegHtmlH1(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
+}
+
+func RegHtmlH2(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
+}
+
+func RegHtmlH3(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
+}
+
+func RegHtmlH4(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
+}
+
+func RegHtmlH5(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
+}
+
+func RegHtmlH6(str string, property ...string) []string {
+	return regFind(runFuncName(), str, property...)
 }
 
 func RegHtmlTbody(str string, property ...string) []string {
@@ -324,10 +342,7 @@ func regFindTxt(funcName, txt string, property ...string) (dataList []string) {
 	reg := regexp.MustCompile(regStr)
 	resList := reg.FindAllStringSubmatch(txt, -1)
 	for _, v := range resList {
-		if len(v) < 1 {
-			continue
-		}
-		if len(property) == 0 || strings.Count(v[0], strings.Join(property, " ")) > 0 {
+		if len(v) >= 2 && (len(property) == 0 || strings.Count(v[0], strings.Join(property, " ")) > 0) {
 			dataList = append(dataList, v[1])
 		}
 	}
@@ -414,9 +429,28 @@ func RegValue(str string, property ...string) []string {
 	return regFindTxt(runFuncName(), str, property...)
 }
 
-func RegHtmlHTxt(str, typeH string, property ...string) []string {
-	funcName := runFuncName()
-	return regFindTxt(funcName+typeH, str, property...)
+func RegHtmlH1Txt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
+}
+
+func RegHtmlH2Txt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
+}
+
+func RegHtmlH3Txt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
+}
+
+func RegHtmlH4Txt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
+}
+
+func RegHtmlH5Txt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
+}
+
+func RegHtmlH6Txt(str string, property ...string) []string {
+	return regFindTxt(runFuncName(), str, property...)
 }
 
 // replace 删除正则匹配的字符
@@ -485,19 +519,24 @@ func RegDelHtmlTbody(str string, property ...string) string { return replace("Re
 func isHaveStr(regStr, rest string) bool {
 	isHave, err := regexp.MatchString(regStr, rest)
 	if err != nil {
-		Error(err)
+		ErrorTimes(4, err)
 		return false
 	}
 	return isHave
 }
 
 // isHave 是否含有正则匹配的字符
-func isHave(funcName, rest string) bool {
+func isHave(funcName, rest string, val ...any) bool {
 	regStr, ok := regMap[funcName]
 	if !ok {
 		Error("reg func is not")
 		return false
 	}
+
+	if len(val) > 0 {
+		regStr = fmt.Sprintf(regStr, val...)
+	}
+
 	return isHaveStr(regStr, rest)
 }
 
@@ -660,16 +699,25 @@ func IsHaveLower(str string) bool {
 }
 
 // IsLeastNumber 验证不低于n个数字
-func IsLeastNumber(str string, n int) bool { return isHave(runFuncName(), str) }
+func IsLeastNumber(str string, n int) bool { return isHave(runFuncName(), str, n) }
 
 // IsLeastCapital 验证不低于n个大写字母
-func IsLeastCapital(str string, n int) bool { return isHave(runFuncName(), str) }
+func IsLeastCapital(str string, n int) bool { return isHave(runFuncName(), str, n) }
 
 // IsLeastLower 验证不低于n个小写字母
-func IsLeastLower(str string, n int) bool { return isHave(runFuncName(), str) }
+func IsLeastLower(str string, n int) bool { return isHave(runFuncName(), str, n) }
 
 // IsLeastSpecial 验证不低于n特殊字符
-func IsLeastSpecial(str string, n int) bool { return isHave(runFuncName(), str) }
+func IsLeastSpecial(str string, n int) bool { return isHave(runFuncName(), str, n) }
+
+// HaveNumber 验证是否是number
+func HaveNumber(str string) bool { return isHave(runFuncName(), str) }
+
+// HaveSpecial 验证是否存在空格
+func HaveSpecial(str string) bool { return isHave(runFuncName(), str) }
+
+// IsEmail 验证是否是邮件
+func IsEmail(str string) bool { return isHave(runFuncName(), str) }
 
 // IsDomain 验证域名
 func IsDomain(str string) bool { return isHave(runFuncName(), str) }

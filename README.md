@@ -354,7 +354,7 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
 ```
 1. 升级到go版本1.19并进行优化
 2. 多类型重复的方法改为泛型，减轻代码量  <todo>
-3. 增加测试代码和大量测试与整理实例 <todo>
+3. 增加测试代码和整理实例 <todo>
 4. 优化项目文件结构，规范库的注释
 5. 更新和优化文档  <todo>
 6. 修复 panic <todo>

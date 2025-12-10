@@ -9,6 +9,7 @@ package gathertool
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -51,16 +52,45 @@ func (c *conf) GetInt(key string) int {
 	return Any2Int(c.Data[key])
 }
 
-func (c *conf) Get(key string) any {
-	if c.Data == nil {
-		_ = c.Init()
+func (c *conf) get(key string) (interface{}, bool) {
+	var (
+		d  interface{}
+		ok bool
+	)
+	keyList := strings.Split(key, "::")
+	temp := make(map[string]interface{})
+	temp = c.Data
+	for _, v := range keyList {
+		d, ok = temp[v]
+		if !ok {
+			break
+		}
+		temp = Any2Map(d)
 	}
-	return c.Data[key]
+	return d, ok
 }
 
-func (c *conf) GetStr(key string) string {
+// Get  获取配置,多级使用::，例如：user::name
+func (c *conf) Get(key string) (any, bool) {
 	if c.Data == nil {
 		_ = c.Init()
 	}
-	return Any2String(c.Data[key])
+	return c.get(key)
+}
+
+// GetString  获取配置,配置不存在返回 "", false
+// ex: conf.GetString("user::name")
+func (c *conf) GetString(key string) (string, bool) {
+	if c.Data == nil {
+		_ = c.Init()
+	}
+	val, has := c.get(key)
+	if !has {
+		return "", has
+	}
+	return Any2String(val), has
+}
+
+func (c *conf) GetAll() map[string]any {
+	return c.Data
 }
