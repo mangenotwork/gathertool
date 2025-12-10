@@ -339,13 +339,14 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
 - github.com/Shopify/sarama 
 - github.com/dgrijalva/jwt-go 
 - github.com/go-sql-driver/mysql 
-- github.com/gomodule/redigo 
 - github.com/nsqio/go-nsq 
 - github.com/streadway/amqp 
 - github.com/xuri/excelize/v2 
-- go.mongodb.org/mongo-driver 
-- gopkg.in/gomail.v2 
-- gopkg.in/yaml.v3 
+- golang.org/x/crypto 
+- golang.org/x/net 
+- golang.org/x/text 
+- gopkg.in/gomail.v2
+- gopkg.in/yaml.v3
 
 ## 里程碑
 
@@ -354,7 +355,7 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
 1. 升级到go版本1.19并进行优化
 2. 多类型重复的方法改为泛型，减轻代码量  <todo>
 3. 增加测试代码和大量测试与整理实例 <todo>
-4. 优化项目文件结构，规范库的注释 <todo>
+4. 优化项目文件结构，规范库的注释
 5. 更新和优化文档  <todo>
 6. 修复 panic <todo>
 7. 修复问题: <todo>
