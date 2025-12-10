@@ -14,10 +14,14 @@
 ## 介绍
  gathertool是一个高度封装工具库，包含了http/s的请求，Mysql数据库方法，数据类型处理方法，数据提取方法，websocket相关方法，
 TCP|UDP相关方法，NoSql相关方法，开发常用方法等;  可以用于爬虫程序，接口&压力测试程序，常见网络协议调试程序，数据提取与存储程序等； 
- gathertool的请求特点: 会在请求阶段执行各个事件如请求失败后的重试事件,请求前后的事件，请求成功事件等等, 可以根据请求状态码自定义这些事件；
-gathertool还拥有很好的可扩展性， 适配传入任意自定义http请求对象， 能适配各种代理对象等等；
-gathertool还拥有抓取数据存储功能, 比如存储到mysql, redis, mongo, pgsql等等; 还有很多创新的地方文档会根据具体方法进行介绍；
-gathertool还封装了消息队列接口，支持Nsq,Kafka,rabbitmq,redis等消息队列中间件
+
+- gathertool的请求特点: 会在请求阶段执行各个事件如请求失败后的重试事件,请求前后的事件，请求成功事件等等, 可以根据请求状态码自定义这些事件；
+
+- gathertool还拥有很好的可扩展性， 适配传入任意自定义http请求对象， 能适配各种代理对象等等；
+
+- gathertool还拥有抓取数据存储功能, 存储到mysql；配合 https://github.com/mangenotwork/dbHelper 可存储到更多的数据存储上; 还有很多创新的地方文档会根据具体方法进行介绍；
+
+- gathertool还封装了消息队列接口，支持Nsq,Kafka,rabbitmq,redis等消息队列中间件
 
 ## 文档： 
 [开发文档](https://github.com/mangenotwork/gathertool/blob/main/_doc/develop.md)
@@ -309,8 +313,12 @@ func main(){
 从2022年v0.3.4版本到至今已经应用在我的实际工作中，给边边角角的工作带来了巨大的脚步编写效率，经过不断的积累和总结质量也在不断的提示；感兴趣的伙伴可以fork代码，
 将你的宝贵经验提交进来。
 
+## 配合使用
+- 数据存储与读取 https://github.com/mangenotwork/dbHelper
+- 图片处理  https://github.com/mangenotwork/imgHelper
+
 ## TODO
-- Redis连接方法改为连接池
+- Redis连接方法改为连接池, 干掉redis队列
 - 关闭重试
 - 提供通过html定位加正则获取内容的方法
 - 引入请求工作与队列的功能，在广度爬取场景使用
@@ -341,96 +349,7 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
 
 ## 里程碑
 
-#### v0.2.1 ~ v0.3.3
-```
-旧的迭代版本，不稳定，请使用 > v0.3.4的版本
-```
-
-- 2022
-
-#### v0.3.4
-```
-新增代理与抓包
-启动一个代理服务，并抓包对数据包进行处理
-```
-
-#### v0.3.5
-```
-新增socket5代理
-```
-
-#### v0.3.6
-```
-新增:
-1. func SimpleServer(addr string, g *grpc.Server) : grpc服务端
-2. func NewTask() *Task : task的实例方法
-3. func (task *Task) SetUrl(urlStr string) *Task & func (task *Task) SetJsonParam(jsonStr string) *Task
-
-修复:
-1. Context对象，Task为空的问题
-```
-
-#### v0.3.7
-```
-新增:
-1. 新增html解析，指定html内容提取
-2. 新增抓取实例
-3. 优化部分方法
-```
-
-#### v0.3.9
-```
-新增:
-1. 新增配置，支持yaml
-2. 优化部分方法
-```
-
-- 2023
-
-#### v0.4.1
-```
-新增:
-1. 文件相关处理
-2. 文件压缩解压
-3. 新增抓取实列 _examples/cnlinfo
-```
-
-#### v0.4.2
-```
-新增:
-1. redis, nsq, rabbitmq, kafka 消息队列方法
-2. 新增开发文档
-3. 新增redis相关方法
-```
-
-#### v0.4.3
-```
-1. 新增网站链接采集应用场景的方法 
-2. 修复v0.4.2的json导入bug 
-3. 修复redis封装方法的bug 
-4. 请求日志添加请求地址信息
-5. 优化抓取实例
-```
-
-#### v0.4.4 ~ v0.4.6
-```
-1. 移除 grpc相关方法
-2. 新增DNS查询
-3. 新增证书信息获取
-4. 新增Url扫描
-5. 新增邮件发送
-6. 优化ICMP Ping的方法
-```
-
-#### v0.4.7
-```
-1. Redis连接方法改为连接池
-2. 增加关闭重试方法
-3. 增加Whois查询
-4. 测试与优化
-```
-
-#### v0.4.8 
+#### v0.4.8
 ```
 1. 升级到go版本1.19并进行优化
 2. 多类型重复的方法改为泛型，减轻代码量  <todo>
@@ -445,7 +364,81 @@ github.com/mangenotwork/gathertool.RegFindAllTxt({0xb042f8?, 0x1?}, {0xc00020c00
   - 类型转换缺少空值判断 <todo>
 8. 新增:  <todo>
   - 正则提取增加  section, dl, dt, dd 标签 <todo>
-  - 去掉 gorm.io/gorm <todo>
+  - 去掉 gorm.io/gorm, mongo-driver <todo>
   - html解析需要引入属性值包含关系 <todo>
   - 下载资源需要打印下载url, 以及检查下载大小，如果是0则抛出错误 <todo>
 ```
+
+#### v0.4.7
+```
+1. Redis连接方法改为连接池
+2. 增加关闭重试方法
+3. 增加Whois查询
+4. 测试与优化
+```
+
+#### v0.4.4 ~ v0.4.6
+```
+1. 移除 grpc相关方法
+2. 新增DNS查询
+3. 新增证书信息获取
+4. 新增Url扫描
+5. 新增邮件发送
+6. 优化ICMP Ping的方法
+```
+
+#### v0.4.3
+```
+1. 新增网站链接采集应用场景的方法 
+2. 修复v0.4.2的json导入bug 
+3. 修复redis封装方法的bug 
+4. 请求日志添加请求地址信息
+5. 优化抓取实例
+```
+
+#### v0.4.2
+```
+新增:
+1. redis, nsq, rabbitmq, kafka 消息队列方法
+2. 新增开发文档
+3. 新增redis相关方法
+```
+
+#### v0.4.1
+```
+新增:
+1. 文件相关处理
+2. 文件压缩解压
+3. 新增抓取实列 _examples/cnlinfo
+```
+
+#### v0.2.1 ~ v0.3.9
+```
+旧的迭代版本，不稳定，请使用 > v0.3.4的版本
+- 新增代理与抓包
+- 启动一个代理服务，并抓包对数据包进行处理
+- 新增socket5代理
+
+v0.3.6 
+新增:
+1. func SimpleServer(addr string, g *grpc.Server) : grpc服务端
+2. func NewTask() *Task : task的实例方法
+3. func (task *Task) SetUrl(urlStr string) *Task & func (task *Task) SetJsonParam(jsonStr string) *Task
+
+修复:
+1. Context对象，Task为空的问题
+
+v0.3.7
+新增:
+1. 新增html解析，指定html内容提取
+2. 新增抓取实例
+3. 优化部分方法
+
+v0.3.9
+新增:
+1. 新增配置，支持yaml
+2. 优化部分方法
+```
+
+
+
