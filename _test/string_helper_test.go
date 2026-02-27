@@ -19,7 +19,7 @@ func TestStringHelperTypeConversion(t *testing.T) {
 	t.Log(gt.Any2Int64("123"))
 	t.Log(gt.Any2Arr("123,123"))
 	t.Log(gt.Any2Float64("123.123"))
-
+	t.Log(gt.Any2Strings("[\"1\",\"2\"]"))
 	t.Log(gt.Int2Hex(123))
 	t.Log(gt.Int642Hex(123))
 	t.Log(gt.Hex2Int("7b"))

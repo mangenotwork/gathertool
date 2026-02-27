@@ -8,6 +8,7 @@ package gathertool
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -326,6 +327,28 @@ func Str2Byte(s string) []byte {
 // Byte2Str 数据类型转换 []byte -> string
 func Byte2Str(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
+}
+
+// Byte2Base64 数据类型转换 []byte -> base64 string
+func Byte2Base64(b []byte) string {
+	var encoded []byte
+	// 标准Base64编码（默认）
+	encoded = make([]byte, base64.StdEncoding.EncodedLen(len(b)))
+	base64.StdEncoding.Encode(encoded, b)
+	return Byte2Str(encoded)
+}
+
+// Base642Byte 数据类型转换 base64 string -> []byte
+func Base642Byte(base64Str string) ([]byte, error) {
+	base64Bytes := Str2Byte(base64Str)
+	maxDecodedLen := base64.StdEncoding.DecodedLen(len(base64Bytes))
+	decoded := make([]byte, maxDecodedLen)
+	n, err := base64.StdEncoding.Decode(decoded, base64Bytes)
+	if err != nil {
+		return nil, err
+	}
+	decoded = decoded[:n]
+	return decoded, nil
 }
 
 // Bool2Byte 数据类型转换 bool -> []byte
