@@ -61,11 +61,19 @@ func DayAgo(i int) int64 {
 
 // DayDiff 两个时间字符串的日期差, 返回的是天
 func DayDiff(beginDay string, endDay string) int {
-	begin, _ := time.Parse(TimeTemplate, beginDay+ZeroHMS)
-	end, _ := time.Parse(TimeTemplate, endDay+ZeroHMS)
-
-	diff := end.Unix() - begin.Unix()
-	return int(diff / (OneDay * OneHours * OneMinutes))
+	begin, err := time.Parse(TimeTemplate, beginDay)
+	if err != nil {
+		fmt.Printf("解析开始时间失败：%v，时间字符串：%s\n", err, beginDay)
+		return 0
+	}
+	end, err := time.Parse(TimeTemplate, endDay)
+	if err != nil {
+		fmt.Printf("解析结束时间失败：%v，时间字符串：%s\n", err, endDay)
+		return 0
+	}
+	diff := end.Sub(begin)
+	days := int(diff.Hours() / 24)
+	return days
 }
 
 func DayDiffAtUnix(s, e int64) int {
@@ -91,7 +99,7 @@ func Timestamp2Date(timestamp int64) string {
 	return tm.Format(TimeTemplate)
 }
 
-// NowToEnd 计算当前时间到这天结束还有多久
+// NowToEnd 计算当前时间到这天结束还有多久 单位秒
 func NowToEnd() (int64, error) {
 	now := time.Now()
 	nextDay := now.Add(24 * time.Hour)
@@ -99,10 +107,11 @@ func NowToEnd() (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	endTime := fmt.Sprintf("%d-%d-%d 00:00:00", nextDay.Year(), nextDay.Month(), nextDay.Day())
+	// 修复：用 %02d 格式化月份/日期，强制补零为两位数
+	endTime := fmt.Sprintf("%d-%02d-%02d 00:00:00", nextDay.Year(), nextDay.Month(), nextDay.Day())
 	times, err := time.ParseInLocation(TimeTemplate, endTime, loc)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("解析时间失败：%w，拼接的时间字符串：%s", err, endTime)
 	}
 	distanceSec := times.Unix() - now.Unix()
 	return distanceSec, nil
