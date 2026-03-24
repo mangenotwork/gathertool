@@ -15,15 +15,16 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
-	"golang.org/x/text/encoding"
-	"golang.org/x/text/encoding/ianaindex"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
 	"io"
 	"log"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/ianaindex"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 )
 
 // CleaningStr 清理字符串前后空白，回车，换行符号
@@ -116,7 +117,7 @@ func PanicToError(fn func()) (err error) {
 func P2E() {
 	defer func() {
 		if r := recover(); r != nil {
-			Error("Panic error: %v", r)
+			ErrorF("Panic error: %v", r)
 		}
 	}()
 }

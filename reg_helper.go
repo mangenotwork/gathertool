@@ -66,6 +66,10 @@ var regMap = map[string]string{
 	"RegHtmlTableOnly":   `(?is:<table>.*?</table>)`,
 	"RegHtmlDiv":         `(?is:<div.*?</div>)`,
 	"RegHtmlOption":      `(?is:<option.*?</option>)`,
+	// todo RegHtmlThead `(?is:<thead.*?</thead>)`
+	// todo RegHtmlTbody `(?is:<tbody.*?</tbody>)`
+	// todo RegHtmlTfoot `(?is:<tfoot.*?</tfoot>)`
+	// todo RegHtmlTh `(?is:<th.*?</th>)`
 
 	// 取标签内容
 	"RegHtmlATxt":           `(?is:<a.*?>(.*?)</a>)`,
@@ -93,6 +97,10 @@ var regMap = map[string]string{
 	"RegHtmlDivTxt":         `(?is:<div.*?>(.*?)</div>)`,
 	"RegHtmlOptionTxt":      `(?is:<option.*?>(.*?)</option>)`,
 	"RegValue":              `(?is:value=\"(.*?)\")`,
+	// todo RegHtmlTheadTxt `(?is:<thead.*?>(.*?)</thead>)`
+	// todo RegHtmlTbodyTxt `(?is:<tbody.*?>(.*?)</tbody>)`
+	// todo RegHtmlTfootTxt `(?is:<tfoot.*?>(.*?)</tfoot>)`
+	// todo RegHtmlThTxt `(?is:<th.*?>(.*?)</th>)`
 
 	// 删除
 	"RegDelHtml":   `\<[\S\s]+?\>`,

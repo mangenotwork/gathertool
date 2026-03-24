@@ -448,7 +448,7 @@ func NsLookUp(host string) *DNSInfo {
 	if err == nil {
 		dnsInfo.LookupCNAME = cname
 	}
-	if len(dnsInfo.LookupCNAME) > 0 && strings.Index(dnsInfo.LookupCNAME, host) == -1 {
+	if len(dnsInfo.LookupCNAME) > 0 && strings.Contains(dnsInfo.LookupCNAME, host) {
 		dnsInfo.IsCDN = true
 	}
 	return dnsInfo
@@ -488,7 +488,7 @@ func nsLookUpFromServer(host, dnsServer, name string) *DNSInfo {
 	} else {
 		Error(dnsServer, " | ", err)
 	}
-	if len(dnsInfo.LookupCNAME) > 0 && strings.Index(dnsInfo.LookupCNAME, host) == -1 {
+	if len(dnsInfo.LookupCNAME) > 0 && strings.Contains(dnsInfo.LookupCNAME, host) {
 		dnsInfo.IsCDN = true
 	}
 	return dnsInfo

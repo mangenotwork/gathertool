@@ -554,7 +554,7 @@ func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 
 // Delete 执行delete sql
 func (m *Mysql) Delete(sql string) error {
-	if strings.Index(sql, "DELETE") != -1 || strings.Index(sql, "delete") != -1 {
+	if strings.Contains(sql, "DELETE") || strings.Contains(sql, "delete") {
 		return m.Exec(sql)
 	}
 	return fmt.Errorf("请检查sql正确性")

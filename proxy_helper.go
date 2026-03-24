@@ -209,7 +209,7 @@ type HttpPackage struct {
 
 // Img2Base64 如果数据类型是image 就转换成base64的图片输出
 func (pack *HttpPackage) Img2Base64() string {
-	if strings.Index(pack.ContentType, "image") != -1 {
+	if strings.Contains(pack.ContentType, "image") {
 		return base64.StdEncoding.EncodeToString(pack.Body)
 	}
 	return ""
@@ -217,7 +217,7 @@ func (pack *HttpPackage) Img2Base64() string {
 
 // Html 数据类型是html
 func (pack *HttpPackage) Html() string {
-	if strings.Index(pack.ContentType, "html") != -1 {
+	if strings.Contains(pack.ContentType, "html") {
 		rdata := strings.NewReader(string(pack.Body))
 		r, err := gzip.NewReader(rdata)
 		if err == nil {
@@ -230,7 +230,7 @@ func (pack *HttpPackage) Html() string {
 
 // SaveImage 如果数据类型是image 就保存图片
 func (pack *HttpPackage) SaveImage(path string) error {
-	if strings.Index(pack.ContentType, "image") != -1 {
+	if strings.Contains(pack.ContentType, "image") {
 		idx := strings.LastIndex(pack.Url.String(), "/")
 		if idx < 0 {
 			path += pack.Url.String()
@@ -244,7 +244,7 @@ func (pack *HttpPackage) SaveImage(path string) error {
 
 // Json 数据类型是json
 func (pack *HttpPackage) Json() string {
-	if strings.Index(pack.ContentType, "json") != -1 {
+	if strings.Contains(pack.ContentType, "json") {
 		return string(pack.Body)
 	}
 	return ""
@@ -252,7 +252,7 @@ func (pack *HttpPackage) Json() string {
 
 // Txt 数据类型是txt
 func (pack *HttpPackage) Txt() string {
-	if strings.Index(pack.ContentType, "txt") != -1 {
+	if strings.Contains(pack.ContentType, "txt") {
 		rdata := strings.NewReader(string(pack.Body))
 		r, err := gzip.NewReader(rdata)
 		if err == nil {

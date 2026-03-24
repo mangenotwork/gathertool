@@ -180,7 +180,7 @@ func PostFile(caseUrl, paramName, filePath string, vs ...any) (*Context, error) 
 
 	fWriter, err := writer.CreateFormFile("uploadFile", filePath)
 	if err != nil {
-		Info("copy file writer %v", err)
+		InfoF("copy file writer %v", err)
 	}
 
 	_, err = io.Copy(fWriter, f)

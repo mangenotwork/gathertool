@@ -12,7 +12,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"golang.org/x/net/publicsuffix"
 	"math/rand"
 	"net"
 	"net/http"
@@ -22,6 +21,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/net/publicsuffix"
 )
 
 func init() {
@@ -461,7 +462,7 @@ func Ping(ip string) (time.Duration, error) {
 		}
 		return time.Duration(0), fmt.Errorf(ip, " -> ping err : Custom data not matches")
 	}
-	dur := time.Now().Sub(before)
+	dur := time.Since(before)
 	if pingTerminalPrint {
 		Info("来自 ", ip, " 的回复: 时间 = ", dur)
 	}

@@ -124,9 +124,7 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 		for strings.HasSuffix(result, "0") {
 			result = strings.TrimSuffix(result, "0")
 		}
-		if strings.HasSuffix(result, ".") {
-			result = strings.TrimSuffix(result, ".")
-		}
+		result = strings.TrimSuffix(result, ".")
 		buf.WriteString(result)
 
 	default:
@@ -142,46 +140,33 @@ func stringValue(v reflect.Value, indent int, buf *bytes.Buffer) {
 // Any2Int 数据类型转换 any -> int
 func Any2Int(data any) int {
 	var t2 int
-	switch data.(type) {
+	switch data := data.(type) {
 	case uint:
-		t2 = int(data.(uint))
-		break
+		t2 = int(data)
 	case int8:
-		t2 = int(data.(int8))
-		break
+		t2 = int(data)
 	case uint8:
-		t2 = int(data.(uint8))
-		break
+		t2 = int(data)
 	case int16:
-		t2 = int(data.(int16))
-		break
+		t2 = int(data)
 	case uint16:
-		t2 = int(data.(uint16))
-		break
+		t2 = int(data)
 	case int32:
-		t2 = int(data.(int32))
-		break
+		t2 = int(data)
 	case uint32:
-		t2 = int(data.(uint32))
-		break
+		t2 = int(data)
 	case int64:
-		t2 = int(data.(int64))
-		break
+		t2 = int(data)
 	case uint64:
-		t2 = int(data.(uint64))
-		break
+		t2 = int(data)
 	case float32:
-		t2 = int(data.(float32))
-		break
+		t2 = int(data)
 	case float64:
-		t2 = int(data.(float64))
-		break
+		t2 = int(data)
 	case string:
-		t2, _ = strconv.Atoi(data.(string))
-		break
+		t2, _ = strconv.Atoi(data)
 	default:
 		t2 = data.(int)
-		break
 	}
 	return t2
 }
@@ -361,7 +346,7 @@ func Bool2Byte(b bool) []byte {
 
 // Byte2Bool 数据类型转换 []byte -> bool
 func Byte2Bool(b []byte) bool {
-	if len(b) == 0 || bytes.Compare(b, make([]byte, len(b))) == 0 {
+	if len(b) == 0 || bytes.Equal(b, make([]byte, len(b))) {
 		return false
 	}
 	return true

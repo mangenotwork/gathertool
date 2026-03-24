@@ -189,11 +189,8 @@ func (s *StressUrl) Run(vs ...any) {
 			minTime = v.ReqTime
 		}
 
-		if _, ok := fb[v.Code]; ok {
-			fb[v.Code]++
-		} else {
-			fb[v.Code] = 1
-		}
+		fb[v.Code]++
+
 		//s.sumReqTime = s.sumReqTime + v.ReqTime
 	}
 

@@ -228,7 +228,7 @@ func (c *Context) Do() func() {
 	// 执行请求
 	before := time.Now()
 	c.Resp, c.Err = c.Client.Do(c.Req)
-	c.Ms = time.Now().Sub(before)
+	c.Ms = time.Since(before)
 	if c.Resp != nil {
 		c.StateCode = c.Resp.StatusCode
 	}
@@ -539,7 +539,7 @@ func (c *Context) Upload(filePath string) func() {
 	//重试验证
 	c.times++
 	if c.times > c.MaxTimes {
-		InfoF("请求失败操过", c.MaxTimes, "次了")
+		InfoF("请求失败操过 %d次了", c.MaxTimes)
 		return nil
 	}
 
@@ -612,7 +612,7 @@ func (c *Context) Upload(filePath string) func() {
 				" |\t ", math.Floor((float64(sum)/contentLength)*100), "%")
 		}
 	}
-	ct := time.Now().Sub(sTime)
+	ct := time.Since(sTime)
 	log.Println("[下载] ", filePath, " : ", FileSizeFormat(sum), "/", FileSizeFormat(int64(contentLength)),
 		" |\t ", math.Floor((float64(sum)/contentLength)*100), "%", "|\t ", ct)
 	return nil
