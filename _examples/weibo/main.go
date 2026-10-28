@@ -35,13 +35,13 @@ func case1() {
 	*/
 
 	url := "https://weibo.com/a/aj/transform/loadingmoreunlogin?ajwvr=6&category=0&page=2&lefnav=0&cursor=&__rnd=" + gt.TimestampStr()
-	ctx, _ := gt.Get(url, gt.SucceedFunc(succed))
+	ctx, _ := gt.Get(url, gt.SucceedFunc(succeed))
 	ctx.Req.AddCookie(&http.Cookie{Name: "SUBP", Value: "0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWENAjmKyIZz1AWjDi68mRw", HttpOnly: true})
 	ctx.Req.AddCookie(&http.Cookie{Name: "SUB", Value: "_2AkMXxWiSf8NxqwFRmPoWz2nlbop1zwvEieKhmZlJJRMxHRl-yT9jqlAItRB6PEVGfTP09XmsX_7CR2H1OUv6b-f-1bJl", HttpOnly: true})
 	ctx.Do()
 }
 
-func succed(ctx *gt.Context) {
+func succeed(ctx *gt.Context) {
 
 	//html := gt.ConvertByte2String(ctx.RespBody, gt.GB2312)
 	htmlBody, _ := gt.UnescapeUnicode(ctx.RespBody)
